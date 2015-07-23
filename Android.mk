@@ -88,17 +88,18 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 ###################################################################
 
 # Builds the Mockito source code, but does not include any run-time
-# dependencies.
+# dependencies. Since host modules are not compiled against the SDK,
+# an explicit inclusion of core-junit-hostdex is needed in contrast
+# with the target module above.
+ifeq ($(HOST_OS),linux)
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(target_src_files)
-LOCAL_STATIC_JAVA_LIBRARIES := junit objenesis-host
-LOCAL_MODULE := mockito-api-host
+LOCAL_JAVA_LIBRARIES := core-junit-hostdex junit4-target-hostdex \
+    objenesis-hostdex
+LOCAL_MODULE := mockito-api-hostdex
 LOCAL_MODULE_TAGS := optional
-# This depends on a host module and not a hostdex which jack
-# cannot handle. Add this here until -hostdex targets are
-# made for the entire dependency tree of junit and objenesis
-LOCAL_JACK_ENABLED := disabled
 include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
+endif # HOST_OS == linux
 
 
 ###################################################
