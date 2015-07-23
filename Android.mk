@@ -82,6 +82,21 @@ LOCAL_SDK_VERSION := 10
 LOCAL_MODULE_TAGS := optional
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
+
+###################################################################
+# Host build
+###################################################################
+
+# Builds the Mockito source code, but does not include any run-time
+# dependencies.
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(target_src_files)
+LOCAL_STATIC_JAVA_LIBRARIES := junit objenesis-host
+LOCAL_MODULE := mockito-api-host
+LOCAL_MODULE_TAGS := optional
+include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
+
+
 ###################################################
 # Clean up temp vars
 ###################################################
