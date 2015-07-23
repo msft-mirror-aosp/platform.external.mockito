@@ -94,6 +94,10 @@ LOCAL_SRC_FILES := $(target_src_files)
 LOCAL_STATIC_JAVA_LIBRARIES := junit objenesis-host
 LOCAL_MODULE := mockito-api-host
 LOCAL_MODULE_TAGS := optional
+# This depends on a host module and not a hostdex which jack
+# cannot handle. Add this here until -hostdex targets are
+# made for the entire dependency tree of junit and objenesis
+LOCAL_JACK_ENABLED := disabled
 include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 
 
