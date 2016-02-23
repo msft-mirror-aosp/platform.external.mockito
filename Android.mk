@@ -80,6 +80,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := mockito-api dexmaker dexmaker-mockmaker \
     objenesis-target junit4-target
 LOCAL_SDK_VERSION := 10
 LOCAL_MODULE_TAGS := optional
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 
