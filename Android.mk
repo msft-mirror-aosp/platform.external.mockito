@@ -29,6 +29,7 @@ LOCAL_SRC_FILES := \
 LOCAL_JAVA_LIBRARIES := junit objenesis-host ant
 LOCAL_MODULE := mockito-host
 LOCAL_MODULE_TAGS := optional
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_HOST_JAVA_LIBRARY)
 
 
