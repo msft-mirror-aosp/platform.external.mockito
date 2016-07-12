@@ -76,8 +76,18 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := mockito-target
-LOCAL_STATIC_JAVA_LIBRARIES := mockito-api dexmaker dexmaker-mockmaker \
-    objenesis-target junit4-target
+LOCAL_STATIC_JAVA_LIBRARIES := mockito-target-minus-junit4 junit4-target
+LOCAL_SDK_VERSION := 10
+LOCAL_MODULE_TAGS := optional
+include $(BUILD_STATIC_JAVA_LIBRARY)
+
+# A mockito target that doesn't pull in junit4-target. This is used to work around
+# issues caused by multiple copies of junit4 in the classpath, usually when a test
+# using mockito is run using android.test.runner.
+include $(CLEAR_VARS)
+LOCAL_MODULE := mockito-target-minus-junit4
+LOCAL_STATIC_JAVA_LIBRARIES := mockito-api dexmaker dexmaker-mockmaker objenesis-target
+LOCAL_JAVA_LIBRARIES := junit4-target
 LOCAL_SDK_VERSION := 10
 LOCAL_MODULE_TAGS := optional
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
