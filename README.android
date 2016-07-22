@@ -10,3 +10,5 @@ The source can be updated using the update_source.sh script.
 
 Local Modifications:
       Fixed some generic/casting issues probably caused by stricter compiler.
+      Fixed compiler failure caused by upstream mismatch between the cglib-and-asm
+            source and prebuilt library.

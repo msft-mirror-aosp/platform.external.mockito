@@ -40,7 +40,7 @@ class ClassImposterizer {
     };
     
     private static final CallbackFilter IGNORE_BRIDGE_METHODS = new CallbackFilter() {
-        public int accept(Method method) {
+        public int accept(Method method, List<Method> allMethods) {
             return method.isBridge() ? 1 : 0;
         }
     };
