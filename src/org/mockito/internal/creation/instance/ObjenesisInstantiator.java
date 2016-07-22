@@ -11,6 +11,6 @@ class ObjenesisInstantiator implements Instantiator {
     private final ObjenesisStd objenesis = new ObjenesisStd(new GlobalConfiguration().enableClassCache());
 
     public <T> T newInstance(Class<T> cls) {
-        return objenesis.newInstance(cls);
+        return (T) objenesis.newInstance(cls);
     }
 }
