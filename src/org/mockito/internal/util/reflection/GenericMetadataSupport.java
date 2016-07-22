@@ -5,7 +5,6 @@
 package org.mockito.internal.util.reflection;
 
 
-import org.mockito.Incubating;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.internal.util.Checks;
 
@@ -54,7 +53,6 @@ import java.util.*;
  * @see #resolveGenericReturnType(Method)
  * @see org.mockito.internal.stubbing.defaultanswers.ReturnsDeepStubs
  */
-@Incubating
 public abstract class GenericMetadataSupport {
 
     // public static MockitoLogger logger = new ConsoleMockitoLogger();
@@ -78,7 +76,7 @@ public abstract class GenericMetadataSupport {
 
             if (actualTypeArgument instanceof WildcardType) {
                 contextualActualTypeParameters.put(typeParameter, boundsOf((WildcardType) actualTypeArgument));
-            } else {
+            } else if (typeParameter != actualTypeArgument) {
                 contextualActualTypeParameters.put(typeParameter, actualTypeArgument);
             }
             // logger.log("For '" + parameterizedType + "' found type variable : { '" + typeParameter + "(" + System.identityHashCode(typeParameter) + ")" + "' : '" + actualTypeArgument + "(" + System.identityHashCode(typeParameter) + ")" + "' }");
@@ -86,9 +84,15 @@ public abstract class GenericMetadataSupport {
     }
 
     protected void registerTypeParametersOn(TypeVariable[] typeParameters) {
-        for (TypeVariable typeParameter : typeParameters) {
-            contextualActualTypeParameters.put(typeParameter, boundsOf(typeParameter));
-            // logger.log("For '" + typeParameter.getGenericDeclaration() + "' found type variable : { '" + typeParameter + "(" + System.identityHashCode(typeParameter) + ")" + "' : '" + boundsOf(typeParameter) + "' }");
+        for (TypeVariable type : typeParameters) {
+            registerTypeVariableIfNotPresent(type);
+        }
+    }
+
+    private void registerTypeVariableIfNotPresent(TypeVariable typeVariable) {
+        if (!contextualActualTypeParameters.containsKey(typeVariable)) {
+            contextualActualTypeParameters.put(typeVariable, boundsOf(typeVariable));
+            // logger.log("For '" + typeVariable.getGenericDeclaration() + "' found type variable : { '" + typeVariable + "(" + System.identityHashCode(typeVariable) + ")" + "' : '" + boundsOf(typeVariable) + "' }");
         }
     }
 
@@ -145,6 +149,13 @@ public abstract class GenericMetadataSupport {
      */
     public Class<?>[] rawExtraInterfaces() {
         return new Class[0];
+    }
+
+    /**
+     * @return Returns true if metadata knows about extra-interfaces {@link #extraInterfaces()} <strong>if relevant</strong>.
+     */
+    public boolean hasRawExtraInterfaces() {
+        return rawExtraInterfaces().length > 0;
     }
 
 
@@ -238,14 +249,29 @@ public abstract class GenericMetadataSupport {
      * the class and its ancestors and interfaces.
      */
     private static class FromClassGenericMetadataSupport extends GenericMetadataSupport {
-        private Class<?> clazz;
+        private final Class<?> clazz;
 
         public FromClassGenericMetadataSupport(Class<?> clazz) {
             this.clazz = clazz;
-            readActualTypeParametersOnDeclaringClass();
+
+            for (Class currentExploredClass = clazz;
+                 currentExploredClass != null && currentExploredClass != Object.class;
+                 currentExploredClass = superClassOf(currentExploredClass)
+                ) {
+                readActualTypeParametersOnDeclaringClass(currentExploredClass);
+            }
         }
 
-        private void readActualTypeParametersOnDeclaringClass() {
+        private Class superClassOf(Class currentExploredClass) {
+            Type genericSuperclass = currentExploredClass.getGenericSuperclass();
+            if (genericSuperclass instanceof ParameterizedType) {
+                Type rawType = ((ParameterizedType) genericSuperclass).getRawType();
+                return (Class) rawType;
+            }
+            return (Class) genericSuperclass;
+        }
+
+        private void readActualTypeParametersOnDeclaringClass(Class<?> clazz) {
             registerTypeParametersOn(clazz.getTypeParameters());
             registerTypeVariablesOn(clazz.getGenericSuperclass());
             for (Type genericInterface : clazz.getGenericInterfaces()) {
@@ -272,7 +298,7 @@ public abstract class GenericMetadataSupport {
      * Instead use {@link ParameterizedReturnType}.
      */
     private static class FromParameterizedTypeGenericMetadataSupport extends GenericMetadataSupport {
-        private ParameterizedType parameterizedType;
+        private final ParameterizedType parameterizedType;
 
         public FromParameterizedTypeGenericMetadataSupport(ParameterizedType parameterizedType) {
             this.parameterizedType = parameterizedType;
@@ -350,6 +376,7 @@ public abstract class GenericMetadataSupport {
             for (Type type : typeVariable.getBounds()) {
                 registerTypeVariablesOn(type);
             }
+            registerTypeParametersOn(new TypeVariable[] { typeVariable });
             registerTypeVariablesOn(getActualTypeArgumentFor(typeVariable));
         }
 
@@ -460,7 +487,7 @@ public abstract class GenericMetadataSupport {
      * @see WildCardBoundedType
      * @see <a href="http://docs.oracle.com/javase/specs/jls/se5.0/html/typesValues.html#4.5.1">http://docs.oracle.com/javase/specs/jls/se5.0/html/typesValues.html#4.5.1</a>
      */
-    public static interface BoundedType extends Type {
+    public interface BoundedType extends Type {
         Type firstBound();
 
         Type[] interfaceBounds();
@@ -487,7 +514,7 @@ public abstract class GenericMetadataSupport {
      * @see <a href="http://docs.oracle.com/javase/specs/jls/se5.0/html/typesValues.html#4.4">http://docs.oracle.com/javase/specs/jls/se5.0/html/typesValues.html#4.4</a>
      */
     public static class TypeVarBoundedType implements BoundedType {
-        private TypeVariable typeVariable;
+        private final TypeVariable typeVariable;
 
 
         public TypeVarBoundedType(TypeVariable typeVariable) {
@@ -530,11 +557,7 @@ public abstract class GenericMetadataSupport {
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder();
-            sb.append("{firstBound=").append(firstBound());
-            sb.append(", interfaceBounds=").append(Arrays.deepToString(interfaceBounds()));
-            sb.append('}');
-            return sb.toString();
+            return "{firstBound=" + firstBound() + ", interfaceBounds=" + Arrays.deepToString(interfaceBounds()) + '}';
         }
 
         public TypeVariable typeVariable() {
@@ -551,7 +574,7 @@ public abstract class GenericMetadataSupport {
      * @see <a href="http://docs.oracle.com/javase/specs/jls/se5.0/html/typesValues.html#4.4">http://docs.oracle.com/javase/specs/jls/se5.0/html/typesValues.html#4.4</a>
      */
     public static class WildCardBoundedType implements BoundedType {
-        private WildcardType wildcard;
+        private final WildcardType wildcard;
 
 
         public WildCardBoundedType(WildcardType wildcard) {
@@ -591,10 +614,7 @@ public abstract class GenericMetadataSupport {
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder();
-            sb.append("{firstBound=").append(firstBound());
-            sb.append(", interfaceBounds=[]}");
-            return sb.toString();
+            return "{firstBound=" + firstBound() + ", interfaceBounds=[]}";
         }
 
         public WildcardType wildCard() {
