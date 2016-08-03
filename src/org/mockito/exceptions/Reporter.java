@@ -10,6 +10,7 @@ import org.mockito.exceptions.base.MockitoException;
 import org.mockito.exceptions.misusing.*;
 import org.mockito.exceptions.verification.*;
 import org.mockito.internal.debugging.LocationImpl;
+import org.mockito.internal.exceptions.MockitoLimitations;
 import org.mockito.internal.exceptions.VerificationAwareInvocation;
 import org.mockito.internal.exceptions.util.ScenarioPrinter;
 import org.mockito.internal.junit.JUnitTool;
@@ -21,8 +22,10 @@ import org.mockito.invocation.Invocation;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.invocation.Location;
 import org.mockito.listeners.InvocationListener;
+import org.mockito.mock.SerializableMode;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -70,6 +73,7 @@ public class Reporter {
                 "Hints:",
                 " 1. missing thenReturn()",
                 " 2. you are trying to stub a final method, you naughty developer!",
+                " 3: you are stubbing the behaviour of another mock inside before 'thenReturn' instruction if completed",
                 ""
         ));
     }
@@ -96,9 +100,8 @@ public class Reporter {
                 "Also, this error might show up because:",
                 "1. you stub either of: final/private/equals()/hashCode() methods.",
                 "   Those methods *cannot* be stubbed/verified.",
+                "   " + MockitoLimitations.NON_PUBLIC_PARENT,
                 "2. inside when() you don't call method on mock but on some other object.",
-                "3. the parent of the mocked class is not public.",
-                "   It is a limitation of the mock engine.",
                 ""
         ));
     }
@@ -113,6 +116,7 @@ public class Reporter {
                 "",
                 "Also, this error might show up because you verify either of: final/private/equals()/hashCode() methods.",
                 "Those methods *cannot* be stubbed/verified.",
+                MockitoLimitations.NON_PUBLIC_PARENT,
                 ""
         ));
 
@@ -137,6 +141,7 @@ public class Reporter {
                 "    verify(mock).someMethod();",
                 "    verify(mock, times(10)).someMethod();",
                 "    verify(mock, atLeastOnce()).someMethod();",
+                "    not: verify(mock.someMethod());",
                 "Also, if you use @Mock annotation don't miss initMocks()"
         ));
     }
@@ -296,11 +301,7 @@ public class Reporter {
                 ""
         );
 
-        if (JUnitTool.hasJUnit()) {
-            throw JUnitTool.createArgumentsAreDifferentException(message, wanted, actual);
-        } else {
-            throw new ArgumentsAreDifferent(message);
-        }
+        throw JUnitTool.createArgumentsAreDifferentException(message, wanted, actual);
     }
 
     public void wantedButNotInvoked(DescribedInvocation wanted) {
@@ -419,7 +420,7 @@ public class Reporter {
         throw new NoInteractionsWanted(join(
                 "No interactions wanted here:",
                 new LocationImpl(),
-                "But found this interaction:",
+                "But found this interaction on mock '" + undesired.getMock() + "':",
                 undesired.getLocation(),
                 scenario
         ));
@@ -429,9 +430,8 @@ public class Reporter {
         throw new VerificationInOrderFailure(join(
                 "No interactions wanted here:",
                 new LocationImpl(),
-                "But found this interaction:",
-                undesired.getLocation(),
-                ""
+                "But found this interaction on mock '" + undesired.getMock() + "':",
+                undesired.getLocation()
         ));
     }
 
@@ -446,7 +446,7 @@ public class Reporter {
     }
 
     public void cannotStubVoidMethodWithAReturnValue(String methodName) {
-        throw new MockitoException(join(
+        throw new CannotStubVoidMethodWithReturnValue(join(
                 "'" + methodName + "' is a *void method* and it *cannot* be stubbed with a *return value*!",
                 "Voids are usually stubbed with Throwables:",
                 "    doThrow(exception).when(mock).someVoidMethod();",
@@ -457,6 +457,7 @@ public class Reporter {
                 "2. Somewhere in your test you are stubbing *final methods*. Sorry, Mockito does not verify/stub final methods.",
                 "3. A spy is stubbed using when(spy.foo()).then() syntax. It is safer to stub spies - ",
                 "   - with doReturn|Throw() family of methods. More in javadocs for Mockito.spy() method.",
+                "4. " + MockitoLimitations.NON_PUBLIC_PARENT,
                 ""
         ));
     }
@@ -505,6 +506,7 @@ public class Reporter {
                 "",
                 "Also, this error might show up because you use argument matchers with methods that cannot be mocked.",
                 "Following methods *cannot* be stubbed/verified: final/private/equals()/hashCode().",
+                MockitoLimitations.NON_PUBLIC_PARENT,
                 ""
         ));
     }
@@ -573,12 +575,12 @@ public class Reporter {
         ));
     }
 
-    public void cannotCallRealMethodOnInterface() {
+    public void cannotCallAbstractRealMethod() {
         throw new MockitoException(join(
-                "Cannot call real method on java interface. Interface does not have any implementation!",
-                "Calling real methods is only possible when mocking concrete classes.",
+                "Cannot call abstract real method on java object!",
+                "Calling real methods is only possible when mocking non abstract method.",
                 "  //correct example:",
-                "  when(mockOfConcreteClass.doStuff()).thenCallRealMethod();"
+                "  when(mockOfConcreteClass.nonAbstractMethod()).thenCallRealMethod();"
         ));
     }
 
@@ -626,10 +628,10 @@ public class Reporter {
                 ""), details);
     }
 
-    public void atMostShouldNotBeUsedWithTimeout() {
+    public void atMostAndNeverShouldNotBeUsedWithTimeout() {
         throw new FriendlyReminderException(join("",
                 "Don't panic! I'm just a friendly reminder!",
-                "timeout() should not be used with atMost() because...",
+                "timeout() should not be used with atMost() or never() because...",
                 "...it does not make much sense - the test would have passed immediately in concurency",
                 "We kept this method only to avoid compilation errors when upgrading Mockito.",
                 "In future release we will remove timeout(x).atMost(y) from the API.",
@@ -762,5 +764,29 @@ public class Reporter {
                 "i.e. the top-most superclass has to implements Serializable.",
                 ""
         ));
+    }
+    
+    public void delegatedMethodHasWrongReturnType(Method mockMethod, Method delegateMethod, Object mock, Object delegate) {
+    	throw new MockitoException(join(
+    	        "Methods called on delegated instance must have compatible return types with the mock.",
+    	        "When calling: " + mockMethod + " on mock: " + new MockUtil().getMockName(mock),
+    	        "return type should be: " + mockMethod.getReturnType().getSimpleName() + ", but was: " + delegateMethod.getReturnType().getSimpleName(),
+    	        "Check that the instance passed to delegatesTo() is of the correct type or contains compatible methods",
+    	        "(delegate instance had type: " + delegate.getClass().getSimpleName() + ")"
+    	));
+    }
+
+	public void delegatedMethodDoesNotExistOnDelegate(Method mockMethod, Object mock, Object delegate) {
+		throw new MockitoException(join(
+    	        "Methods called on mock must exist in delegated instance.",
+    	        "When calling: " + mockMethod + " on mock: " + new MockUtil().getMockName(mock),
+    	        "no such method was found.",
+    	        "Check that the instance passed to delegatesTo() is of the correct type or contains compatible methods",
+    	        "(delegate instance had type: " + delegate.getClass().getSimpleName() + ")"
+    	));
+	}
+
+    public void usingConstructorWithFancySerializable(SerializableMode mode) {
+        throw new MockitoException("Mocks instantiated with constructor cannot be combined with " + mode + " serialization mode.");
     }
 }
