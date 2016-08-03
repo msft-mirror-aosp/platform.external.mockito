@@ -10,11 +10,10 @@ import org.mockito.internal.creation.settings.CreationSettings;
 import org.mockito.internal.debugging.VerboseMockInvocationLogger;
 import org.mockito.internal.util.MockCreationValidator;
 import org.mockito.internal.util.MockNameImpl;
-import org.mockito.internal.util.MockitoMock;
-import org.mockito.internal.util.MockitoSpy;
 import org.mockito.listeners.InvocationListener;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.mock.MockName;
+import org.mockito.mock.SerializableMode;
 import org.mockito.stubbing.Answer;
 
 import java.io.Serializable;
@@ -28,9 +27,15 @@ import static org.mockito.internal.util.collections.Sets.newSet;
 public class MockSettingsImpl<T> extends CreationSettings<T> implements MockSettings, MockCreationSettings<T> {
 
     private static final long serialVersionUID = 4475297236197939569L;
+    private boolean useConstructor;
+    private Object outerClassInstance;
 
     public MockSettings serializable() {
-        this.serializable = true;
+        return serializable(SerializableMode.BASIC);
+    }
+
+    public MockSettings serializable(SerializableMode mode) {
+        this.serializableMode = mode;
         return this;
     }
 
@@ -84,13 +89,27 @@ public class MockSettingsImpl<T> extends CreationSettings<T> implements MockSett
         return defaultAnswer;
     }
 
-    public boolean isSerializable() {
-        return serializable;
-    }
-
     public MockSettingsImpl stubOnly() {
         this.stubOnly = true;
         return this;
+    }
+
+    public MockSettings useConstructor() {
+        this.useConstructor = true;
+        return this;
+    }
+
+    public MockSettings outerInstance(Object outerClassInstance) {
+        this.outerClassInstance = outerClassInstance;
+        return this;
+    }
+
+    public boolean isUsingConstructor() {
+        return useConstructor;
+    }
+
+    public Object getOuterClassInstance() {
+        return outerClassInstance;
     }
 
     public boolean isStubOnly() {
@@ -153,7 +172,9 @@ public class MockSettingsImpl<T> extends CreationSettings<T> implements MockSett
 //        validator.validateDelegatedInstance(classToMock, settings.getDelegatedInstance());
 
         validator.validateSerializable(typeToMock, source.isSerializable());
+        validator.validateConstructorUse(source.isUsingConstructor(), source.getSerializableMode());
 
+        //TODO SF - I don't think we really need CreationSettings type
         CreationSettings<T> settings = new CreationSettings<T>(source);
         settings.setMockName(new MockNameImpl(source.getName(), typeToMock));
         settings.setTypeToMock(typeToMock);
@@ -163,12 +184,8 @@ public class MockSettingsImpl<T> extends CreationSettings<T> implements MockSett
 
     private static Set<Class> prepareExtraInterfaces(CreationSettings settings) {
         Set<Class> interfaces = new HashSet<Class>(settings.getExtraInterfaces());
-        interfaces.add(MockitoMock.class);
         if(settings.isSerializable()) {
             interfaces.add(Serializable.class);
-        }
-        if (settings.getSpiedInstance() != null) {
-            interfaces.add(MockitoSpy.class);
         }
         return interfaces;
     }

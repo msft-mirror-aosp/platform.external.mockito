@@ -5,6 +5,8 @@
 # Retrieves the current Mockito source code into the current directory, excluding portions related
 # to mockito's internal build system and javadoc.
 
+VERSION=${1-master}
+
 SOURCE="git://github.com/mockito/mockito.git"
 INCLUDE="
     LICENSE
@@ -25,6 +27,7 @@ trap "echo \"Removing temporary directory\"; rm -rf $working_dir" EXIT
 
 echo "Fetching Mockito source into $working_dir"
 git clone $SOURCE $working_dir/source
+(cd $working_dir/source; git checkout $VERSION)
 
 for include in ${INCLUDE}; do
   echo "Updating $include"
