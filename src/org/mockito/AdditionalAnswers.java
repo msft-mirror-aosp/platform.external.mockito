@@ -99,7 +99,8 @@ public class AdditionalAnswers {
      * doAnswer(returnsArgAt(3)).when(person).remember(dream1, dream2, dream3, dream4)</code></pre>
      *
      * @param <T> Return type of the invocation.
-     * @return Answer that will return the second argument of the invocation.
+     * @param position index of the argument from the list of arguments.
+     * @return Answer that will return the argument from the given position in the argument's list
      *
      * @since 1.9.5
      */
@@ -108,7 +109,8 @@ public class AdditionalAnswers {
     }
 
     /**
-     * An answer that directly forwards the calls to the delegate.
+     * An answer that directly forwards the calls to the delegate. The delegate may or may not be of the same type as the mock.
+     * If the type is different, a matching method needs to be found on delegate type otherwise an exception is thrown.
      * <p>
      * Useful for spies or partial mocks of objects that are difficult to mock
      * or spy using the usual spy API. Possible use cases:
@@ -162,7 +164,9 @@ public class AdditionalAnswers {
      *   doReturn("foo").when(listWithDelegate).get(0);
      * </code></pre>
      *
-     * @param delegate The delegate to forward calls to.
+     * @param delegate The delegate to forward calls to. It does not have to be of the same type as the mock (although it usually is).
+     *                 The only requirement is that the instance should have compatible method signatures including the return values.
+     *                 Only the methods that were actually executed on the mock need to be present on the delegate type.
      * @return the answer
      *
      * @since 1.9.5

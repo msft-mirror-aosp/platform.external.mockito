@@ -1,6 +1,5 @@
 package org.mockito.plugins;
 
-import org.mockito.Incubating;
 import org.mockito.exceptions.stacktrace.StackTraceCleaner;
 
 /**
@@ -9,13 +8,10 @@ import org.mockito.exceptions.stacktrace.StackTraceCleaner;
  * You can also 'enhance' Mockito's default behavior
  * because the default cleaner is passed as parameter to the method.
  * <p>
- * For more information how to register custom StackTraceCleaner
- * please refer to the documentation of {@link MockMaker}.
- * We will update the documentation shortly.
+ * Registering custom StackTraceCleaner is done in similar manner as the {@link MockMaker} implementation.
  * <p>
  * See the default implementation: {@link org.mockito.internal.exceptions.stacktrace.DefaultStackTraceCleanerProvider}
  */
-@Incubating
 public interface StackTraceCleanerProvider {
 
     /**
