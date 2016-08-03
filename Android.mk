@@ -68,7 +68,7 @@ target_src_files := \
 LOCAL_SRC_FILES := $(target_src_files)
 LOCAL_JAVA_LIBRARIES := junit4-target objenesis-target
 LOCAL_MODULE := mockito-api
-LOCAL_SDK_VERSION := 10
+LOCAL_SDK_VERSION := 16
 LOCAL_MODULE_TAGS := optional
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -78,7 +78,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := mockito-target
 LOCAL_STATIC_JAVA_LIBRARIES := mockito-target-minus-junit4 junit4-target
-LOCAL_SDK_VERSION := 10
+LOCAL_SDK_VERSION := 16
 LOCAL_MODULE_TAGS := optional
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
@@ -89,7 +89,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := mockito-target-minus-junit4
 LOCAL_STATIC_JAVA_LIBRARIES := mockito-api dexmaker dexmaker-mockmaker objenesis-target
 LOCAL_JAVA_LIBRARIES := junit4-target
-LOCAL_SDK_VERSION := 10
+LOCAL_SDK_VERSION := 16
 LOCAL_MODULE_TAGS := optional
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
