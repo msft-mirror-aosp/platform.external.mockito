@@ -26,7 +26,7 @@ LOCAL_SRC_FILES := \
     $(call all-java-files-under, src) \
     $(call all-java-files-under, cglib-and-asm/src)
 
-LOCAL_JAVA_LIBRARIES := junit objenesis-host ant
+LOCAL_JAVA_LIBRARIES := junit-host objenesis-host ant
 LOCAL_MODULE := mockito-host
 LOCAL_MODULE_TAGS := optional
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
