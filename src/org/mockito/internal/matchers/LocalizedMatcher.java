@@ -4,6 +4,7 @@
  */
 package org.mockito.internal.matchers;
 
+import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.SelfDescribing;
@@ -13,7 +14,8 @@ import org.mockito.invocation.Location;
 import java.io.Serializable;
 
 @SuppressWarnings("unchecked")
-public class LocalizedMatcher implements Matcher, ContainsExtraTypeInformation, CapturesArguments, MatcherDecorator, Serializable {
+public class LocalizedMatcher extends BaseMatcher
+        implements Matcher, ContainsExtraTypeInformation, CapturesArguments, MatcherDecorator, Serializable {
 
     private static final long serialVersionUID = 6748641229659825725L;
     private final Matcher actualMatcher;
@@ -22,10 +24,6 @@ public class LocalizedMatcher implements Matcher, ContainsExtraTypeInformation, 
     public LocalizedMatcher(Matcher actualMatcher) {
         this.actualMatcher = actualMatcher;
         this.location = new LocationImpl();
-    }
-
-    public void _dont_implement_Matcher___instead_extend_BaseMatcher_() {
-        // yeah right
     }
 
     public boolean matches(Object item) {
