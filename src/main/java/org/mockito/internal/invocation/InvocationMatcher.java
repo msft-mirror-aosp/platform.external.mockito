@@ -5,160 +5,150 @@
 
 package org.mockito.internal.invocation;
 
-import org.hamcrest.Matcher;
+import static org.mockito.internal.invocation.ArgumentsProcessor.argumentsToMatchers;
+import static org.mockito.internal.invocation.MatcherApplicationStrategy.getMatcherApplicationStrategyFor;
+import static org.mockito.internal.invocation.TypeSafeMatching.matchesTypeSafe;
+
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import org.mockito.ArgumentMatcher;
 import org.mockito.internal.matchers.CapturesArguments;
-import org.mockito.internal.matchers.MatcherDecorator;
-import org.mockito.internal.matchers.VarargMatcher;
 import org.mockito.internal.reporting.PrintSettings;
 import org.mockito.invocation.DescribedInvocation;
 import org.mockito.invocation.Invocation;
 import org.mockito.invocation.Location;
+import org.mockito.invocation.MatchableInvocation;
 
-import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+/**
+ * In addition to all content of the invocation, the invocation matcher contains the argument matchers. Invocation matcher is used during verification and stubbing. In those cases, the user can provide argument matchers instead of 'raw' arguments. Raw arguments are converted to 'equals' matchers anyway.
+ */
+@SuppressWarnings("serial")
+public class InvocationMatcher implements MatchableInvocation, DescribedInvocation, Serializable {
 
-@SuppressWarnings("unchecked")
-public class InvocationMatcher implements DescribedInvocation, CapturesArgumensFromInvocation, Serializable {
-
-    private static final long serialVersionUID = -3047126096857467610L;
     private final Invocation invocation;
-    private final List<Matcher> matchers;
+    private final List<ArgumentMatcher<?>> matchers;
 
-    public InvocationMatcher(Invocation invocation, List<Matcher> matchers) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public InvocationMatcher(Invocation invocation, List<ArgumentMatcher> matchers) {
         this.invocation = invocation;
         if (matchers.isEmpty()) {
-            this.matchers = ArgumentsProcessor.argumentsToMatchers(invocation.getArguments());
+            this.matchers = (List) argumentsToMatchers(invocation.getArguments());
         } else {
-            this.matchers = matchers;
+            this.matchers = (List) matchers;
         }
     }
-    
+
+    @SuppressWarnings("rawtypes")
     public InvocationMatcher(Invocation invocation) {
-        this(invocation, Collections.<Matcher>emptyList());
+        this(invocation, Collections.<ArgumentMatcher> emptyList());
+    }
+
+    public static List<InvocationMatcher> createFrom(List<Invocation> invocations) {
+        LinkedList<InvocationMatcher> out = new LinkedList<InvocationMatcher>();
+        for (Invocation i : invocations) {
+            out.add(new InvocationMatcher(i));
+        }
+        return out;
     }
 
     public Method getMethod() {
         return invocation.getMethod();
     }
-    
+
+    @Override
     public Invocation getInvocation() {
-        return this.invocation;
+        return invocation;
     }
-    
-    public List<Matcher> getMatchers() {
-        return this.matchers;
+
+    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public List<ArgumentMatcher> getMatchers() {
+        return (List) matchers;
     }
-    
+
+    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public String toString() {
-        return new PrintSettings().print(matchers, invocation);
+        return new PrintSettings().print((List) matchers, invocation);
     }
 
-    public boolean matches(Invocation actual) {
-        return invocation.getMock().equals(actual.getMock())
-                && hasSameMethod(actual)
-                && new ArgumentsComparator().argumentsMatch(this, actual);
-    }
-
-    private boolean safelyArgumentsMatch(Object[] actualArgs) {
-        try {
-            return new ArgumentsComparator().argumentsMatch(this, actualArgs);
-        } catch (Throwable t) {
-            return false;
-        }
+    @Override
+    public boolean matches(Invocation candidate) {
+        return invocation.getMock().equals(candidate.getMock()) && hasSameMethod(candidate) && argumentsMatch(candidate);
     }
 
     /**
-     * similar means the same method name, same mock, unverified 
-     * and: if arguments are the same cannot be overloaded
+     * similar means the same method name, same mock, unverified and: if arguments are the same cannot be overloaded
      */
+    @Override
     public boolean hasSimilarMethod(Invocation candidate) {
         String wantedMethodName = getMethod().getName();
-        String currentMethodName = candidate.getMethod().getName();
-        
-        final boolean methodNameEquals = wantedMethodName.equals(currentMethodName);
-        final boolean isUnverified = !candidate.isVerified();
-        final boolean mockIsTheSame = getInvocation().getMock() == candidate.getMock();
-        final boolean methodEquals = hasSameMethod(candidate);
+        String candidateMethodName = candidate.getMethod().getName();
 
-        if (!methodNameEquals || !isUnverified || !mockIsTheSame) {
+        if (!wantedMethodName.equals(candidateMethodName)) {
             return false;
         }
+        if (candidate.isVerified()) {
+            return false;
+        }
+        if (getInvocation().getMock() != candidate.getMock()) {
+            return false;
+        }
+        if (hasSameMethod(candidate)) {
+            return true;
+        }
 
-        final boolean overloadedButSameArgs = !methodEquals && safelyArgumentsMatch(candidate.getArguments());
-
-        return !overloadedButSameArgs;
+        return !argumentsMatch(candidate);
     }
 
+    @Override
     public boolean hasSameMethod(Invocation candidate) {
-        //not using method.equals() for 1 good reason:
-        //sometimes java generates forwarding methods when generics are in play see JavaGenericsForwardingMethodsTest
+        // not using method.equals() for 1 good reason:
+        // sometimes java generates forwarding methods when generics are in play see JavaGenericsForwardingMethodsTest
         Method m1 = invocation.getMethod();
         Method m2 = candidate.getMethod();
-        
+
         if (m1.getName() != null && m1.getName().equals(m2.getName())) {
-        	/* Avoid unnecessary cloning */
-        	Class[] params1 = m1.getParameterTypes();
-        	Class[] params2 = m2.getParameterTypes();
-        	if (params1.length == params2.length) {
-        	    for (int i = 0; i < params1.length; i++) {
-        		if (params1[i] != params2[i])
-        		    return false;
-        	    }
-        	    return true;
-        	}
+            /* Avoid unnecessary cloning */
+            Class<?>[] params1 = m1.getParameterTypes();
+            Class<?>[] params2 = m2.getParameterTypes();
+            return Arrays.equals(params1, params2);
         }
         return false;
     }
-    
+
+    @Override
     public Location getLocation() {
         return invocation.getLocation();
     }
 
+    @Override
     public void captureArgumentsFrom(Invocation invocation) {
-        for (int position = 0; position < matchers.size(); position++) {
-            Matcher m = matchers.get(position);
-            if (m instanceof CapturesArguments && invocation.getRawArguments().length > position) {
-                //TODO SF - this whole lot can be moved captureFrom implementation
-                if(isVariableArgument(invocation, position) && isVarargMatcher(m)) {
-                    Object array = invocation.getRawArguments()[position];
-                    for (int i = 0; i < Array.getLength(array); i++) {
-                        ((CapturesArguments) m).captureFrom(Array.get(array, i));
-                    }
-                    //since we've captured all varargs already, it does not make sense to process other matchers.
-                    return;
-                } else {
-                    ((CapturesArguments) m).captureFrom(invocation.getRawArguments()[position]);
+        MatcherApplicationStrategy strategy = getMatcherApplicationStrategyFor(invocation, matchers);
+        strategy.forEachMatcherAndArgument(captureArgument());
+    }
+
+    private ArgumentMatcherAction captureArgument() {
+        return new ArgumentMatcherAction() {
+
+            @Override
+            public boolean apply(ArgumentMatcher<?> matcher, Object argument) {
+                if (matcher instanceof CapturesArguments) {
+                    ((CapturesArguments) matcher).captureFrom(argument);
                 }
+
+                return true;
             }
-        }
+        };
     }
 
-    private boolean isVarargMatcher(Matcher matcher) {
-        Matcher actualMatcher = matcher;
-        if (actualMatcher instanceof MatcherDecorator) {
-            actualMatcher = ((MatcherDecorator) actualMatcher).getActualMatcher();
-        }
-        return actualMatcher instanceof VarargMatcher;
-    }
-
-    private boolean isVariableArgument(Invocation invocation, int position) {
-        return invocation.getRawArguments().length - 1 == position
-                && invocation.getRawArguments()[position] != null
-                && invocation.getRawArguments()[position].getClass().isArray()
-                && invocation.getMethod().isVarArgs();
-    }
-
-    public static List<InvocationMatcher> createFrom(List<Invocation> invocations) {
-        LinkedList<InvocationMatcher> out = new LinkedList<InvocationMatcher>();
-
-        for (Invocation i : invocations) {
-            out.add(new InvocationMatcher(i));
-        }
-
-        return out;
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private boolean argumentsMatch(Invocation actual) {
+        List matchers = getMatchers();
+        return getMatcherApplicationStrategyFor(actual, matchers).forEachMatcherAndArgument( matchesTypeSafe());
     }
 }

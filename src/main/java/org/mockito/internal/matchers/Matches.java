@@ -6,26 +6,26 @@
 package org.mockito.internal.matchers;
 
 import java.io.Serializable;
-
-import org.hamcrest.Description;
+import java.util.regex.Pattern;
 import org.mockito.ArgumentMatcher;
 
+public class Matches implements ArgumentMatcher<Object>, Serializable {
 
-public class Matches extends ArgumentMatcher<Object> implements Serializable {
-
-    private static final long serialVersionUID = 8787704593379472029L;
-    private final String regex;
+    private final Pattern pattern;
 
     public Matches(String regex) {
-        this.regex = regex;
+        this(Pattern.compile(regex));
+    }
+
+    public Matches(Pattern pattern) {
+        this.pattern = pattern;
     }
 
     public boolean matches(Object actual) {
-        return (actual instanceof String) && ((String) actual).matches(regex);
+        return (actual instanceof String) && pattern.matcher((String) actual).matches();
     }
 
-    public void describeTo(Description description) {
-        description.appendText("matches(\"" + regex.replaceAll("\\\\", "\\\\\\\\")
-                + "\")");
+    public String toString() {
+        return "matches(\"" + pattern.pattern().replaceAll("\\\\", "\\\\\\\\") + "\")";
     }
 }

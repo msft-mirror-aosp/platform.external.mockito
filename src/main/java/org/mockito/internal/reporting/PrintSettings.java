@@ -4,12 +4,13 @@
  */
 package org.mockito.internal.reporting;
 
-import org.hamcrest.Matcher;
+import org.mockito.ArgumentMatcher;
 import org.mockito.internal.invocation.ArgumentsProcessor;
 import org.mockito.internal.invocation.InvocationMatcher;
-import org.mockito.internal.matchers.MatchersPrinter;
+import org.mockito.internal.matchers.text.MatchersPrinter;
 import org.mockito.internal.util.MockUtil;
 import org.mockito.invocation.Invocation;
+import org.mockito.invocation.MatchableInvocation;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -43,9 +44,9 @@ public class PrintSettings {
         this.withTypeInfo = Arrays.asList(indexesOfMatchers);
     }
 
-    public String print(List<Matcher> matchers, Invocation invocation) {
+    public String print(List<ArgumentMatcher> matchers, Invocation invocation) {
         MatchersPrinter matchersPrinter = new MatchersPrinter();
-        String qualifiedName = new MockUtil().getMockName(invocation.getMock()) + "." + invocation.getMethod().getName();
+        String qualifiedName = MockUtil.getMockName(invocation.getMock()) + "." + invocation.getMethod().getName();
         String invocationString = qualifiedName + matchersPrinter.getArgumentsLine(matchers, this);
         if (isMultiline() || (!matchers.isEmpty() && invocationString.length() > MAX_LINE_LENGTH)) {
             return qualifiedName + matchersPrinter.getArgumentsBlock(matchers, this);
@@ -58,7 +59,7 @@ public class PrintSettings {
         return print(ArgumentsProcessor.argumentsToMatchers(invocation.getArguments()), invocation);
     }
 
-    public String print(InvocationMatcher invocationMatcher) {
-        return print(invocationMatcher.getMatchers(), invocationMatcher.getInvocation());
+    public String print(MatchableInvocation invocation) {
+        return print(invocation.getMatchers(), invocation.getInvocation());
     }
 }

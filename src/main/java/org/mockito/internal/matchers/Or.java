@@ -6,40 +6,24 @@
 package org.mockito.internal.matchers;
 
 import java.io.Serializable;
-import java.util.Iterator;
-import java.util.List;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.mockito.ArgumentMatcher;
 
-@SuppressWarnings("unchecked")
-public class Or extends ArgumentMatcher implements Serializable {
+@SuppressWarnings({ "unchecked", "serial","rawtypes" })
+public class Or implements ArgumentMatcher<Object>, Serializable {
+    private final ArgumentMatcher m1;
+    private final ArgumentMatcher m2;
 
-    private static final long serialVersionUID = 5888739035212283087L;
-    private final List<Matcher> matchers;
-
-    public Or(List<Matcher> matchers) {
-        this.matchers = matchers;
+    public Or(ArgumentMatcher<?> m1, ArgumentMatcher<?> m2) {
+        this.m1 = m1;
+        this.m2 = m2;
     }
 
     public boolean matches(Object actual) {
-        for (Matcher matcher : matchers) {
-            if (matcher.matches(actual)) {
-                return true;
-            }
-        }
-        return false;
+        return m1.matches(actual) || m2.matches(actual);
     }
 
-    public void describeTo(Description description) {
-        description.appendText("or(");
-        for (Iterator<Matcher> it = matchers.iterator(); it.hasNext();) {
-            it.next().describeTo(description);
-            if (it.hasNext()) {
-                description.appendText(", ");
-            }
-        }
-        description.appendText(")");
+    public String toString() {
+        return "or("+m1+", "+m2+")";
     }
 }
