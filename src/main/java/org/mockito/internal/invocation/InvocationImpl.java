@@ -62,6 +62,10 @@ public class InvocationImpl implements Invocation, VerificationAwareInvocation {
         return arguments;
     }
 
+    public <T> T getArgument(int index) {
+        return (T) arguments[index];
+    }
+
     public <T> T getArgumentAt(int index, Class<T> clazz) {
         return (T) arguments[index];
     }
