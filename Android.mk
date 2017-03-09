@@ -23,7 +23,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
-    $(call all-java-files-under, src) \
+    $(call all-java-files-under, src/main/java) \
     $(call all-java-files-under, cglib-and-asm/src)
 
 LOCAL_JAVA_LIBRARIES := junit-host objenesis-host ant
@@ -45,23 +45,23 @@ include $(CLEAR_VARS)
 # Exclude source used to dynamically create classes since target builds use 
 # dexmaker instead and including it causes conflicts.
 explicit_target_excludes := \
-    src/org/mockito/internal/creation/AbstractMockitoMethodProxy.java \
-    src/org/mockito/internal/creation/AcrossJVMSerializationFeature.java \
-    src/org/mockito/internal/creation/CglibMockMaker.java \
-    src/org/mockito/internal/creation/DelegatingMockitoMethodProxy.java \
-    src/org/mockito/internal/creation/MethodInterceptorFilter.java \
-    src/org/mockito/internal/creation/MockitoMethodProxy.java \
-    src/org/mockito/internal/creation/SerializableMockitoMethodProxy.java \
-    src/org/mockito/internal/invocation/realmethod/FilteredCGLIBProxyRealMethod.java \
-    src/org/mockito/internal/invocation/realmethod/CGLIBProxyRealMethod.java \
-    src/org/mockito/internal/invocation/realmethod/HasCGLIBMethodProxy.java
+    src/main/java/org/mockito/internal/creation/AbstractMockitoMethodProxy.java \
+    src/main/java/org/mockito/internal/creation/AcrossJVMSerializationFeature.java \
+    src/main/java/org/mockito/internal/creation/CglibMockMaker.java \
+    src/main/java/org/mockito/internal/creation/DelegatingMockitoMethodProxy.java \
+    src/main/java/org/mockito/internal/creation/MethodInterceptorFilter.java \
+    src/main/java/org/mockito/internal/creation/MockitoMethodProxy.java \
+    src/main/java/org/mockito/internal/creation/SerializableMockitoMethodProxy.java \
+    src/main/java/org/mockito/internal/invocation/realmethod/FilteredCGLIBProxyRealMethod.java \
+    src/main/java/org/mockito/internal/invocation/realmethod/CGLIBProxyRealMethod.java \
+    src/main/java/org/mockito/internal/invocation/realmethod/HasCGLIBMethodProxy.java
 
 target_src_files := \
-    $(call all-java-files-under, src)
+    $(call all-java-files-under, src/main/java)
 target_src_files := \
-    $(filter-out src/org/mockito/internal/creation/cglib/%, $(target_src_files))
+    $(filter-out src/main/java/org/mockito/internal/creation/cglib/%, $(target_src_files))
 target_src_files := \
-    $(filter-out src/org/mockito/internal/creation/jmock/%, $(target_src_files))
+    $(filter-out src/main/java/org/mockito/internal/creation/jmock/%, $(target_src_files))
 target_src_files := \
     $(filter-out $(explicit_target_excludes), $(target_src_files))
 
