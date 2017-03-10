@@ -118,3 +118,5 @@ endif # HOST_OS == linux
 ###################################################
 explicit_target_excludes :=
 target_src_files :=
+
+include $(call all-makefiles-under,$(LOCAL_PATH))
