@@ -15,6 +15,9 @@
  */
 package org.mockito.compat;
 
+import org.hamcrest.Description;
+import org.mockito.internal.util.Decamelizer;
+
 /**
  * Base class for code that has to compile against Mockito 1.x and Mockito 2.x.
  */
@@ -27,4 +30,15 @@ public abstract class CapturingMatcher<T>
     }
 
     public abstract boolean matchesObject(Object o);
+
+    @Override
+    public void describeTo(Description description) {
+        description.appendText(toString());
+    }
+
+    @Override
+    public String toString() {
+        String className = getClass().getSimpleName();
+        return Decamelizer.decamelizeMatcher(className);
+    }
 }
