@@ -70,7 +70,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 # using mockito is run using android.test.runner.
 include $(CLEAR_VARS)
 LOCAL_MODULE := mockito-updated-target-minus-junit4
-LOCAL_STATIC_JAVA_LIBRARIES := mockito-updated-api dexmaker dexmaker-mockmaker-updated objenesis-target
+LOCAL_STATIC_JAVA_LIBRARIES := mockito-updated-api dexmaker-mockmaker-updated objenesis-target
 LOCAL_JAVA_LIBRARIES := junit
 LOCAL_SDK_VERSION := 16
 LOCAL_MODULE_TAGS := optional
