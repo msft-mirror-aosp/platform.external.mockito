@@ -112,5 +112,3 @@ include $(BUILD_HOST_PREBUILT)
 ###################################################
 explicit_target_excludes :=
 target_src_files :=
-
-include $(call all-makefiles-under,$(LOCAL_PATH))
