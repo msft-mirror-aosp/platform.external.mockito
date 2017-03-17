@@ -9,9 +9,7 @@ import java.io.Serializable;
 
 public class GreaterThan<T extends Comparable<T>> extends CompareTo<T> implements Serializable {
 
-    private static final long serialVersionUID = 7446529803235604408L;
-
-    public GreaterThan(Comparable<T> value) {
+    public GreaterThan(T value) {
         super(value);
     }
 
@@ -23,5 +21,5 @@ public class GreaterThan<T extends Comparable<T>> extends CompareTo<T> implement
     @Override
     protected boolean matchResult(int result) {
         return result > 0;
-    }    
+    }
 }

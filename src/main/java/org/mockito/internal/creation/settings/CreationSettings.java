@@ -5,6 +5,7 @@
 package org.mockito.internal.creation.settings;
 
 import org.mockito.listeners.InvocationListener;
+import org.mockito.internal.listeners.StubbingLookupListener;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.mock.MockName;
 import org.mockito.mock.SerializableMode;
@@ -16,20 +17,18 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * by Szczepan Faber, created at: 4/9/12
- */
 public class CreationSettings<T> implements MockCreationSettings<T>, Serializable {
     private static final long serialVersionUID = -6789800638070123629L;
 
     protected Class<T> typeToMock;
-    protected Set<Class> extraInterfaces = new LinkedHashSet<Class>();
+    protected Set<Class<?>> extraInterfaces = new LinkedHashSet<Class<?>>();
     protected String name;
     protected Object spiedInstance;
     protected Answer<Object> defaultAnswer;
     protected MockName mockName;
     protected SerializableMode serializableMode = SerializableMode.NONE;
     protected List<InvocationListener> invocationListeners = new ArrayList<InvocationListener>();
+    protected final List<StubbingLookupListener> stubbingLookupListeners = new ArrayList<StubbingLookupListener>();
     protected boolean stubOnly;
     private boolean useConstructor;
     private Object outerClassInstance;
@@ -60,11 +59,11 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
         return this;
     }
 
-    public Set<Class> getExtraInterfaces() {
+    public Set<Class<?>> getExtraInterfaces() {
         return extraInterfaces;
     }
 
-    public CreationSettings<T> setExtraInterfaces(Set<Class> extraInterfaces) {
+    public CreationSettings<T> setExtraInterfaces(Set<Class<?>> extraInterfaces) {
         this.extraInterfaces = extraInterfaces;
         return this;
     }
@@ -94,12 +93,21 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
         return serializableMode != SerializableMode.NONE;
     }
 
+    public CreationSettings<T> setSerializableMode(SerializableMode serializableMode) {
+        this.serializableMode = serializableMode;
+        return this;
+    }
+
     public SerializableMode getSerializableMode() {
         return serializableMode;
     }
 
     public List<InvocationListener> getInvocationListeners() {
         return invocationListeners;
+    }
+
+    public List<StubbingLookupListener> getStubbingLookupListeners() {
+        return stubbingLookupListeners;
     }
 
     public boolean isUsingConstructor() {
