@@ -5,7 +5,6 @@
 package org.mockito.stubbing;
 
 import org.mockito.Mockito;
-import org.mockito.internal.progress.IOngoingStubbing;
 
 /**
  * Simply put: "<b>When</b> the x method is called <b>then</b> return y". E.g:
@@ -24,7 +23,7 @@ import org.mockito.internal.progress.IOngoingStubbing;
  * when(mock.someMethod("some arg"))
  *  .thenThrow(new RuntimeException())
  *  .thenReturn("foo");
- * 
+ *
  * //There is a shorter way of consecutive stubbing:
  * when(mock.someMethod()).thenReturn(1,2,3);
  * when(mock.otherMethod()).thenThrow(exc1, exc2);
@@ -32,7 +31,7 @@ import org.mockito.internal.progress.IOngoingStubbing;
  *
  * See examples in javadoc for {@link Mockito#when}
  */
-public interface OngoingStubbing<T> extends IOngoingStubbing {
+public interface OngoingStubbing<T> {
 
     /**
      * Sets a return value to be returned when the method is called. E.g:
@@ -63,6 +62,8 @@ public interface OngoingStubbing<T> extends IOngoingStubbing {
      *
      * @return iOngoingStubbing object that allows stubbing consecutive calls
      */
+    // Additional method helps users of JDK7+ to hide heap pollution / unchecked generics array creation warnings (on call site)
+    @SuppressWarnings ({"unchecked", "varargs"})
     OngoingStubbing<T> thenReturn(T value, T... values);
 
     /**
@@ -74,10 +75,10 @@ public interface OngoingStubbing<T> extends IOngoingStubbing {
      * If throwables contain a checked exception then it has to
      * match one of the checked exceptions of method signature.
      * <p>
-     * You can specify throwables to be thrown for consecutive calls. 
+     * You can specify throwables to be thrown for consecutive calls.
      * In that case the last throwable determines the behavior of further consecutive calls.
      * <p>
-     * if throwable is null then exception will be thrown.
+     * If throwable is null then exception will be thrown.
      * <p>
      * See examples in javadoc for {@link Mockito#when}
      *
@@ -88,6 +89,31 @@ public interface OngoingStubbing<T> extends IOngoingStubbing {
     OngoingStubbing<T> thenThrow(Throwable... throwables);
 
     /**
+     * Sets a Throwable type to be thrown when the method is called. E.g:
+     * <pre class="code"><code class="java">
+     * when(mock.someMethod()).thenThrow(RuntimeException.class);
+     * </code></pre>
+     *
+     * <p>
+     * If the throwable class is a checked exception then it has to
+     * match one of the checked exceptions of the stubbed method signature.
+     * <p>
+     * If throwable is null then exception will be thrown.
+     * <p>
+     * See examples in javadoc for {@link Mockito#when}
+     *
+     * <p>Note depending on the JVM, stack trace information may not be available in
+     * the generated throwable instance.  If you require stack trace information,
+     * use {@link OngoingStubbing#thenThrow(Throwable...)} instead.
+     *
+     * @param throwableType to be thrown on method invocation
+     *
+     * @return iOngoingStubbing object that allows stubbing consecutive calls
+     * @since 2.1.0
+     */
+    OngoingStubbing<T> thenThrow(Class<? extends Throwable> throwableType);
+
+    /**
      * Sets Throwable classes to be thrown when the method is called. E.g:
      * <pre class="code"><code class="java">
      * when(mock.someMethod()).thenThrow(RuntimeException.class);
@@ -96,46 +122,55 @@ public interface OngoingStubbing<T> extends IOngoingStubbing {
      * <p>
      * Each throwable class will be instantiated for each method invocation.
      * <p>
-     * If throwableClasses contain a checked exception then it has to
+     * If <code>throwableTypes</code> contain a checked exception then it has to
      * match one of the checked exceptions of method signature.
      * <p>
-     * You can specify throwableClasses to be thrown for consecutive calls.
+     * You can specify <code>throwableTypes</code> to be thrown for consecutive calls.
      * In that case the last throwable determines the behavior of further consecutive calls.
      * <p>
-     * if throwable is null then exception will be thrown.
+     * If throwable is null then exception will be thrown.
      * <p>
      * See examples in javadoc for {@link Mockito#when}
      *
-     * @param throwableClasses to be thrown on method invocation
+     * <p>Note since JDK 7, invoking this method will raise a compiler warning "possible heap pollution",
+     * this API is safe to use. If you don't want to see this warning it is possible to chain {@link #thenThrow(Class)}
+     * <p>Note depending on the JVM, stack trace information may not be available in
+     * the generated throwable instance.  If you require stack trace information,
+     * use {@link OngoingStubbing#thenThrow(Throwable...)} instead.
+     *
+     * @param toBeThrown to be thrown on method invocation
+     * @param nextToBeThrown next to be thrown on method invocation
      *
      * @return iOngoingStubbing object that allows stubbing consecutive calls
-     * @since 1.9.0
+     * @since 2.1.0
      */
-    OngoingStubbing<T> thenThrow(Class<? extends Throwable>... throwableClasses);
+    // Additional method helps users of JDK7+ to hide heap pollution / unchecked generics array creation warnings (on call site)
+    @SuppressWarnings ({"unchecked", "varargs"})
+    OngoingStubbing<T> thenThrow(Class<? extends Throwable> toBeThrown, Class<? extends Throwable>... nextToBeThrown);
 
-    /**     
+    /**
      * Sets the real implementation to be called when the method is called on a mock object.
      * <p>
      * As usual you are going to read <b>the partial mock warning</b>:
      * Object oriented programming is more less tackling complexity by dividing the complexity into separate, specific, SRPy objects.
-     * How does partial mock fit into this paradigm? Well, it just doesn't... 
+     * How does partial mock fit into this paradigm? Well, it just doesn't...
      * Partial mock usually means that the complexity has been moved to a different method on the same object.
      * In most cases, this is not the way you want to design your application.
      * <p>
-     * However, there are rare cases when partial mocks come handy: 
+     * However, there are rare cases when partial mocks come handy:
      * dealing with code you cannot change easily (3rd party interfaces, interim refactoring of legacy code etc.)
      * However, I wouldn't use partial mocks for new, test-driven & well-designed code.
      * <pre class="code"><code class="java">
      *   // someMethod() must be safe (e.g. doesn't throw, doesn't have dependencies to the object state, etc.)
-     *   // if it isn't safe then you will have trouble stubbing it using this api. Use Mockito.doCallRealMethod() instead. 
+     *   // if it isn't safe then you will have trouble stubbing it using this api. Use Mockito.doCallRealMethod() instead.
      *   when(mock.someMethod()).thenCallRealMethod();
-     *   
+     *
      *   // calls real method:
      *   mock.someMethod();
-     *   
+     *
      * </code></pre>
-     * See also javadoc {@link Mockito#spy(Object)} to find out more about partial mocks. 
-     * <b>Mockito.spy() is a recommended way of creating partial mocks.</b> 
+     * See also javadoc {@link Mockito#spy(Object)} to find out more about partial mocks.
+     * <b>Mockito.spy() is a recommended way of creating partial mocks.</b>
      * The reason is it guarantees real methods are called against correctly constructed object because you're responsible for constructing the object passed to spy() method.
      * <p>
      * See examples in javadoc for {@link Mockito#when}

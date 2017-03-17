@@ -6,36 +6,23 @@ package org.mockito.configuration;
 
 import org.mockito.MockitoAnnotations;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-
 /**
  * Configures mock creation logic behind &#064;Mock, &#064;Captor and &#064;Spy annotations
  * <p>
  * If you are interested then see implementations or source code of {@link MockitoAnnotations#initMocks(Object)}
+ *
+ * <p>This interface can be used to configure a different annotation engine through
+ * {@link org.mockito.configuration.IMockitoConfiguration}, however this mechanism is being superseded by the new
+ * {@link org.mockito.plugins plugin} system.
+ *
+ * <p>
+ * Note that if it exists on the classpath both a class <code>org.mockito.configuration.MockitoConfiguration</code>
+ * and a file <code>mockito-extensions/org.mockito.plugins.AnnotationEngine</code> then the implementation of
+ * <code>org.mockito.configuration.MockitoConfiguration</code> will be chosen instead of the one in the file.
+
+ * @deprecated Please use {@link org.mockito.plugins.AnnotationEngine} instead,
+ *             this interface will probably be removed in mockito 3.
  */
-public interface AnnotationEngine {
-
-    /**
-     * @deprecated
-     * Please use {@link AnnotationEngine#process(Class, Object)} method instead that is more robust
-     * <p>
-     * Creates mock, ArgumentCaptor or wraps field instance in spy object.
-     * Only if of correct annotation type.
-     *
-     * @param annotation Annotation
-     * @param field Field details
-     */
-    @Deprecated
-    Object createMockFor(Annotation annotation, Field field);
-
-    /**
-     * Allows extending the interface to perform action on specific fields on the test class.
-     * <p>
-     * See the implementation of this method to figure out what is it for.
-     * 
-     * @param clazz Class where to extract field information, check implementation for details
-     * @param testInstance Test instance
-     */
-    void process(Class<?> clazz, Object testInstance);
+@Deprecated
+public interface AnnotationEngine extends org.mockito.plugins.AnnotationEngine {
 }

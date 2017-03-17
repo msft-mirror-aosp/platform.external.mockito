@@ -21,18 +21,16 @@ import org.mockito.internal.util.Decamelizer;
 /**
  * Base class for code that has to compile against Mockito 1.x and Mockito 2.x.
  */
-public abstract class CapturingMatcher<T>
-        extends org.mockito.internal.matchers.CapturingMatcher<T> {
+public abstract class CapturingMatcher<T> extends org.mockito.internal.matchers.CapturingMatcher<T> {
 
     @Override
     public boolean matches(Object argument) {
-      return matchesObject(argument);
+        return matchesObject(argument);
     }
 
     public abstract boolean matchesObject(Object o);
 
-    @Override
-    public void describeTo(Description description) {
+    public final void describeTo(Description description) {
         description.appendText(toString());
     }
 

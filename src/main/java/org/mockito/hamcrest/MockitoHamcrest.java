@@ -6,12 +6,14 @@ package org.mockito.hamcrest;
 
 import org.hamcrest.Matcher;
 import org.mockito.ArgumentMatcher;
-import org.mockito.Mockito;
+import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
+
+import static org.mockito.internal.hamcrest.MatcherGenericTypeExtractor.genericTypeOfMatcher;
+import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
+import static org.mockito.internal.util.Primitives.defaultValue;
 
 /**
- * Allows matching arguments with hamcrest matchers; back ported from 2.7.13
- * to help with upgrade.
- * 
+ * Allows matching arguments with hamcrest matchers.
  * <b>Requires</b> <a href="http://hamcrest.org/JavaHamcrest/">hamcrest</a> on classpath,
  * Mockito <b>does not</b> depend on hamcrest!
  * Note the <b>NullPointerException</b> auto-unboxing caveat described below.
@@ -56,7 +58,8 @@ public class MockitoHamcrest {
      */
     @SuppressWarnings("unchecked")
     public static <T> T argThat(Matcher<T> matcher) {
-        return Mockito.argThat(matcher);
+        reportMatcher(matcher);
+        return  (T) defaultValue(genericTypeOfMatcher(matcher.getClass()));
     }
 
     /**
@@ -69,7 +72,8 @@ public class MockitoHamcrest {
      * @return <code>0</code>.
      */
     public static char charThat(Matcher<Character> matcher) {
-        return Mockito.charThat(matcher);
+        reportMatcher(matcher);
+        return 0;
     }
 
     /**
@@ -82,7 +86,8 @@ public class MockitoHamcrest {
      * @return <code>false</code>.
      */
     public static boolean booleanThat(Matcher<Boolean> matcher) {
-        return Mockito.booleanThat(matcher);
+        reportMatcher(matcher);
+        return false;
     }
 
     /**
@@ -95,7 +100,8 @@ public class MockitoHamcrest {
      * @return <code>0</code>.
      */
     public static byte byteThat(Matcher<Byte> matcher) {
-        return Mockito.byteThat(matcher);
+        reportMatcher(matcher);
+        return 0;
     }
 
     /**
@@ -108,7 +114,8 @@ public class MockitoHamcrest {
      * @return <code>0</code>.
      */
     public static short shortThat(Matcher<Short> matcher) {
-        return Mockito.shortThat(matcher);
+        reportMatcher(matcher);
+        return 0;
     }
 
     /**
@@ -121,7 +128,8 @@ public class MockitoHamcrest {
      * @return <code>0</code>.
      */
     public static int intThat(Matcher<Integer> matcher) {
-        return Mockito.intThat(matcher);
+        reportMatcher(matcher);
+        return 0;
     }
 
     /**
@@ -134,7 +142,8 @@ public class MockitoHamcrest {
      * @return <code>0</code>.
      */
     public static long longThat(Matcher<Long> matcher) {
-        return Mockito.longThat(matcher);
+        reportMatcher(matcher);
+        return 0;
     }
 
     /**
@@ -147,7 +156,8 @@ public class MockitoHamcrest {
      * @return <code>0</code>.
      */
     public static float floatThat(Matcher<Float> matcher) {
-        return Mockito.floatThat(matcher);
+        reportMatcher(matcher);
+        return 0;
     }
 
     /**
@@ -160,6 +170,11 @@ public class MockitoHamcrest {
      * @return <code>0</code>.
      */
     public static double doubleThat(Matcher<Double> matcher) {
-        return Mockito.doubleThat(matcher);
+        reportMatcher(matcher);
+        return 0;
+    }
+
+    private static <T> void reportMatcher(Matcher<T> matcher) {
+        mockingProgress().getArgumentMatcherStorage().reportMatcher(new HamcrestArgumentMatcher<T>(matcher));
     }
 }

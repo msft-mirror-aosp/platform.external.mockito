@@ -4,35 +4,33 @@
  */
 package org.mockito.internal.stubbing;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.invocation.StubInfoImpl;
-import org.mockito.internal.progress.MockingProgress;
-import org.mockito.internal.stubbing.answers.AnswersValidator;
 import org.mockito.internal.verification.DefaultRegisteredInvocations;
 import org.mockito.internal.verification.RegisteredInvocations;
 import org.mockito.internal.verification.SingleRegisteredInvocation;
 import org.mockito.invocation.Invocation;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.ValidableAnswer;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
 
 @SuppressWarnings("unchecked")
 public class InvocationContainerImpl implements InvocationContainer, Serializable {
 
     private static final long serialVersionUID = -5334301962749537177L;
     private final LinkedList<StubbedInvocationMatcher> stubbed = new LinkedList<StubbedInvocationMatcher>();
-    private final MockingProgress mockingProgress;
-    private final List<Answer> answersForStubbing = new ArrayList<Answer>();
+    private final List<Answer<?>> answersForStubbing = new ArrayList<Answer<?>>();
     private final RegisteredInvocations registeredInvocations;
 
     private InvocationMatcher invocationForStubbing;
 
-    public InvocationContainerImpl(MockingProgress mockingProgress, MockCreationSettings mockSettings) {
-        this.mockingProgress = mockingProgress;
+    public InvocationContainerImpl(MockCreationSettings mockSettings) {
         this.registeredInvocations = createRegisteredInvocations(mockSettings);
     }
 
@@ -54,11 +52,15 @@ public class InvocationContainerImpl implements InvocationContainer, Serializabl
         addAnswer(answer, true);
     }
 
-    public void addAnswer(Answer answer, boolean isConsecutive) {
+    /**
+     * Adds new stubbed answer and returns the invocation matcher the answer was added to.
+     */
+    public StubbedInvocationMatcher addAnswer(Answer answer, boolean isConsecutive) {
         Invocation invocation = invocationForStubbing.getInvocation();
-        mockingProgress.stubbingCompleted(invocation);
-        AnswersValidator answersValidator = new AnswersValidator();
-        answersValidator.validate(answer, invocation);
+        mockingProgress().stubbingCompleted();
+        if (answer instanceof ValidableAnswer) {
+            ((ValidableAnswer) answer).validateFor(invocation);
+        }
 
         synchronized (stubbed) {
             if (isConsecutive) {
@@ -66,6 +68,7 @@ public class InvocationContainerImpl implements InvocationContainer, Serializabl
             } else {
                 stubbed.addFirst(new StubbedInvocationMatcher(invocationForStubbing, answer));
             }
+            return stubbed.getFirst();
         }
     }
 
@@ -91,7 +94,7 @@ public class InvocationContainerImpl implements InvocationContainer, Serializabl
         answersForStubbing.add(answer);
     }
 
-    public void setAnswersForStubbing(List<Answer> answers) {
+    public void setAnswersForStubbing(List<Answer<?>> answers) {
         answersForStubbing.addAll(answers);
     }
 
@@ -121,6 +124,10 @@ public class InvocationContainerImpl implements InvocationContainer, Serializabl
         return registeredInvocations.getAll();
     }
 
+    public void clearInvocations() {
+        registeredInvocations.clear();
+    }
+
     public List<StubbedInvocationMatcher> getStubbedInvocations() {
         return stubbed;
     }
@@ -128,9 +135,9 @@ public class InvocationContainerImpl implements InvocationContainer, Serializabl
     public Object invokedMock() {
         return invocationForStubbing.getInvocation().getMock();
     }
-    
+
     public InvocationMatcher getInvocationForStubbing() {
-    	return invocationForStubbing;
+        return invocationForStubbing;
     }
 
     private RegisteredInvocations createRegisteredInvocations(MockCreationSettings mockSettings) {

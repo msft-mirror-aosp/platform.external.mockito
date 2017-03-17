@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2016 Mockito contributors
+ * This program is made available under the terms of the MIT License.
+ */
 package org.mockito.internal.creation.instance;
 
 import org.mockito.internal.configuration.GlobalConfiguration;
@@ -11,6 +15,6 @@ class ObjenesisInstantiator implements Instantiator {
     private final ObjenesisStd objenesis = new ObjenesisStd(new GlobalConfiguration().enableClassCache());
 
     public <T> T newInstance(Class<T> cls) {
-        return (T) objenesis.newInstance(cls);
+        return objenesis.newInstance(cls);
     }
 }
