@@ -57,7 +57,7 @@ public class ReturnsDeepStubs implements Answer<Object>, Serializable {
     }
 
     private Object deepStub(InvocationOnMock invocation, GenericMetadataSupport returnTypeGenericMetadata) throws Throwable {
-        InternalMockHandler<Object> handler = new MockUtil().getMockHandler(invocation.getMock());
+        InternalMockHandler<Object> handler = MockUtil.getMockHandler(invocation.getMock());
         InvocationContainerImpl container = (InvocationContainerImpl) handler.getInvocationContainer();
 
         // matches invocation for verification
@@ -68,10 +68,16 @@ public class ReturnsDeepStubs implements Answer<Object>, Serializable {
         }
 
         // record deep stub answer
-        return recordDeepStubAnswer(
+        StubbedInvocationMatcher stubbing = recordDeepStubAnswer(
                 newDeepStubMock(returnTypeGenericMetadata, invocation.getMock()),
                 container
         );
+
+        // deep stubbing creates a stubbing and immediately uses it
+        // so the stubbing is actually used by the same invocation
+        stubbing.markStubUsed(stubbing.getInvocation());
+
+        return stubbing.answer(invocation);
     }
 
     /**
@@ -86,7 +92,7 @@ public class ReturnsDeepStubs implements Answer<Object>, Serializable {
      * @return The mock
      */
     private Object newDeepStubMock(GenericMetadataSupport returnTypeGenericMetadata, Object parentMock) {
-        MockCreationSettings parentMockSettings = new MockUtil().getMockSettings(parentMock);
+        MockCreationSettings parentMockSettings = MockUtil.getMockSettings(parentMock);
         return mockitoCore().mock(
                 returnTypeGenericMetadata.rawType(),
                 withSettingsUsing(returnTypeGenericMetadata, parentMockSettings)
@@ -110,13 +116,13 @@ public class ReturnsDeepStubs implements Answer<Object>, Serializable {
         return new ReturnsDeepStubsSerializationFallback(returnTypeGenericMetadata);
     }
 
-    private Object recordDeepStubAnswer(final Object mock, InvocationContainerImpl container) throws Throwable {
-        container.addAnswer(new DeeplyStubbedAnswer(mock), false);
-        return mock;
+    private StubbedInvocationMatcher recordDeepStubAnswer(final Object mock, InvocationContainerImpl container) {
+        DeeplyStubbedAnswer answer = new DeeplyStubbedAnswer(mock);
+        return container.addAnswer(answer, false);
     }
 
     protected GenericMetadataSupport actualParameterizedType(Object mock) {
-        CreationSettings mockSettings = (CreationSettings) new MockUtil().getMockHandler(mock).getMockSettings();
+        CreationSettings mockSettings = (CreationSettings) MockUtil.getMockHandler(mock).getMockSettings();
         return GenericMetadataSupport.inferFrom(mockSettings.getTypeToMock());
     }
 

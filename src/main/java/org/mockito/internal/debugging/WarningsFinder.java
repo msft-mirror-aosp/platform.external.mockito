@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-@SuppressWarnings("unchecked")
 public class WarningsFinder {
     private final List<Invocation> baseUnusedStubs;
     private final List<InvocationMatcher> baseAllInvocations;
@@ -20,10 +19,10 @@ public class WarningsFinder {
         this.baseUnusedStubs = unusedStubs;
         this.baseAllInvocations = allInvocations;
     }
-    
+
     public void find(FindingsListener findingsListener) {
-        List<Invocation> unusedStubs = new LinkedList(this.baseUnusedStubs);
-        List<InvocationMatcher> allInvocations = new LinkedList(this.baseAllInvocations);
+        List<Invocation> unusedStubs = new LinkedList<Invocation>(this.baseUnusedStubs);
+        List<InvocationMatcher> allInvocations = new LinkedList<InvocationMatcher>(this.baseAllInvocations);
 
         Iterator<Invocation> unusedIterator = unusedStubs.iterator();
         while(unusedIterator.hasNext()) {

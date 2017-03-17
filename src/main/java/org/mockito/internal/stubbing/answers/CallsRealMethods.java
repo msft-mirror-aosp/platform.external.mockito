@@ -4,12 +4,14 @@
  */
 package org.mockito.internal.stubbing.answers;
 
-import org.mockito.Answers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
 import java.io.Serializable;
 import java.lang.reflect.Modifier;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.ValidableAnswer;
+
+import static org.mockito.Answers.RETURNS_DEFAULTS;
+import static org.mockito.internal.exceptions.Reporter.cannotCallAbstractRealMethod;
 
 /**
  * Optional Answer that adds partial mocking support
@@ -22,22 +24,29 @@ import java.lang.reflect.Modifier;
  * <p>
  * As usual you are going to read <b>the partial mock warning</b>:
  * Object oriented programming is more less tackling complexity by dividing the complexity into separate, specific, SRPy objects.
- * How does partial mock fit into this paradigm? Well, it just doesn't... 
+ * How does partial mock fit into this paradigm? Well, it just doesn't...
  * Partial mock usually means that the complexity has been moved to a different method on the same object.
  * In most cases, this is not the way you want to design your application.
  * <p>
- * However, there are rare cases when partial mocks come handy: 
+ * However, there are rare cases when partial mocks come handy:
  * dealing with code you cannot change easily (3rd party interfaces, interim refactoring of legacy code etc.)
  * However, I wouldn't use partial mocks for new, test-driven & well-designed code.
  * <p>
  */
-public class CallsRealMethods implements Answer<Object>, Serializable {
+public class CallsRealMethods implements Answer<Object>, ValidableAnswer, Serializable {
     private static final long serialVersionUID = 9057165148930624087L;
 
     public Object answer(InvocationOnMock invocation) throws Throwable {
-    	if (Modifier.isAbstract(invocation.getMethod().getModifiers())) {
-    		return Answers.RETURNS_DEFAULTS.get().answer(invocation);
-    	}
+        if (Modifier.isAbstract(invocation.getMethod().getModifiers())) {
+            return RETURNS_DEFAULTS.answer(invocation);
+        }
         return invocation.callRealMethod();
+    }
+
+    @Override
+    public void validateFor(InvocationOnMock invocation) {
+        if (new InvocationInfo(invocation).isAbstract()) {
+            throw cannotCallAbstractRealMethod();
+        }
     }
 }
