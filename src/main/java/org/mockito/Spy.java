@@ -9,6 +9,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * Allows shorthand wrapping of field instances in an spy object.
@@ -34,15 +35,11 @@ import java.lang.annotation.Target;
  *
  * <pre class="code"><code class="java">
  * Foo spyOnFoo = Mockito.spy(new Foo("argument"));
- * Bar spyOnFoo = Mockito.spy(new Bar());
+ * Bar spyOnBar = Mockito.spy(new Bar());
  * </code></pre>
  *
  * <p>
- * <strong>The field annotated with &#064;Spy can be initialized by Mockito if a zero argument constructor
- * can be found in the type (even private). <u>But Mockito cannot instantiate inner classes, local classes,
- * abstract classes and interfaces.</u></strong>
- *
- * <strong>The field annotated with &#064;Spy can be initialized explicitly at declaration point.
+ * <strong>A field annotated with &#064;Spy can be initialized explicitly at declaration point.
  * Alternatively, if you don't provide the instance Mockito will try to find zero argument constructor (even private)
  * and create an instance for you.
  * <u>But Mockito cannot instantiate inner classes, local classes, abstract classes and interfaces.</u></strong>
@@ -90,7 +87,7 @@ import java.lang.annotation.Target;
  * in subclass are only instantiated after super class constructor has returned.
  * It's better to use &#64;Before.
  * <strong>Instead</strong> you can also put initMocks() in your JUnit runner (&#064;RunWith) or use the built-in
- * {@link org.mockito.runners.MockitoJUnitRunner}.
+ * {@link MockitoJUnitRunner}.
  * </p>
  *
  * <p>Note that the spy won't have any annotations of the spied type, because CGLIB won't rewrite them.
@@ -100,7 +97,7 @@ import java.lang.annotation.Target;
  * @see Mock
  * @see InjectMocks
  * @see MockitoAnnotations#initMocks(Object)
- * @see org.mockito.runners.MockitoJUnitRunner
+ * @see MockitoJUnitRunner
  * @since 1.8.3
  */
 @Retention(RUNTIME)

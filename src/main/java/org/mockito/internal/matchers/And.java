@@ -6,40 +6,24 @@
 package org.mockito.internal.matchers;
 
 import java.io.Serializable;
-import java.util.Iterator;
-import java.util.List;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.mockito.ArgumentMatcher;
 
-@SuppressWarnings("unchecked")
-public class And extends ArgumentMatcher implements Serializable {
+@SuppressWarnings({ "unchecked", "serial","rawtypes" })
+public class And implements ArgumentMatcher<Object>, Serializable {
+    private ArgumentMatcher m1;
+    private ArgumentMatcher m2;
 
-    private static final long serialVersionUID = -4624719625691177501L;
-    private final List<Matcher> matchers;
-
-    public And(List<Matcher> matchers) {
-        this.matchers = matchers;
+    public And(ArgumentMatcher<?> m1, ArgumentMatcher<?> m2) {
+        this.m1 = m1;
+        this.m2 = m2;
     }
 
     public boolean matches(Object actual) {
-        for (Matcher matcher : matchers) {
-            if (!matcher.matches(actual)) {
-                return false;
-            }
-        }
-        return true;
+        return m1.matches(actual) && m2.matches(actual);
     }
 
-    public void describeTo(Description description) {
-        description.appendText("and(");
-        for (Iterator<Matcher> it = matchers.iterator(); it.hasNext();) {
-            it.next().describeTo(description);
-            if (it.hasNext()) {
-                description.appendText(", ");
-            }
-        }
-        description.appendText(")");
+    public String toString() {
+        return "and("+m1+", "+m2+")";
     }
 }

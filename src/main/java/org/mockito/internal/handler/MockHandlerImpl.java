@@ -4,64 +4,67 @@
  */
 package org.mockito.internal.handler;
 
-import org.mockito.exceptions.Reporter;
+import java.util.List;
 import org.mockito.internal.InternalMockHandler;
+import org.mockito.internal.creation.settings.CreationSettings;
 import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.internal.invocation.MatchersBinder;
-import org.mockito.internal.progress.MockingProgress;
-import org.mockito.internal.progress.ThreadSafeMockingProgress;
-import org.mockito.internal.stubbing.*;
+import org.mockito.internal.listeners.StubbingLookupListener;
+import org.mockito.internal.stubbing.InvocationContainer;
+import org.mockito.internal.stubbing.InvocationContainerImpl;
+import org.mockito.internal.stubbing.OngoingStubbingImpl;
+import org.mockito.internal.stubbing.StubbedInvocationMatcher;
+import org.mockito.internal.stubbing.answers.DefaultAnswerValidator;
 import org.mockito.internal.verification.MockAwareVerificationMode;
 import org.mockito.internal.verification.VerificationDataImpl;
 import org.mockito.invocation.Invocation;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.VoidMethodStubbable;
 import org.mockito.verification.VerificationMode;
 
-import java.util.List;
+import static org.mockito.internal.exceptions.Reporter.stubPassedToVerify;
+import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
 
 /**
  * Invocation handler set on mock objects.
- * 
- * @param <T>
- *            type of mock object to handle
+ *
+ * @param <T> type of mock object to handle
  */
-class MockHandlerImpl<T> implements InternalMockHandler<T> {
+public class MockHandlerImpl<T> implements InternalMockHandler<T> {
 
     private static final long serialVersionUID = -2917871070982574165L;
 
     InvocationContainerImpl invocationContainerImpl;
+
     MatchersBinder matchersBinder = new MatchersBinder();
-    MockingProgress mockingProgress = new ThreadSafeMockingProgress();
 
-    private final MockCreationSettings mockSettings;
+    private final MockCreationSettings<T> mockSettings;
 
-    public MockHandlerImpl(MockCreationSettings mockSettings) {
+    public MockHandlerImpl(MockCreationSettings<T> mockSettings) {
         this.mockSettings = mockSettings;
-        this.mockingProgress = new ThreadSafeMockingProgress();
+
         this.matchersBinder = new MatchersBinder();
-        this.invocationContainerImpl = new InvocationContainerImpl(mockingProgress, mockSettings);
+        this.invocationContainerImpl = new InvocationContainerImpl( mockSettings);
     }
 
     public Object handle(Invocation invocation) throws Throwable {
-		if (invocationContainerImpl.hasAnswersForStubbing()) {
-            // stubbing voids with stubVoid() or doAnswer() style
+        if (invocationContainerImpl.hasAnswersForStubbing()) {
+            // stubbing voids with doThrow() or doAnswer() style
             InvocationMatcher invocationMatcher = matchersBinder.bindMatchers(
-                    mockingProgress.getArgumentMatcherStorage(),
+                    mockingProgress().getArgumentMatcherStorage(),
                     invocation
             );
             invocationContainerImpl.setMethodForStubbing(invocationMatcher);
             return null;
         }
-        VerificationMode verificationMode = mockingProgress.pullVerificationMode();
+        VerificationMode verificationMode = mockingProgress().pullVerificationMode();
 
         InvocationMatcher invocationMatcher = matchersBinder.bindMatchers(
-                mockingProgress.getArgumentMatcherStorage(),
+                mockingProgress().getArgumentMatcherStorage(),
                 invocation
         );
 
-        mockingProgress.validateState();
+        mockingProgress().validateState();
 
         // if verificationMode is not null then someone is doing verify()
         if (verificationMode != null) {
@@ -74,23 +77,25 @@ class MockHandlerImpl<T> implements InternalMockHandler<T> {
             } else {
                 // this means there is an invocation on a different mock. Re-adding verification mode
                 // - see VerifyingWithAnExtraCallToADifferentMockTest (bug 138)
-                mockingProgress.verificationStarted(verificationMode);
+                mockingProgress().verificationStarted(verificationMode);
             }
         }
 
         // prepare invocation for stubbing
         invocationContainerImpl.setInvocationForPotentialStubbing(invocationMatcher);
         OngoingStubbingImpl<T> ongoingStubbing = new OngoingStubbingImpl<T>(invocationContainerImpl);
-        mockingProgress.reportOngoingStubbing(ongoingStubbing);
+        mockingProgress().reportOngoingStubbing(ongoingStubbing);
 
         // look for existing answer for this invocation
         StubbedInvocationMatcher stubbedInvocation = invocationContainerImpl.findAnswerFor(invocation);
+        notifyStubbedAnswerLookup(invocation, stubbedInvocation);
 
         if (stubbedInvocation != null) {
             stubbedInvocation.captureArgumentsFrom(invocation);
             return stubbedInvocation.answer(invocation);
         } else {
-             Object ret = mockSettings.getDefaultAnswer().answer(invocation);
+            Object ret = mockSettings.getDefaultAnswer().answer(invocation);
+            DefaultAnswerValidator.validateReturnValueFor(invocation, ret);
 
             // redo setting invocation for potential stubbing in case of partial
             // mocks / spies.
@@ -100,18 +105,13 @@ class MockHandlerImpl<T> implements InternalMockHandler<T> {
             invocationContainerImpl.resetInvocationForPotentialStubbing(invocationMatcher);
             return ret;
         }
-	}
-
-    public VoidMethodStubbable<T> voidMethodStubbable(T mock) {
-        return new VoidMethodStubbableImpl<T>(mock, invocationContainerImpl);
     }
 
-    public MockCreationSettings getMockSettings() {
+    public MockCreationSettings<T> getMockSettings() {
         return mockSettings;
     }
 
-    @SuppressWarnings("unchecked")
-    public void setAnswersForStubbing(List<Answer> answers) {
+    public void setAnswersForStubbing(List<Answer<?>> answers) {
         invocationContainerImpl.setAnswersForStubbing(answers);
     }
 
@@ -121,10 +121,18 @@ class MockHandlerImpl<T> implements InternalMockHandler<T> {
 
     private VerificationDataImpl createVerificationData(InvocationContainerImpl invocationContainerImpl, InvocationMatcher invocationMatcher) {
         if (mockSettings.isStubOnly()) {
-            new Reporter().stubPassedToVerify();     // this throws an exception
+            throw stubPassedToVerify();     // this throws an exception
         }
 
         return new VerificationDataImpl(invocationContainerImpl, invocationMatcher);
+    }
+
+    private void notifyStubbedAnswerLookup(Invocation invocation, StubbedInvocationMatcher exception) {
+        //TODO #793 - when completed, we should be able to get rid of the casting below
+        List<StubbingLookupListener> listeners = ((CreationSettings) mockSettings).getStubbingLookupListeners();
+        for (StubbingLookupListener listener : listeners) {
+            listener.onStubbingLookup(invocation, exception);
+        }
     }
 }
 

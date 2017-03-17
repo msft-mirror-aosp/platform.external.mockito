@@ -4,21 +4,19 @@
  */
 package org.mockito.internal.configuration;
 
-import org.mockito.ReturnValues;
+import java.io.Serializable;
 import org.mockito.configuration.AnnotationEngine;
 import org.mockito.configuration.DefaultMockitoConfiguration;
 import org.mockito.configuration.IMockitoConfiguration;
+import org.mockito.internal.configuration.plugins.Plugins;
 import org.mockito.stubbing.Answer;
-
-import java.io.Serializable;
 
 /**
  * Thread-safe wrapper on user-defined org.mockito.configuration.MockitoConfiguration implementation
  */
-@SuppressWarnings("deprecation")//suppressed until ReturnValues are removed
 public class GlobalConfiguration implements IMockitoConfiguration, Serializable {
     private static final long serialVersionUID = -2860353062105505938L;
-    
+
     private static final ThreadLocal<IMockitoConfiguration> GLOBAL_CONFIGURATION = new ThreadLocal<IMockitoConfiguration>();
 
     //back door for testing
@@ -47,18 +45,24 @@ public class GlobalConfiguration implements IMockitoConfiguration, Serializable 
         new GlobalConfiguration();
     }
 
-    public ReturnValues getReturnValues() {
-        return GLOBAL_CONFIGURATION.get().getReturnValues();
-    }
-
     public AnnotationEngine getAnnotationEngine() {
         return GLOBAL_CONFIGURATION.get().getAnnotationEngine();
     }
 
+    public org.mockito.plugins.AnnotationEngine tryGetPluginAnnotationEngine() {
+        IMockitoConfiguration configuration = GLOBAL_CONFIGURATION.get();
+        if (configuration.getClass() == DefaultMockitoConfiguration.class) {
+            return Plugins.getAnnotationEngine();
+        }
+        return configuration.getAnnotationEngine();
+    }
+
+
+
     public boolean cleansStackTrace() {
         return GLOBAL_CONFIGURATION.get().cleansStackTrace();
     }
-    
+
     public boolean enableClassCache() {
         return GLOBAL_CONFIGURATION.get().enableClassCache();
     }

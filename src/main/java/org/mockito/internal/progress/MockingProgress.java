@@ -5,17 +5,21 @@
 
 package org.mockito.internal.progress;
 
-import org.mockito.MockSettings;
-import org.mockito.internal.listeners.MockingProgressListener;
-import org.mockito.invocation.Invocation;
+import java.util.Set;
+import org.mockito.listeners.MockitoListener;
+import org.mockito.listeners.VerificationListener;
+import org.mockito.mock.MockCreationSettings;
+import org.mockito.stubbing.OngoingStubbing;
 import org.mockito.verification.VerificationMode;
+import org.mockito.verification.VerificationStrategy;
 
-@SuppressWarnings("unchecked")
 public interface MockingProgress {
-    
-    void reportOngoingStubbing(IOngoingStubbing iOngoingStubbing);
 
-    IOngoingStubbing pullOngoingStubbing();
+    void reportOngoingStubbing(OngoingStubbing<?> ongoingStubbing);
+
+    OngoingStubbing<?> pullOngoingStubbing();
+
+    Set<VerificationListener> verificationListeners();
 
     void verificationStarted(VerificationMode verificationMode);
 
@@ -23,8 +27,8 @@ public interface MockingProgress {
 
     void stubbingStarted();
 
-    void stubbingCompleted(Invocation invocation);
-    
+    void stubbingCompleted();
+
     void validateState();
 
     void reset();
@@ -36,8 +40,19 @@ public interface MockingProgress {
     void resetOngoingStubbing();
 
     ArgumentMatcherStorage getArgumentMatcherStorage();
-    
-    void mockingStarted(Object mock, Class classToMock);
 
-    void setListener(MockingProgressListener listener);
+    void mockingStarted(Object mock, MockCreationSettings settings);
+
+    void addListener(MockitoListener listener);
+
+    void removeListener(MockitoListener listener);
+
+    void setVerificationStrategy(VerificationStrategy strategy);
+
+    VerificationMode maybeVerifyLazily(VerificationMode mode);
+
+    /**
+     * Removes all listeners added via {@link #addListener(MockitoListener)}.
+     */
+    void clearListeners();
 }
