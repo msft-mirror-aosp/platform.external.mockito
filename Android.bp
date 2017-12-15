@@ -67,6 +67,13 @@ java_library_static {
     sdk_version: "16",
 }
 
+// Compatibility library for old name of host target
+java_library_host {
+    name: "mockito-inline",
+    static_libs: ["mockito"],
+    java_resource_dirs: ["subprojects/inline/src/main/resources"],
+}
+
 // Main target for dependent projects. Bundles all the run-time dependencies
 // needed to run Mockito tests on the device.
 java_library_static {
