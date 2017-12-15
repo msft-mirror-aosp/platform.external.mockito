@@ -8,7 +8,13 @@ package org.mockito.internal.exceptions;
 import org.mockito.exceptions.base.MockitoAssertionError;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.exceptions.misusing.*;
-import org.mockito.exceptions.verification.*;
+import org.mockito.exceptions.verification.NeverWantedButInvoked;
+import org.mockito.exceptions.verification.NoInteractionsWanted;
+import org.mockito.exceptions.verification.SmartNullPointerException;
+import org.mockito.exceptions.verification.TooLittleActualInvocations;
+import org.mockito.exceptions.verification.TooManyActualInvocations;
+import org.mockito.exceptions.verification.VerificationInOrderFailure;
+import org.mockito.exceptions.verification.WantedButNotInvoked;
 import org.mockito.internal.debugging.LocationImpl;
 import org.mockito.internal.exceptions.util.ScenarioPrinter;
 import org.mockito.internal.junit.ExceptionFactory;
@@ -448,6 +454,9 @@ public class Reporter {
                 "'" + methodName + "' is a *void method* and it *cannot* be stubbed with a *return value*!",
                 "Voids are usually stubbed with Throwables:",
                 "    doThrow(exception).when(mock).someVoidMethod();",
+                "If you need to set the void method to do nothing you can use:",
+                "    doNothing().when(mock).someVoidMethod();",
+                "For more information, check out the javadocs for Mockito.doNothing().",
                 "***",
                 "If you're unsure why you're getting above error read on.",
                 "Due to the nature of the syntax above problem might occur because:",
@@ -646,7 +655,7 @@ public class Reporter {
         return new FriendlyReminderException(join("",
                                                   "Don't panic! I'm just a friendly reminder!",
                                                   "timeout() should not be used with atMost() or never() because...",
-                                                  "...it does not make much sense - the test would have passed immediately in concurency",
+                                                  "...it does not make much sense - the test would have passed immediately in concurrency",
                                                   "We kept this method only to avoid compilation errors when upgrading Mockito.",
                                                   "In future release we will remove timeout(x).atMost(y) from the API.",
                                                   "If you want to find out more please refer to issue 235",
@@ -662,8 +671,8 @@ public class Reporter {
 
     }
 
-    public static MockitoException invocationListenerDoesNotAcceptNullParameters() {
-        return new MockitoException("invocationListeners() does not accept null parameters");
+    public static MockitoException methodDoesNotAcceptParameter(String method, String parameter) {
+        return new MockitoException(method + "() does not accept " + parameter + " See the Javadoc.");
     }
 
     public static MockitoException invocationListenersRequiresAtLeastOneListener() {
