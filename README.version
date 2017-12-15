@@ -9,4 +9,4 @@ Dexmaker module.
 The source can be updated using the update_source.sh script.
 
 Local Modifications:
-	none
+	- Added dummy DefaultInvocationFactory to fix build
