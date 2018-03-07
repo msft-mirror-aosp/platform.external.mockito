@@ -50,6 +50,12 @@ java_library_static {
     },
     sdk_version: "16",
     java_version: "1.7",
+
+    errorprone: {
+        javacflags: [
+            "-Xep:CollectionIncompatibleType:WARN",  // b/74213384
+        ],
+    }
 }
 
 // Compatibility library for old name of host target
