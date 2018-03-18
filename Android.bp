@@ -35,11 +35,7 @@ java_library_static {
             // dexmaker instead and including it causes conflicts.
             exclude_srcs: [
                 "src/main/java/org/mockito/internal/creation/bytebuddy/**/*.java",
-                "src/main/java/org/mockito/internal/invocation/DefaultInvocationFactory.java",
             ],
-            srcs: [
-                "stub/java/org/mockito/internal/invocation/DefaultInvocationFactory.java",
-            ]
         },
         host: {
             static_libs: [
