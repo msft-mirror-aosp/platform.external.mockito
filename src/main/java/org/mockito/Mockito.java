@@ -25,6 +25,7 @@ import org.mockito.plugins.MockitoPlugins;
 import org.mockito.quality.MockitoHint;
 import org.mockito.quality.Strictness;
 import org.mockito.session.MockitoSessionBuilder;
+import org.mockito.session.MockitoSessionLogger;
 import org.mockito.stubbing.Answer;
 import org.mockito.stubbing.Answer1;
 import org.mockito.stubbing.OngoingStubbing;
@@ -96,6 +97,8 @@ import org.mockito.verification.VerificationWithTimeout;
  *      <a href="#40">40. (*new*) Improved productivity and cleaner tests with "stricter" Mockito (Since 2.+)</a><br/>
  *      <a href="#41">41. (**new**) Advanced public API for framework integrations (Since 2.10.+)</a><br/>
  *      <a href="#42">42. (**new**) New API for integrations: listening on verification start events (Since 2.11.+)</a><br/>
+ *      <a href="#43">43. (**new**) New API for integrations: <code>MockitoSession</code> is usable by testing frameworks (Since 2.15.+)</a><br/>
+ *      <a href="#44">44. Deprecated <code>org.mockito.plugins.InstantiatorProvider</code> as it was leaking internal API. it was replaced by <code>org.mockito.plugins.InstantiatorProvider2 (Since 2.15.4)</code></a><br/>
  * </b>
  *
  * <h3 id="0">0. <a class="meaningful_link" href="#mockito2" name="mockito2">Migrating to Mockito 2</a></h3>
@@ -1396,7 +1399,7 @@ import org.mockito.verification.VerificationWithTimeout;
  * <a href="https://github.com/mockito/mockito/issues/769">issue 769</a>.
  *
  * <h3 id="41">41. <a class="meaningful_link" href="#framework_integrations_api" name="framework_integrations_api">
- *      (**new**) Advanced public API for framework integrations (Since 2.10.+)</h3>
+ *      (**new**) Advanced public API for framework integrations (Since 2.10.+)</a></h3>
  *
  * In Summer 2017 we decided that Mockito
  * <a href="https://www.linkedin.com/pulse/mockito-vs-powermock-opinionated-dogmatic-static-mocking-faber">
@@ -1449,7 +1452,7 @@ import org.mockito.verification.VerificationWithTimeout;
  * Do you have feedback? Please leave comment in <a href="https://github.com/mockito/mockito/issues/1110">issue 1110</a>.
  *
  * <h3 id="42">42. <a class="meaningful_link" href="#verifiation_started_listener" name="verifiation_started_listener">
- *       (**new**) New API for integrations: listening on verification start events (Since 2.11.+)</h3>
+ *       (**new**) New API for integrations: listening on verification start events (Since 2.11.+)</a></h3>
  *
  * Framework integrations such as <a href="https://projects.spring.io/spring-boot">Spring Boot</a> needs public API to tackle double-proxy use case
  * (<a href="https://github.com/mockito/mockito/issues/1191">issue 1191</a>).
@@ -1467,6 +1470,42 @@ import org.mockito.verification.VerificationWithTimeout;
  *     We found this method useful during the implementation.
  *     </li>
  * </ul>
+ *
+ * <h3 id="43">43. <a class="meaningful_link" href="#mockito_session_testing_frameworks" name="mockito_session_testing_frameworks">
+ *       (**new**) New API for integrations: <code>MockitoSession</code> is usable by testing frameworks (Since 2.15.+)</a></h3>
+ *
+ * <p>{@link MockitoSessionBuilder} and {@link MockitoSession} were enhanced to enable reuse by testing framework
+ * integrations (e.g. {@link MockitoRule} for JUnit):</p>
+ * <ul>
+ *     <li>{@link MockitoSessionBuilder#initMocks(Object...)} allows to pass in multiple test class instances for
+ *      initialization of fields annotated with Mockito annotations like {@link org.mockito.Mock}.
+ *      This method is useful for advanced framework integrations (e.g. JUnit Jupiter), when a test uses multiple,
+ *      e.g. nested, test class instances.
+ *     </li>
+ *     <li>{@link MockitoSessionBuilder#name(String)} allows to pass a name from the testing framework to the
+ *      {@link MockitoSession} that will be used for printing warnings when {@link Strictness#WARN} is used.
+ *     </li>
+ *     <li>{@link MockitoSessionBuilder#logger(MockitoSessionLogger)} makes it possible to customize the logger used
+ *      for hints/warnings produced when finishing mocking (useful for testing and to connect reporting capabilities
+ *      provided by testing frameworks such as JUnit Jupiter).
+ *     </li>
+ *     <li>{@link MockitoSession#setStrictness(Strictness)} allows to change the strictness of a {@link MockitoSession}
+ *      for one-off scenarios, e.g. it enables configuring a default strictness for all tests in a class but makes it
+ *      possible to change the strictness for a single or a few tests.
+ *     </li>
+ *     <li>{@link MockitoSession#finishMocking(Throwable)} was added to avoid confusion that may arise because
+ *      there are multiple competing failures. It will disable certain checks when the supplied <em>failure</em>
+ *      is not {@code null}.
+ *     </li>
+ * </ul>
+ *
+ * <h3 id="44">44. <a class="meaningful_link" href="#mockito_instantiator_provider_deprecation" name="mockito_instantiator_provider_deprecation">
+ *       Deprecated <code>org.mockito.plugins.InstantiatorProvider</code> as it was leaking internal API. it was
+ *       replaced by <code>org.mockito.plugins.InstantiatorProvider2 (Since 2.15.4)</a></h3>
+ *
+ * <p>{@link org.mockito.plugins.InstantiatorProvider} returned an internal API. Hence it was deprecated and replaced
+ * by {@link org.mockito.plugins.InstantiatorProvider2}. Old {@link org.mockito.plugins.InstantiatorProvider
+ * instantiator providers} will continue to work, but it is recommended to switch to the new API.</p>
  */
 @SuppressWarnings("unchecked")
 public class Mockito extends ArgumentMatchers {
@@ -1643,11 +1682,15 @@ public class Mockito extends ArgumentMatchers {
      * // this calls the real implementation of Foo.getSomething()
      * value = mock.getSomething();
      *
-     * when(mock.getSomething()).thenReturn(fakeValue);
+     * doReturn(fakeValue).when(mock).getSomething();
      *
      * // now fakeValue is returned
      * value = mock.getSomething();
      * </code></pre>
+     *
+     * <p>
+     * <u>Note:</u> Stubbing partial mocks using <code>when(mock.getSomething()).thenReturn(fakeValue)</code>
+     * syntax will call the real method. For partial mock it's recommended to use <code>doReturn</code> syntax.
      */
     public static final Answer<Object> CALLS_REAL_METHODS = Answers.CALLS_REAL_METHODS;
 
@@ -2119,6 +2162,9 @@ public class Mockito extends ArgumentMatchers {
      * See also {@link Mockito#never()} - it is more explicit and communicates the intent well.
      * <p>
      * Stubbed invocations (if called) are also treated as interactions.
+     * If you want stubbed invocations automatically verified, check out {@link Strictness#STRICT_STUBS} feature
+     * introduced in Mockito 2.3.0.
+     * If you want to ignore stubs for verification, see {@link #ignoreStubs(Object...)}.
      * <p>
      * A word of <b>warning</b>:
      * Some users who did a lot of classic, expect-run-verify mocking tend to use <code>verifyNoMoreInteractions()</code> very often, even in every test method.
