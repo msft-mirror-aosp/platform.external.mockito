@@ -96,7 +96,6 @@ public class StubbingWarningsTest {
                 filterLineNo(logger.getLoggedInfo()));
     }
 
-    @SuppressWarnings({"MockitoUsage", "CheckReturnValue"})
     @Test(expected = MockitoException.class) public void unfinished_verification_without_throwable() throws Throwable {
         //when
         verify(mock);
@@ -104,7 +103,6 @@ public class StubbingWarningsTest {
         mockito.finishMocking();
     }
 
-    @SuppressWarnings({"MockitoUsage", "CheckReturnValue"})
     @Test public void unfinished_verification_with_throwable() throws Throwable {
         //when
         verify(mock);

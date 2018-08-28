@@ -5,27 +5,9 @@
 
 package org.mockito.internal.exceptions;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import org.mockito.exceptions.base.MockitoAssertionError;
 import org.mockito.exceptions.base.MockitoException;
-import org.mockito.exceptions.misusing.CannotStubVoidMethodWithReturnValue;
-import org.mockito.exceptions.misusing.CannotVerifyStubOnlyMock;
-import org.mockito.exceptions.misusing.FriendlyReminderException;
-import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
-import org.mockito.exceptions.misusing.MissingMethodInvocationException;
-import org.mockito.exceptions.misusing.NotAMockException;
-import org.mockito.exceptions.misusing.NullInsteadOfMockException;
-import org.mockito.exceptions.misusing.PotentialStubbingProblem;
-import org.mockito.exceptions.misusing.RedundantListenerException;
-import org.mockito.exceptions.misusing.UnfinishedMockingSessionException;
-import org.mockito.exceptions.misusing.UnfinishedStubbingException;
-import org.mockito.exceptions.misusing.UnfinishedVerificationException;
-import org.mockito.exceptions.misusing.UnnecessaryStubbingException;
-import org.mockito.exceptions.misusing.WrongTypeOfReturnValue;
+import org.mockito.exceptions.misusing.*;
 import org.mockito.exceptions.verification.NeverWantedButInvoked;
 import org.mockito.exceptions.verification.NoInteractionsWanted;
 import org.mockito.exceptions.verification.SmartNullPointerException;
@@ -45,6 +27,12 @@ import org.mockito.invocation.Location;
 import org.mockito.listeners.InvocationListener;
 import org.mockito.mock.MockName;
 import org.mockito.mock.SerializableMode;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import static org.mockito.internal.reporting.Pluralizer.pluralize;
 import static org.mockito.internal.reporting.Pluralizer.were_exactly_x_interactions;
@@ -370,71 +358,63 @@ public class Reporter {
         ));
     }
 
-    public static MockitoAssertionError tooManyActualInvocations(int wantedCount, int actualCount, DescribedInvocation wanted, List<Location> locations) {
-        String message = createTooManyInvocationsMessage(wantedCount, actualCount, wanted, locations);
+    public static MockitoAssertionError tooManyActualInvocations(int wantedCount, int actualCount, DescribedInvocation wanted, Location firstUndesired) {
+        String message = createTooManyInvocationsMessage(wantedCount, actualCount, wanted, firstUndesired);
         return new TooManyActualInvocations(message);
     }
 
     private static String createTooManyInvocationsMessage(int wantedCount, int actualCount, DescribedInvocation wanted,
-                                                          List<Location> invocations) {
+                                                          Location firstUndesired) {
         return join(
                 wanted.toString(),
                 "Wanted " + pluralize(wantedCount) + ":",
                 new LocationImpl(),
-                "But was " + pluralize(actualCount) + ":",
-                createAllLocationsMessage(invocations),
+                "But was " + pluralize(actualCount) + ". Undesired invocation:",
+                firstUndesired,
                 ""
         );
     }
 
-    public static MockitoAssertionError neverWantedButInvoked(DescribedInvocation wanted, List<Location> invocations) {
+    public static MockitoAssertionError neverWantedButInvoked(DescribedInvocation wanted, Location firstUndesired) {
         return new NeverWantedButInvoked(join(
                 wanted.toString(),
                 "Never wanted here:",
                 new LocationImpl(),
                 "But invoked here:",
-                createAllLocationsMessage(invocations)
+                firstUndesired,
+                ""
         ));
     }
 
-    public static MockitoAssertionError tooManyActualInvocationsInOrder(int wantedCount, int actualCount, DescribedInvocation wanted, List<Location> invocations) {
-        String message = createTooManyInvocationsMessage(wantedCount, actualCount, wanted, invocations);
+    public static MockitoAssertionError tooManyActualInvocationsInOrder(int wantedCount, int actualCount, DescribedInvocation wanted, Location firstUndesired) {
+        String message = createTooManyInvocationsMessage(wantedCount, actualCount, wanted, firstUndesired);
         return new VerificationInOrderFailure(join(
                 "Verification in order failure:" + message
         ));
     }
 
-    private static String createAllLocationsMessage(List<Location> locations) {
-        if (locations == null) {
-            return "\n";
-        }
-        StringBuilder sb = new StringBuilder();
-        for (Location location : locations) {
-            sb.append(location).append("\n");
-        }
-        return sb.toString();
-    }
+    private static String createTooLittleInvocationsMessage(org.mockito.internal.reporting.Discrepancy discrepancy, DescribedInvocation wanted,
+                                                            Location lastActualInvocation) {
+        String ending =
+                (lastActualInvocation != null) ? lastActualInvocation + "\n" : "\n";
 
-    private static String createTooLittleInvocationsMessage(org.mockito.internal.reporting.Discrepancy discrepancy,
-                                                            DescribedInvocation wanted,
-                                                            List<Location> locations) {
         return join(
                 wanted.toString(),
                 "Wanted " + discrepancy.getPluralizedWantedCount() + (discrepancy.getWantedCount() == 0 ? "." : ":"),
                 new LocationImpl(),
                 "But was " + discrepancy.getPluralizedActualCount() + (discrepancy.getActualCount() == 0 ? "." : ":"),
-                createAllLocationsMessage(locations)
+                ending
         );
     }
 
-    public static MockitoAssertionError tooLittleActualInvocations(org.mockito.internal.reporting.Discrepancy discrepancy, DescribedInvocation wanted, List<Location> allLocations) {
-        String message = createTooLittleInvocationsMessage(discrepancy, wanted, allLocations);
+    public static MockitoAssertionError tooLittleActualInvocations(org.mockito.internal.reporting.Discrepancy discrepancy, DescribedInvocation wanted, Location lastActualLocation) {
+        String message = createTooLittleInvocationsMessage(discrepancy, wanted, lastActualLocation);
 
         return new TooLittleActualInvocations(message);
     }
 
-    public static MockitoAssertionError tooLittleActualInvocationsInOrder(org.mockito.internal.reporting.Discrepancy discrepancy, DescribedInvocation wanted, List<Location> locations) {
-        String message = createTooLittleInvocationsMessage(discrepancy, wanted, locations);
+    public static MockitoAssertionError tooLittleActualInvocationsInOrder(org.mockito.internal.reporting.Discrepancy discrepancy, DescribedInvocation wanted, Location lastActualLocation) {
+        String message = createTooLittleInvocationsMessage(discrepancy, wanted, lastActualLocation);
 
         return new VerificationInOrderFailure(join(
                 "Verification in order failure:" + message

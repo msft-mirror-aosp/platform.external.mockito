@@ -119,7 +119,6 @@ public class StubbingWarningsJUnitRunnerTest extends TestBase {
     @RunWith(TestableJUnitRunner.class)
     public static class InvalidMockitoUsage {
         @Mock IMethods mock;
-        @SuppressWarnings({"MockitoUsage", "CheckReturnValue"})
         @Test public void test() throws Exception {
             when(mock.simpleMethod()); // <-- unfinished stubbing
         }

@@ -16,7 +16,6 @@ public class MockingPackageProtectedTest extends TestBase {
 
     class Bar {}
 
-    @SuppressWarnings({"CheckReturnValue", "MockitoUsage"})
     @Test
     public void shouldMockPackageProtectedClasses() {
         mock(PackageProtected.class);

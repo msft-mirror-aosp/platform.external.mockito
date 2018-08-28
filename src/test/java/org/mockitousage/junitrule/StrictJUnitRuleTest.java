@@ -157,7 +157,6 @@ public class StrictJUnitRuleTest {
         mock2.booleanObjectReturningMethod();
     }
 
-    @SuppressWarnings({"MockitoUsage", "CheckReturnValue"})
     @Test public void rule_validates_mockito_usage() throws Throwable {
         //expect
         rule.expectFailure(UnfinishedVerificationException.class);
