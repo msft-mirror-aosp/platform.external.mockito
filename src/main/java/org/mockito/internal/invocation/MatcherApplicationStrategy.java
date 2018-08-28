@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mockito.ArgumentMatcher;
-import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
 import org.mockito.internal.matchers.CapturingMatcher;
 import org.mockito.internal.matchers.VarargMatcher;
 import org.mockito.invocation.Invocation;
@@ -96,19 +95,15 @@ public class MatcherApplicationStrategy {
             return ONE_MATCHER_PER_ARGUMENT;
         }
 
-        if (rawArguments == matcherCount && isLastMatcherVarargMatcher(matchers)) {
+        if (rawArguments == matcherCount && isLastMatcherVargargMatcher(matchers)) {
             return MATCH_EACH_VARARGS_WITH_LAST_MATCHER;
         }
 
         return ERROR_UNSUPPORTED_NUMBER_OF_MATCHERS;
     }
 
-    private static boolean isLastMatcherVarargMatcher(final List<ArgumentMatcher<?>> matchers) {
-        ArgumentMatcher<?> argumentMatcher = lastMatcher(matchers);
-        if (argumentMatcher instanceof HamcrestArgumentMatcher<?>) {
-           return  ((HamcrestArgumentMatcher<?>) argumentMatcher).isVarargMatcher();
-        }
-        return argumentMatcher instanceof VarargMatcher;
+    private static boolean isLastMatcherVargargMatcher(final List<ArgumentMatcher<?>> matchers) {
+        return lastMatcher(matchers) instanceof VarargMatcher;
     }
 
     private static List<ArgumentMatcher<?>> appendLastMatcherNTimes(List<ArgumentMatcher<?>> matchers, int timesToAppendLastMatcher) {

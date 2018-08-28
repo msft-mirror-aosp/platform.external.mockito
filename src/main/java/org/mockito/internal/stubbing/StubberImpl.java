@@ -83,9 +83,9 @@ public class StubberImpl implements Stubber {
         Throwable e;
         try {
             e = newInstance(toBeThrown);
-        } catch (RuntimeException instantiationError) {
+        } catch (RuntimeException instanciationError) {
             mockingProgress().reset();
-            throw instantiationError;
+            throw instanciationError;
         }
         return doThrow(e);
     }

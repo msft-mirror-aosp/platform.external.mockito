@@ -23,7 +23,6 @@ public class ExplicitFrameworkValidationTest extends TestBase {
 
     @Mock IMethods mock;
 
-    @SuppressWarnings({"MockitoUsage", "CheckReturnValue"})
     @Test
     public void shouldValidateExplicitly() {
         verify(mock);
@@ -33,7 +32,6 @@ public class ExplicitFrameworkValidationTest extends TestBase {
         } catch (UnfinishedVerificationException e) {}
     }
 
-    @SuppressWarnings({"MockitoUsage", "CheckReturnValue"})
     @Test
     public void shouldDetectUnfinishedStubbing() {
         when(mock.simpleMethod());

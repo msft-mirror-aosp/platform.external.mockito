@@ -7,7 +7,6 @@ package org.mockito.internal.hamcrest;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 import org.mockito.ArgumentMatcher;
-import org.mockito.internal.matchers.VarargMatcher;
 
 public class HamcrestArgumentMatcher<T> implements ArgumentMatcher<T> {
 
@@ -19,10 +18,6 @@ public class HamcrestArgumentMatcher<T> implements ArgumentMatcher<T> {
 
     public boolean matches(Object argument) {
         return this.matcher.matches(argument);
-    }
-
-    public boolean isVarargMatcher() {
-        return matcher instanceof VarargMatcher;
     }
 
     public String toString() {
