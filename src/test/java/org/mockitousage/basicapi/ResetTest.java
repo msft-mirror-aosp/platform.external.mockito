@@ -26,6 +26,7 @@ public class ResetTest extends TestBase {
 
     @Test
     public void shouldResetOngoingStubbingSoThatMoreMeaningfulExceptionsAreRaised() {
+        mock(IMethods.class);
         mock.booleanReturningMethod();
         reset(mock);
         try {
@@ -94,7 +95,6 @@ public class ResetTest extends TestBase {
         verifyNoMoreInteractions(mock, mockTwo);
     }
 
-    @SuppressWarnings({"MockitoUsage", "CheckReturnValue"})
     @Test
     public void shouldValidateStateWhenResetting() {
         //invalid verify:

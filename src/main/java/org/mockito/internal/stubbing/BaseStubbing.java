@@ -24,8 +24,7 @@ public abstract class BaseStubbing<T> implements OngoingStubbing<T> {
     public OngoingStubbing<T> thenReturn(T value, T... values) {
         OngoingStubbing<T> stubbing = thenReturn(value);
         if (values == null) {
-            // For no good reason we're configuring null answer here
-            // This has been like that since forever, so let's keep it for compatibility (unless users complain)
+            // TODO below does not seem right
             return stubbing.thenReturn(null);
         }
         for (T v : values) {
@@ -66,7 +65,7 @@ public abstract class BaseStubbing<T> implements OngoingStubbing<T> {
     @Override
     public OngoingStubbing<T> thenThrow(Class<? extends Throwable> toBeThrown, Class<? extends Throwable>... nextToBeThrown) {
         if (nextToBeThrown == null) {
-            return thenThrow((Class<Throwable>) null);
+            thenThrow((Class<Throwable>) null);
         }
         OngoingStubbing<T> stubbing = thenThrow(toBeThrown);
         for (Class<? extends Throwable> t : nextToBeThrown) {

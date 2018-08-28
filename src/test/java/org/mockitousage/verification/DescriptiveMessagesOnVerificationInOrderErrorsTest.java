@@ -155,7 +155,7 @@ public class DescriptiveMessagesOnVerificationInOrderErrorsTest extends TestBase
 
             String expectedCause =
                 "\n" +
-                "But was 2 times:" +
+                "But was 2 times. Undesired invocation:" +
                 "\n" +
                 "-> at";
             assertThat(e).hasMessageContaining(expectedCause);
