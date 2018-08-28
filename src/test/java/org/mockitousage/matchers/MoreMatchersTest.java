@@ -5,16 +5,15 @@
 
 package org.mockitousage.matchers;
 
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
 import org.mockitousage.IMethods;
 import org.mockitoutil.TestBase;
 
 import java.util.*;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,21 +44,16 @@ public class MoreMatchersTest extends TestBase {
         verify(mock).simpleMethod(isA(List.class));
         verify(mock).simpleMethod(any(List.class));
 
+
         mock.simpleMethod((String) null);
-
-        assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() {
-                verify(mock).simpleMethod(isA(String.class));
-            }
-        }).isInstanceOf(ArgumentsAreDifferent.class);
-
-        assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() {
-                verify(mock).simpleMethod(any(String.class));
-            }
-        }).isInstanceOf(ArgumentsAreDifferent.class);
+        try {
+            verify(mock).simpleMethod(isA(String.class));
+            fail();
+        } catch (AssertionError ignored) { }
+        try {
+            verify(mock).simpleMethod(any(String.class));
+            fail();
+        } catch (AssertionError ignored) { }
     }
 
     @Test

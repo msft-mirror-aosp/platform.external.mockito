@@ -40,7 +40,6 @@ public class SpyingOnRealObjectsTest extends TestBase {
         verify(spy).add("two");
     }
 
-    @SuppressWarnings({"CheckReturnValue", "MockitoUsage"})
     @Test
     public void shouldBeAbleToMockObjectBecauseWhyNot() {
         spy(new Object());

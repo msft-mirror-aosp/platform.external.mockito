@@ -74,7 +74,6 @@ public class DefaultMockitoFrameworkTest extends TestBase {
         verifyNoMoreInteractions(listener);
     }
 
-    @SuppressWarnings({"CheckReturnValue", "MockitoUsage"})
     @Test
     public void removes_creation_listener() {
         //given creation listener is added

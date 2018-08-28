@@ -93,7 +93,6 @@ public class BasicStubbingTest extends TestBase {
         }
     }
 
-    @SuppressWarnings({"CheckReturnValue", "MockitoUsage"})
     @Test
     public void should_allow_mocking_when_to_string_is_final() throws Exception {
         mock(Foo.class);
