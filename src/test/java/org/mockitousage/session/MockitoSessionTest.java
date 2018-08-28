@@ -151,7 +151,6 @@ public class MockitoSessionTest extends TestBase {
             mockito.finishMocking();
         }
 
-        @SuppressWarnings({"MockitoUsage", "CheckReturnValue"})
         @Test public void unfinished_stubbing() {
             when(mock.simpleMethod());
         }
@@ -166,7 +165,6 @@ public class MockitoSessionTest extends TestBase {
             mockito.finishMocking();
         }
 
-        @SuppressWarnings({"MockitoUsage", "CheckReturnValue"})
         @Test public void unfinished_stubbing_with_other_failure() {
             when(mock.simpleMethod());
             assertTrue(false);
@@ -216,7 +214,6 @@ public class MockitoSessionTest extends TestBase {
             mockito.finishMocking(new RuntimeException("Boo!"));
         }
 
-        @SuppressWarnings({"MockitoUsage", "CheckReturnValue"})
         @Test public void invalid_mockito_usage() {
             verify(mock);
         }
