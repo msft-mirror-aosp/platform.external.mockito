@@ -80,11 +80,11 @@ java_library_host {
 // ============================================================
 java_import_host {
     name: "mockito-byte-buddy",
-    jars: ["lib/byte-buddy-1.8.10.jar"],
+    jars: ["lib/byte-buddy-1.8.15.jar"],
 }
 
 java_import_host {
     name: "mockito-byte-buddy-agent",
-    jars: ["lib/byte-buddy-agent-1.8.10.jar"],
+    jars: ["lib/byte-buddy-agent-1.8.15.jar"],
 }
 
