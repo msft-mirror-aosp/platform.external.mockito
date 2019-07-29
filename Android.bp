@@ -28,6 +28,10 @@ java_library_static {
         "objenesis",
     ],
 
+    static_libs: [
+        "mockito-opentest4j",
+    ],
+
     target: {
         android: {
             // Exclude source used to dynamically create classes since target builds use
@@ -74,15 +78,23 @@ java_library_host {
     java_resource_dirs: ["subprojects/inline/src/main/resources"],
 }
 
+// Common dependencies for both target and host.
+// ===========================================================
+java_import {
+    name: "mockito-opentest4j",
+    host_supported: true,
+    jars: ["lib/opentest4j-1.1.1.jar"],
+}
+
 // Host prebuilt dependencies.
 // ============================================================
 java_import_host {
     name: "mockito-byte-buddy",
-    jars: ["lib/byte-buddy-1.8.15.jar"],
+    jars: ["lib/byte-buddy-1.9.10.jar"],
 }
 
 java_import_host {
     name: "mockito-byte-buddy-agent",
-    jars: ["lib/byte-buddy-agent-1.8.15.jar"],
+    jars: ["lib/byte-buddy-agent-1.9.10.jar"],
 }
 
