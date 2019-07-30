@@ -8,8 +8,7 @@ package org.mockitousage.matchers;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.exceptions.verification.opentest4j.ArgumentsAreDifferent;
+import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
 import org.mockitousage.IMethods;
 import org.mockitoutil.TestBase;
 
@@ -35,8 +34,8 @@ public class MoreMatchersTest extends TestBase {
     public void any_should_be_actual_alias_to_anyObject() {
         mock.simpleMethod((Object) null);
 
-        verify(mock).simpleMethod(Mockito.<Object>any());
-        verify(mock).simpleMethod(Mockito.<Object>anyObject());
+        verify(mock).simpleMethod(any());
+        verify(mock).simpleMethod(anyObject());
     }
 
     @Test
