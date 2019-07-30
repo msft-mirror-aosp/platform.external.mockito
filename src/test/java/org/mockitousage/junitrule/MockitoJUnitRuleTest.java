@@ -19,10 +19,6 @@ public class MockitoJUnitRuleTest {
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-    // Fixes #1578: Protect against multiple execution.
-    @Rule
-    public MockitoRule mockitoRule2 = mockitoRule;
-
     @Mock
     private Injected injected;
 

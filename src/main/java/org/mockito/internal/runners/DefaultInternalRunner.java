@@ -30,29 +30,34 @@ public class DefaultInternalRunner implements InternalRunner {
             public Object target;
             private MockitoTestListener mockitoTestListener;
 
-            protected Statement withBefores(FrameworkMethod method, final Object target, Statement statement) {
+            protected Statement withBefores(FrameworkMethod method, Object target, Statement statement) {
                 this.target = target;
-                final Statement base = super.withBefores(method, target, statement);
-                return new Statement() {
-                    @Override
-                    public void evaluate() throws Throwable {
-                        // get new test listener and add it to the framework
-                        mockitoTestListener = listenerSupplier.get();
-                        Mockito.framework().addListener(mockitoTestListener);
-                        // init annotated mocks before tests
-                        MockitoAnnotations.initMocks(target);
-                        base.evaluate();
-                    }
-                };
+                // get new test listener and add it to the framework
+                mockitoTestListener = listenerSupplier.get();
+                Mockito.framework().addListener(mockitoTestListener);
+                // init annotated mocks before tests
+                MockitoAnnotations.initMocks(target);
+                return super.withBefores(method, target, statement);
             }
 
             public void run(final RunNotifier notifier) {
                 RunListener listener = new RunListener() {
+                    private boolean started;
                     Throwable failure;
+
+                    @Override
+                    public void testStarted(Description description) throws Exception {
+                        started = true;
+                    }
 
                     @Override
                     public void testFailure(Failure failure) throws Exception {
                         this.failure = failure.getException();
+                        // If the test fails during the setup, `testFinished` is never invoked
+                        // Therefore, if we have not started, cleanup the testlistener
+                        if (!started && mockitoTestListener != null) {
+                            Mockito.framework().removeListener(mockitoTestListener);
+                        }
                     }
 
                     @Override
