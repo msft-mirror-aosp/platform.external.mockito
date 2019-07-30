@@ -14,7 +14,6 @@ import org.mockito.internal.util.Platform;
 import org.mockito.internal.util.concurrent.WeakConcurrentMap;
 import org.mockito.invocation.MockHandler;
 import org.mockito.mock.MockCreationSettings;
-import org.mockito.plugins.InlineMockMaker;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,8 +24,6 @@ import java.lang.reflect.Modifier;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
-
-import javax.tools.ToolProvider;
 
 import static org.mockito.internal.creation.bytebuddy.InlineBytecodeGenerator.EXCLUDES;
 import static org.mockito.internal.util.StringUtil.join;
@@ -90,7 +87,7 @@ import static org.mockito.internal.util.StringUtil.join;
  * support this feature.
  */
 @Incubating
-public class InlineByteBuddyMockMaker implements ClassCreatingMockMaker, InlineMockMaker {
+public class InlineByteBuddyMockMaker implements ClassCreatingMockMaker {
 
     private static final Instrumentation INSTRUMENTATION;
 
@@ -112,7 +109,7 @@ public class InlineByteBuddyMockMaker implements ClassCreatingMockMaker, InlineM
                 boot.deleteOnExit();
                 JarOutputStream outputStream = new JarOutputStream(new FileOutputStream(boot));
                 try {
-                    String source = "org/mockito/internal/creation/bytebuddy/inject/MockMethodDispatcher";
+                    String source = "org/mockito/internal/creation/bytebuddy/MockMethodDispatcher";
                     InputStream inputStream = InlineByteBuddyMockMaker.class.getClassLoader().getResourceAsStream(source + ".raw");
                     if (inputStream == null) {
                         throw new IllegalStateException(join(
@@ -137,7 +134,13 @@ public class InlineByteBuddyMockMaker implements ClassCreatingMockMaker, InlineM
                 }
                 instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(boot));
                 try {
-                    Class.forName("org.mockito.internal.creation.bytebuddy.inject.MockMethodDispatcher", false, null);
+                    Class<?> dispatcher = Class.forName("org.mockito.internal.creation.bytebuddy.MockMethodDispatcher");
+                    if (dispatcher.getClassLoader() != null) {
+                        throw new IllegalStateException(join(
+                                "The MockMethodDispatcher must not be loaded manually but must be injected into the bootstrap class loader.",
+                                "",
+                                "The dispatcher class was already loaded by: " + dispatcher.getClassLoader()));
+                    }
                 } catch (ClassNotFoundException cnfe) {
                     throw new IllegalStateException(join(
                             "Mockito failed to inject the MockMethodDispatcher class into the bootstrap class loader",
@@ -167,7 +170,7 @@ public class InlineByteBuddyMockMaker implements ClassCreatingMockMaker, InlineM
         if (INITIALIZATION_ERROR != null) {
             throw new MockitoInitializationException(join(
                     "Could not initialize inline Byte Buddy mock maker. (This mock maker is not supported on Android.)",
-                    ToolProvider.getSystemJavaCompiler() == null ? "Are you running a JRE instead of a JDK? The inline mock maker needs to be run on a JDK.\n" : "",
+                    "",
                     Platform.describe()), INITIALIZATION_ERROR);
         }
         bytecodeGenerator = new TypeCachingBytecodeGenerator(new InlineBytecodeGenerator(INSTRUMENTATION, mocks), true);
@@ -270,16 +273,6 @@ public class InlineByteBuddyMockMaker implements ClassCreatingMockMaker, InlineM
         if (mock instanceof MockAccess) {
             ((MockAccess) mock).setMockitoInterceptor(mockMethodInterceptor);
         }
-    }
-
-    @Override
-    public void clearMock(Object mock) {
-        mocks.remove(mock);
-    }
-
-    @Override
-    public void clearAllMocks() {
-        mocks.clear();
     }
 
     @Override
