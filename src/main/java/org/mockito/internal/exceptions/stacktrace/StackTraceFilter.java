@@ -37,17 +37,4 @@ public class StackTraceFilter implements Serializable {
         StackTraceElement[] result = new StackTraceElement[filtered.size()];
         return filtered.toArray(result);
     }
-
-    /**
-     * Finds the source file of the target stack trace.
-     * Returns the default value if source file cannot be found.
-     */
-    public String findSourceFile(StackTraceElement[] target, String defaultValue) {
-        for (StackTraceElement e : target) {
-            if (CLEANER.isIn(e)) {
-                return e.getFileName();
-            }
-        }
-        return defaultValue;
-    }
 }

@@ -103,8 +103,7 @@ import org.mockito.verification.VerificationWithTimeout;
  *      <a href="#43">43. New API for integrations: <code>MockitoSession</code> is usable by testing frameworks (Since 2.15.+)</a><br/>
  *      <a href="#44">44. Deprecated <code>org.mockito.plugins.InstantiatorProvider</code> as it was leaking internal API. it was replaced by <code>org.mockito.plugins.InstantiatorProvider2 (Since 2.15.4)</code></a><br/>
  *      <a href="#45">45. New JUnit Jupiter (JUnit5+) extension</a><br/>
- *      <a href="#46">46. New <code>Mockito.lenient()</code> and <code>MockSettings.lenient()</code> methods (Since 2.20.0)</a><br/>
- *      <a href="#47">47. New API for clearing mock state in inline mocking (Since 2.25.0)</a><br/>
+ *      <a href="#46">46. New <code>Mockito.lenient()</code> and <code>MockSettings.lenient()</code> methods (Since 2.20.0</a><br/>
  * </b>
  *
  * <h3 id="0">0. <a class="meaningful_link" href="#mockito2" name="mockito2">Migrating to Mockito 2</a></h3>
@@ -208,7 +207,7 @@ import org.mockito.verification.VerificationWithTimeout;
  *
  * //Although it is possible to verify a stubbed invocation, usually <b>it's just redundant</b>
  * //If your code cares what get(0) returns, then something else breaks (often even before verify() gets executed).
- * //If your code doesn't care what get(0) returns, then it should not be stubbed.
+ * //If your code doesn't care what get(0) returns, then it should not be stubbed. Not convinced? See <a href="http://monkeyisland.pl/2008/04/26/asking-and-telling">here</a>.
  * verify(mockedList).get(0);
  * </code></pre>
  *
@@ -358,7 +357,7 @@ import org.mockito.verification.VerificationWithTimeout;
  * //create an inOrder verifier for a single mock
  * InOrder inOrder = inOrder(singleMock);
  *
- * //following will make sure that add is first called with "was added first", then with "was added second"
+ * //following will make sure that add is first called with "was added first, then with "was added second"
  * inOrder.verify(singleMock).add("was added first");
  * inOrder.verify(singleMock).add("was added second");
  *
@@ -427,7 +426,8 @@ import org.mockito.verification.VerificationWithTimeout;
  * Some users who did a lot of classic, expect-run-verify mocking tend to use <code>verifyNoMoreInteractions()</code> very often, even in every test method.
  * <code>verifyNoMoreInteractions()</code> is not recommended to use in every test method.
  * <code>verifyNoMoreInteractions()</code> is a handy assertion from the interaction testing toolkit. Use it only when it's relevant.
- * Abusing it leads to <strong>overspecified</strong>, <strong>less maintainable</strong> tests.
+ * Abusing it leads to <strong>overspecified</strong>, <strong>less maintainable</strong> tests. You can find further reading
+ * <a href="http://monkeyisland.pl/2008/07/12/should-i-worry-about-the-unexpected/">here</a>.
  *
  * <p>
  * See also {@link Mockito#never()} - it is more explicit and
@@ -464,7 +464,6 @@ import org.mockito.verification.VerificationWithTimeout;
  * </code></pre>
  *
  * You can use built-in runner: {@link MockitoJUnitRunner} or a rule: {@link MockitoRule}.
- * For JUnit5 tests, refer to the JUnit5 extension described in <a href="#45">section 45</a>.
  * <p>
  * Read more here: {@link MockitoAnnotations}
  *
@@ -598,7 +597,8 @@ import org.mockito.verification.VerificationWithTimeout;
  * <b>Before the release 1.8</b>, Mockito spies were not real partial mocks.
  * The reason was we thought partial mock is a code smell.
  * At some point we found legitimate use cases for partial mocks
- * (3rd party interfaces, interim refactoring of legacy code).
+ * (3rd party interfaces, interim refactoring of legacy code, the full article is
+ * <a href="http://monkeyisland.pl/2009/01/13/subclass-and-override-vs-partial-mocking-vs-refactoring">here</a>)
  * <p>
  *
  * <pre class="code"><code class="java">
@@ -707,7 +707,8 @@ import org.mockito.verification.VerificationWithTimeout;
  * <h3 id="16">16. <a class="meaningful_link" href="#partial_mocks" name="partial_mocks">Real partial mocks</a> (Since 1.8.0)</h3>
  *
  *  Finally, after many internal debates & discussions on the mailing list, partial mock support was added to Mockito.
- *  Previously we considered partial mocks as code smells. However, we found a legitimate use case for partial mocks.
+ *  Previously we considered partial mocks as code smells. However, we found a legitimate use case for partial mocks - more reading:
+ *  <a href="http://monkeyisland.pl/2009/01/13/subclass-and-override-vs-partial-mocking-vs-refactoring">here</a>
  *  <p>
  *  <b>Before release 1.8</b> <code>spy()</code> was not producing real partial mocks and it was confusing for some users.
  *  Read more about spying: <a href="#13">here</a> or in javadoc for {@link Mockito#spy(Object)} method.
@@ -1531,15 +1532,6 @@ import org.mockito.verification.VerificationWithTimeout;
  *
  * For more information refer to {@link Mockito#lenient()}.
  * Let us know how do you find the new feature by opening a GitHub issue to discuss!
- *
- * <h3 id="47">47. <a class="meaningful_link" href="#clear_inline_mocks" name="clear_inline_mocks">New API for clearing mock state in inline mocking (Since 2.25.0)</a></h3>
- *
- * In certain specific, rare scenarios (issue <a href="https://github.com/mockito/mockito/pull/1619">#1619</a>)
- * inline mocking causes memory leaks.
- * There is no clean way to mitigate this problem completely.
- * Hence, we introduced a new API to explicitly clear mock state (only make sense in inline mocking!).
- * See example usage in {@link MockitoFramework#clearInlineMocks()}.
- * If you have feedback or a better idea how to solve the problem please reach out.
  */
 @SuppressWarnings("unchecked")
 public class Mockito extends ArgumentMatchers {
@@ -1692,7 +1684,6 @@ public class Mockito extends ArgumentMatchers {
 
     /**
      * Optional <code>Answer</code> to be used with {@link Mockito#mock(Class, Answer)}
-     *
      * <p>
      * {@link Answer} can be used to define the return values of unstubbed invocations.
      * <p>
@@ -1724,11 +1715,8 @@ public class Mockito extends ArgumentMatchers {
      * </code></pre>
      *
      * <p>
-     * <u>Note 1:</u> Stubbing partial mocks using <code>when(mock.getSomething()).thenReturn(fakeValue)</code>
+     * <u>Note:</u> Stubbing partial mocks using <code>when(mock.getSomething()).thenReturn(fakeValue)</code>
      * syntax will call the real method. For partial mock it's recommended to use <code>doReturn</code> syntax.
-     * <p>
-     * <u>Note 2:</u> If the mock is serialized then deserialized, then this answer will not be able to understand
-     * generics metadata.
      */
     public static final Answer<Object> CALLS_REAL_METHODS = Answers.CALLS_REAL_METHODS;
 
@@ -2081,6 +2069,7 @@ public class Mockito extends ArgumentMatchers {
      * Let's say you've stubbed <code>foo.bar()</code>.
      * If your code cares what <code>foo.bar()</code> returns then something else breaks(often before even <code>verify()</code> gets executed).
      * If your code doesn't care what <code>get(0)</code> returns then it should not be stubbed.
+     * Not convinced? See <a href="http://monkeyisland.pl/2008/04/26/asking-and-telling">here</a>.
      *
      * <p>
      * See examples in javadoc for {@link Mockito} class
@@ -2112,6 +2101,7 @@ public class Mockito extends ArgumentMatchers {
      * Let's say you've stubbed <code>foo.bar()</code>.
      * If your code cares what <code>foo.bar()</code> returns then something else breaks(often before even <code>verify()</code> gets executed).
      * If your code doesn't care what <code>get(0)</code> returns then it should not be stubbed.
+     * Not convinced? See <a href="http://monkeyisland.pl/2008/04/26/asking-and-telling">here</a>.
      *
      * <p>
      * See examples in javadoc for {@link Mockito} class
@@ -2213,7 +2203,8 @@ public class Mockito extends ArgumentMatchers {
      * Some users who did a lot of classic, expect-run-verify mocking tend to use <code>verifyNoMoreInteractions()</code> very often, even in every test method.
      * <code>verifyNoMoreInteractions()</code> is not recommended to use in every test method.
      * <code>verifyNoMoreInteractions()</code> is a handy assertion from the interaction testing toolkit. Use it only when it's relevant.
-     * Abusing it leads to overspecified, less maintainable tests.
+     * Abusing it leads to overspecified, less maintainable tests. You can find further reading
+     * <a href="http://monkeyisland.pl/2008/07/12/should-i-worry-about-the-unexpected/">here</a>.
      * <p>
      * This method will also detect unverified invocations that occurred before the test method,
      * for example: in <code>setUp()</code>, <code>&#064;Before</code> method or in constructor.
