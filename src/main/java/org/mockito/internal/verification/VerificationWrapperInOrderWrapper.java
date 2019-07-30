@@ -47,7 +47,6 @@ public class VerificationWrapperInOrderWrapper implements VerificationMode {
             }
         }
 
-        //TODO ugly exception message!!!
         throw new MockitoException(verificationMode.getClass().getSimpleName() +
                 " is not implemented to work with InOrder wrapped inside a " +
                 verificationWrapper.getClass().getSimpleName());

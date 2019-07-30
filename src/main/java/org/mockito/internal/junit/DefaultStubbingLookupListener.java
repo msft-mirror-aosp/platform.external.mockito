@@ -5,14 +5,13 @@
 package org.mockito.internal.junit;
 
 import org.mockito.internal.exceptions.Reporter;
+import org.mockito.internal.listeners.StubbingLookupEvent;
+import org.mockito.internal.listeners.StubbingLookupListener;
 import org.mockito.internal.stubbing.UnusedStubbingReporting;
 import org.mockito.invocation.Invocation;
-import org.mockito.listeners.StubbingLookupEvent;
-import org.mockito.listeners.StubbingLookupListener;
 import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Stubbing;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,9 +22,7 @@ import static org.mockito.internal.stubbing.StrictnessSelector.determineStrictne
  * Default implementation of stubbing lookup listener.
  * Fails early if stub called with unexpected arguments, but only if current strictness is set to STRICT_STUBS.
  */
-class DefaultStubbingLookupListener implements StubbingLookupListener, Serializable {
-
-    private static final long serialVersionUID = -6789800638070123629L;
+class DefaultStubbingLookupListener implements StubbingLookupListener {
 
     private Strictness currentStrictness;
     private boolean mismatchesReported;
@@ -60,11 +57,8 @@ class DefaultStubbingLookupListener implements StubbingLookupListener, Serializa
         List<Invocation> matchingStubbings = new LinkedList<Invocation>();
         for (Stubbing s : stubbings) {
             if (UnusedStubbingReporting.shouldBeReported(s)
-                && s.getInvocation().getMethod().getName().equals(invocation.getMethod().getName())
-                //If stubbing and invocation are in the same source file we assume they are in the test code,
-                // and we don't flag it as mismatch:
-                && !s.getInvocation().getLocation().getSourceFile().equals(invocation.getLocation().getSourceFile())) {
-                    matchingStubbings.add(s.getInvocation());
+                && s.getInvocation().getMethod().getName().equals(invocation.getMethod().getName())) {
+                matchingStubbings.add(s.getInvocation());
             }
         }
         return matchingStubbings;

@@ -14,7 +14,6 @@ import org.mockito.exceptions.misusing.UnnecessaryStubbingException;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.quality.Strictness;
 import org.mockitousage.IMethods;
-import org.mockitousage.strictness.ProductionCode;
 import org.mockitoutil.SafeJUnitRule;
 
 import static org.junit.Assert.assertEquals;
@@ -76,7 +75,7 @@ public class StrictJUnitRuleTest {
 
         //when
         when(mock.simpleMethod(10)).thenReturn("10");
-        ProductionCode.simpleMethod(mock, 20);
+        when(mock.simpleMethod(20)).thenReturn("20");
     }
 
     @Test public void fails_fast_when_stubbing_invoked_with_different_argument() throws Throwable {
@@ -88,7 +87,7 @@ public class StrictJUnitRuleTest {
                                 "Strict stubbing argument mismatch. Please check:\n" +
                                 " - this invocation of 'simpleMethod' method:\n" +
                                 "    mock.simpleMethod(15);\n" +
-                                "    -> at org.mockitousage.strictness.ProductionCode.simpleMethod(ProductionCode.java:0)\n" +
+                                "    -> at org.mockitousage.junitrule.StrictJUnitRuleTest.fails_fast_when_stubbing_invoked_with_different_argument(StrictJUnitRuleTest.java:0)\n" +
                                 " - has following stubbing(s) with different arguments:\n" +
                                 "    1. mock.simpleMethod(20);\n" +
                                 "      -> at org.mockitousage.junitrule.StrictJUnitRuleTest.fails_fast_when_stubbing_invoked_with_different_argument(StrictJUnitRuleTest.java:0)\n" +
@@ -117,7 +116,7 @@ public class StrictJUnitRuleTest {
 
         //invocation in the code under test uses different argument and should fail immediately
         //this helps with debugging and is essential for Mockito strictness
-        ProductionCode.simpleMethod(mock, 15);
+        mock.simpleMethod(15);
     }
 
     @Test public void verify_no_more_interactions_ignores_stubs() throws Throwable {

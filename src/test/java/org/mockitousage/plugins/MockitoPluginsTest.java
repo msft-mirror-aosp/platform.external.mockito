@@ -11,7 +11,6 @@ import org.mockito.plugins.AnnotationEngine;
 import org.mockito.plugins.InstantiatorProvider;
 import org.mockito.plugins.InstantiatorProvider2;
 import org.mockito.plugins.MockMaker;
-import org.mockito.plugins.MockitoLogger;
 import org.mockito.plugins.MockitoPlugins;
 import org.mockito.plugins.PluginSwitch;
 import org.mockito.plugins.StackTraceCleanerProvider;
@@ -33,7 +32,6 @@ public class MockitoPluginsTest extends TestBase {
         assertNotNull(plugins.getDefaultPlugin(InstantiatorProvider.class));
         assertNotNull(plugins.getDefaultPlugin(InstantiatorProvider2.class));
         assertNotNull(plugins.getDefaultPlugin(AnnotationEngine.class));
-        assertNotNull(plugins.getDefaultPlugin(MockitoLogger.class));
     }
 
     @SuppressWarnings("deprecation")
