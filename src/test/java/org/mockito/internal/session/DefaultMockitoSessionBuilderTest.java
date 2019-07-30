@@ -97,16 +97,6 @@ public class DefaultMockitoSessionBuilderTest {
         }).throwsException(UnfinishedMockingSessionException.class);
     }
 
-    @Test public void auto_cleans_dirty_listeners() {
-        new DefaultMockitoSessionBuilder().startMocking();
-
-        ThrowableAssert.assertThat(new Runnable() {
-            public void run() {
-                new DefaultMockitoSessionBuilder().startMocking();
-            }
-        }).throwsException(UnfinishedMockingSessionException.class);
-    }
-
     class TestClass {
 
         @Mock public Set<Object> set;

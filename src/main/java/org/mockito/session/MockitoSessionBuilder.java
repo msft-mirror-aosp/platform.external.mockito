@@ -7,7 +7,6 @@ package org.mockito.session;
 import org.mockito.Incubating;
 import org.mockito.MockitoAnnotations;
 import org.mockito.MockitoSession;
-import org.mockito.NotExtensible;
 import org.mockito.exceptions.misusing.UnfinishedMockingSessionException;
 import org.mockito.quality.Strictness;
 
@@ -18,7 +17,6 @@ import org.mockito.quality.Strictness;
  * @since 2.7.0
  */
 @Incubating
-@NotExtensible
 public interface MockitoSessionBuilder {
 
     /**
