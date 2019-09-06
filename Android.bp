@@ -78,6 +78,58 @@ java_library_host {
     java_resource_dirs: ["subprojects/inline/src/main/resources"],
 }
 
+// Mockito host test target for Mockito usage
+java_test_host {
+    name: "mockito-host-test",
+    srcs: [
+        "src/test/java/**/*.java",
+    ],
+    exclude_srcs: [
+        // MockMethodDispatcher.class is renamed to MockMethodDispatcher.raw
+        // in upstream, and used by InlineByteBuddyMockmaker. It's not set up
+        // here so we need to exclude tests that use InlineByteBuddyMockmaker.
+        "src/test/java/org/mockito/internal/creation/bytebuddy/Inline*.java",
+        "src/test/java/org/mockito/internal/configuration/plugins/DefaultMockitoPluginsTest.java",
+        "src/test/java/org/mockitousage/plugins/MockitoPluginsTest.java",
+
+        // Exclude class loader tests because it assumes mockito tests and mockito library are in
+        // different jars, but current host test settings don't support arbitrary shared java
+        // libraries.
+        "src/test/java/org/mockitoutil/ClassLoadersTest.java",
+
+        // TODO(b/140568508): Add these tests back after it's fixed.
+        // For some reason tradefed expect the following test suite with @Ignore annotation on
+        // their classes to generate 1 test result for each of them. Need to exclude them from the
+        // test manually.
+        "src/test/java/org/mockitousage/bugs/MultithreadedStubbingHalfManualTest.java",
+        "src/test/java/org/mockitousage/junitrunner/ModellingVerboseMockitoTest.java",
+        "src/test/java/org/mockitousage/stacktrace/ModellingDescriptiveMessagesTest.java",
+
+        // Exclude known bad tests
+        // See https://github.com/mockito/mockito/commit/6109160e74d5081cbb170cfbb2324bb3991518ff
+        "src/test/java/org/mockitousage/matchers/VarargsTest.java",
+        // See https://github.com/mockito/mockito/issues/1174. The following test fails because
+        // OpenJDK 9 adds type assertions on generic types sometimes.
+        "src/test/java/org/mockitousage/bugs/GenericsMockitoAnnotationsTest.java",
+        "src/test/java/org/mockito/internal/stubbing/defaultanswers/ReturnsMocksTest.java",
+    ],
+    static_libs: [
+        "junit",
+        "mockito",
+        "mockito-asm",
+        "mockito-assertj-core",
+        "objenesis",
+    ],
+    test_suites: ["general-tests"],
+    errorprone: {
+        javacflags: [
+            // In long term we may want to fix these code in upstream, but for the time being
+            // let's suppress it.
+            "-XepDisableAllChecks",
+        ],
+    },
+}
+
 // Common dependencies for both target and host.
 // ===========================================================
 java_import {
@@ -98,3 +150,12 @@ java_import_host {
     jars: ["lib/byte-buddy-agent-1.9.10.jar"],
 }
 
+java_import_host {
+    name: "mockito-assertj-core",
+    jars: ["lib/assertj-core-2.9.0.jar"],
+}
+
+java_import_host {
+    name: "mockito-asm",
+    jars: ["lib/asm-7.0.jar"],
+}
