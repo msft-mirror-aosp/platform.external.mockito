@@ -34,8 +34,9 @@ public class StrictnessWhenRuleStrictnessIsUpdatedTest {
         //then previous mock is strict:
         when(mock.simpleMethod(1)).thenReturn("1");
         assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
-            public void call() {
-                ProductionCode.simpleMethod(mock, 2);
+            @Override
+            public void call() throws Throwable {
+                mock.simpleMethod(2);
             }
         }).isInstanceOf(PotentialStubbingProblem.class);
 
@@ -53,8 +54,9 @@ public class StrictnessWhenRuleStrictnessIsUpdatedTest {
         //then previous mock is strict:
         when(mock.simpleMethod(1)).thenReturn("1");
         assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
-            public void call() {
-                ProductionCode.simpleMethod(mock, 2);
+            @Override
+            public void call() throws Throwable {
+                mock.simpleMethod(2);
             }
         }).isInstanceOf(PotentialStubbingProblem.class);
 

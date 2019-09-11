@@ -93,6 +93,7 @@ public class MockingMultipleInterfacesTest {
         }
     }
 
+
     @Test
     public void should_mock_class_with_interfaces_of_different_class_loader_AND_different_classpaths() throws ClassNotFoundException {
         // Note : if classes are in the same classpath, SearchingClassLoader can find the class/classes and load them in the first matching classloader
