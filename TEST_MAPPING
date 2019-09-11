@@ -31,9 +31,6 @@
                     "exclude-annotation": "androidx.test.filters.LargeTest"
                 }
             ]
-        },
-        {
-            "name": "mockito-host-test"
         }
     ]
 }
