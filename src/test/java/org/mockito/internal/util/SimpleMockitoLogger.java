@@ -4,8 +4,6 @@
  */
 package org.mockito.internal.util;
 
-import org.mockito.plugins.MockitoLogger;
-
 public class SimpleMockitoLogger implements MockitoLogger {
 
     private StringBuilder loggedInfo = new StringBuilder();
