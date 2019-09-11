@@ -19,7 +19,6 @@ public class OngoingStubbingImpl<T> extends BaseStubbing<T> {
     private Strictness strictness;
 
     public OngoingStubbingImpl(InvocationContainerImpl invocationContainer) {
-        super(invocationContainer.invokedMock());
         this.invocationContainer = invocationContainer;
     }
 
@@ -33,9 +32,20 @@ public class OngoingStubbingImpl<T> extends BaseStubbing<T> {
         return new ConsecutiveStubbing<T>(invocationContainer);
     }
 
+    @Override
+    public OngoingStubbing<T> then(Answer<?> answer) {
+        return thenAnswer(answer);
+    }
+
     public List<Invocation> getRegisteredInvocations() {
         //TODO interface for tests
         return invocationContainer.getInvocations();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <M> M getMock() {
+        return (M) invocationContainer.invokedMock();
     }
 
     public void setStrictness(Strictness strictness) {

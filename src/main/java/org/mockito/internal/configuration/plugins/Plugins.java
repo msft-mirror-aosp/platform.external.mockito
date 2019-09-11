@@ -4,7 +4,6 @@
  */
 package org.mockito.internal.configuration.plugins;
 
-import org.mockito.plugins.MockitoLogger;
 import org.mockito.plugins.AnnotationEngine;
 import org.mockito.plugins.InstantiatorProvider2;
 import org.mockito.plugins.MockMaker;
@@ -54,16 +53,6 @@ public class Plugins {
      */
     public static AnnotationEngine getAnnotationEngine() {
         return registry.getAnnotationEngine();
-    }
-
-    /**
-     * Returns the logger available for the current runtime.
-     *
-     * <p>Returns {@link org.mockito.internal.util.ConsoleMockitoLogger} if no
-     * {@link org.mockito.plugins.MockitoLogger} extension exists or is visible in the current classpath.</p>
-     */
-    public static MockitoLogger getMockitoLogger() {
-        return registry.getMockitoLogger();
     }
 
     /**
