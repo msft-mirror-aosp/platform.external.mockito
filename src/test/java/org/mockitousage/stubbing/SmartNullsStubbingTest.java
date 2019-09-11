@@ -42,15 +42,6 @@ public class SmartNullsStubbingTest extends TestBase {
         }
     }
 
-    @Test
-    public void should_not_throw_NPE_when_verifying_with_returns_smart_nulls() {
-        Foo mock = mock(Foo.class, RETURNS_SMART_NULLS);
-
-        when(mock.returnsFromArg(null)).thenReturn("Does not fail.");
-
-        assertThat((Object) mock.returnsFromArg(null)).isEqualTo("Does not fail.");
-    }
-
     interface Bar {
         void boo();
     }
@@ -67,8 +58,6 @@ public class SmartNullsStubbingTest extends TestBase {
         Bar getBarWithParams(int x, String y) {
             return null;
         }
-
-        <T> T returnsFromArg(T arg) { return arg; }
 
         void boo() {}
     }

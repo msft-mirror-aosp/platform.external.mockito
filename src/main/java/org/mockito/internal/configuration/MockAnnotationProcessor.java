@@ -35,9 +35,6 @@ public class MockAnnotationProcessor implements FieldAnnotationProcessor<Mock> {
         if(annotation.stubOnly()){
             mockSettings.stubOnly();
         }
-        if(annotation.lenient()){
-            mockSettings.lenient();
-        }
 
         // see @Mock answer default value
         mockSettings.defaultAnswer(annotation.answer());

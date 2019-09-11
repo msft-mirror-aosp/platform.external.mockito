@@ -5,6 +5,7 @@
 package org.mockito.internal.reporting;
 
 import org.mockito.ArgumentMatcher;
+import org.mockito.internal.invocation.ArgumentsProcessor;
 import org.mockito.internal.matchers.text.MatchersPrinter;
 import org.mockito.internal.util.MockUtil;
 import org.mockito.invocation.Invocation;
@@ -54,7 +55,7 @@ public class PrintSettings {
     }
 
     public String print(Invocation invocation) {
-        return print(invocation.getArgumentsAsMatchers(), invocation);
+        return print(ArgumentsProcessor.argumentsToMatchers(invocation.getArguments()), invocation);
     }
 
     public String print(MatchableInvocation invocation) {
