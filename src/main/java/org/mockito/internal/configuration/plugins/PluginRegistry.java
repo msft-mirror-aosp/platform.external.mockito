@@ -9,7 +9,6 @@ import org.mockito.plugins.AnnotationEngine;
 import org.mockito.plugins.InstantiatorProvider;
 import org.mockito.plugins.InstantiatorProvider2;
 import org.mockito.plugins.MockMaker;
-import org.mockito.plugins.MockitoLogger;
 import org.mockito.plugins.PluginSwitch;
 import org.mockito.plugins.StackTraceCleanerProvider;
 
@@ -26,11 +25,8 @@ class PluginRegistry {
 
     private final InstantiatorProvider2 instantiatorProvider;
 
-    private final AnnotationEngine annotationEngine = new PluginLoader(pluginSwitch)
+    private AnnotationEngine annotationEngine = new PluginLoader(pluginSwitch)
             .loadPlugin(AnnotationEngine.class);
-
-    private final MockitoLogger mockitoLogger = new PluginLoader(pluginSwitch)
-            .loadPlugin(MockitoLogger.class);
 
     PluginRegistry() {
         Object impl = new PluginLoader(pluginSwitch).loadPlugin(InstantiatorProvider2.class, InstantiatorProvider.class);
@@ -78,15 +74,5 @@ class PluginRegistry {
      */
     AnnotationEngine getAnnotationEngine() {
         return annotationEngine;
-    }
-
-    /**
-     * Returns the logger available for the current runtime.
-     *
-     * <p>Returns {@link org.mockito.internal.util.ConsoleMockitoLogger} if no
-     * {@link org.mockito.plugins.MockitoLogger} extension exists or is visible in the current classpath.</p>
-     */
-    MockitoLogger getMockitoLogger() {
-        return mockitoLogger;
     }
 }
