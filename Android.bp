@@ -79,6 +79,7 @@ java_library_static {
     errorprone: {
         javacflags: [
             "-Xep:CollectionIncompatibleType:WARN",  // b/74213384
+            "-Xep:BoxedPrimitiveEquality:WARN",
         ],
     }
 }
