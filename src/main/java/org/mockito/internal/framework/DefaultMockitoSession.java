@@ -34,9 +34,20 @@ public class DefaultMockitoSession implements MockitoSession {
             for (Object testClassInstance : testClassInstances) {
                 MockitoAnnotations.initMocks(testClassInstance);
             }
-        } catch (RuntimeException e) {
-            //clean up in case 'initMocks' fails
-            listener.setListenerDirty();
+        } catch (RuntimeException | Error e) {
+            try {
+                // TODO: ideally this scenario should be tested on DefaultMockitoSessionBuilderTest,
+                // but we don't have any Android.bp project to run it.
+                // Besides, the latest Mockito code (https://github.com/mockito/mockito/blob/main/src/main/java/org/mockito/internal/framework/DefaultMockitoSession.java
+                // at the time this patch was merged) has a different workflow, where the listener
+                // is marked as dirty when an exception is thrown, so we're forking the solution.
+                Mockito.framework().removeListener(listener);
+            } catch (RuntimeException | Error e2) {
+                // Ignore it, as the real failure is e, thrown at the end
+                System.err.println("DefaultMockitoSession: ignoring exception thrown when removing "
+                        + "listener " + listener);
+                e2.printStackTrace(System.err);
+            }
             throw e;
         }
     }
