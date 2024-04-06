@@ -37,3 +37,4 @@ public class CyclicMockMethodArgumentMemoryLeakTest {
         void accept(A a) {}
     }
 }
+
