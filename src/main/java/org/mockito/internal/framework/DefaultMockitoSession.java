@@ -18,12 +18,10 @@ import java.util.List;
 
 public class DefaultMockitoSession implements MockitoSession {
 
-    private final List<Object> testClassInstances;
     private final String name;
     private final UniversalTestListener listener;
 
     public DefaultMockitoSession(List<Object> testClassInstances, String name, Strictness strictness, MockitoLogger logger) {
-        this.testClassInstances = testClassInstances;
         this.name = name;
         listener = new UniversalTestListener(strictness, logger);
         try {
@@ -32,8 +30,25 @@ public class DefaultMockitoSession implements MockitoSession {
         } catch (RedundantListenerException e) {
             Reporter.unfinishedMockingSession();
         }
-        for (Object testClassInstance : testClassInstances) {
-            MockitoAnnotations.initMocks(testClassInstance);
+        try {
+            for (Object testClassInstance : testClassInstances) {
+                MockitoAnnotations.initMocks(testClassInstance);
+            }
+        } catch (RuntimeException | Error e) {
+            try {
+                // TODO: ideally this scenario should be tested on DefaultMockitoSessionBuilderTest,
+                // but we don't have any Android.bp project to run it.
+                // Besides, the latest Mockito code (https://github.com/mockito/mockito/blob/main/src/main/java/org/mockito/internal/framework/DefaultMockitoSession.java
+                // at the time this patch was merged) has a different workflow, where the listener
+                // is marked as dirty when an exception is thrown, so we're forking the solution.
+                Mockito.framework().removeListener(listener);
+            } catch (RuntimeException | Error e2) {
+                // Ignore it, as the real failure is e, thrown at the end
+                System.err.println("DefaultMockitoSession: ignoring exception thrown when removing "
+                        + "listener " + listener);
+                e2.printStackTrace(System.err);
+            }
+            throw e;
         }
     }
 

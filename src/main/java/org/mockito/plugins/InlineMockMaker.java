@@ -50,3 +50,4 @@ public interface InlineMockMaker extends MockMaker {
     void clearAllMocks();
 
 }
+
