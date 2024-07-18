@@ -68,8 +68,7 @@ java_library_static {
         },
         host: {
             static_libs: [
-                "mockito-byte-buddy",
-                "mockito-byte-buddy-agent",
+                "byte-buddy-prebuilt-jar",
             ],
         },
     },
@@ -111,16 +110,4 @@ java_library_host {
     name: "mockito-inline",
     static_libs: ["mockito"],
     java_resource_dirs: ["subprojects/inline/src/main/resources"],
-}
-
-// Host prebuilt dependencies.
-// ============================================================
-java_import_host {
-    name: "mockito-byte-buddy",
-    jars: ["lib/byte-buddy-1.9.3.jar"],
-}
-
-java_import_host {
-    name: "mockito-byte-buddy-agent",
-    jars: ["lib/byte-buddy-agent-1.9.3.jar"],
 }
