@@ -2,8 +2,19 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockitousage.verification;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.atMostOnce;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
+import java.util.List;
 
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -12,17 +23,6 @@ import org.mockito.exceptions.base.MockitoException;
 import org.mockito.exceptions.verification.MoreThanAllowedActualInvocations;
 import org.mockito.exceptions.verification.NoInteractionsWanted;
 import org.mockitoutil.TestBase;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.atMost;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class AtMostXVerificationTest extends TestBase {
 
@@ -37,9 +37,10 @@ public class AtMostXVerificationTest extends TestBase {
         verify(mock, atMost(3)).clear();
 
         try {
-            verify(mock, atMost(1)).clear();
+            verify(mock, atMostOnce()).clear();
             fail();
-        } catch (MoreThanAllowedActualInvocations e) {}
+        } catch (MoreThanAllowedActualInvocations e) {
+        }
     }
 
     @Test
@@ -50,7 +51,8 @@ public class AtMostXVerificationTest extends TestBase {
         try {
             verify(mock, atMost(0)).add(anyString());
             fail();
-        } catch (MoreThanAllowedActualInvocations e) {}
+        } catch (MoreThanAllowedActualInvocations e) {
+        }
     }
 
     @Test
@@ -69,7 +71,7 @@ public class AtMostXVerificationTest extends TestBase {
         mock.clear();
 
         try {
-            verify(mock, atMost(1)).clear();
+            verify(mock, atMostOnce()).clear();
             fail();
         } catch (MoreThanAllowedActualInvocations e) {
             assertEquals("\nWanted at most 1 time but was 2", e.getMessage());
@@ -82,7 +84,7 @@ public class AtMostXVerificationTest extends TestBase {
         InOrder inOrder = inOrder(mock);
 
         try {
-            inOrder.verify(mock, atMost(1)).clear();
+            inOrder.verify(mock, atMostOnce()).clear();
             fail();
         } catch (MockitoException e) {
             assertEquals("AtMost is not implemented to work with InOrder", e.getMessage());
@@ -108,7 +110,7 @@ public class AtMostXVerificationTest extends TestBase {
         try {
             verifyNoMoreInteractions(mock);
             fail();
-        } catch(NoInteractionsWanted e) {
+        } catch (NoInteractionsWanted e) {
             assertThat(e).hasMessageContaining("undesiredInteraction(");
         }
     }

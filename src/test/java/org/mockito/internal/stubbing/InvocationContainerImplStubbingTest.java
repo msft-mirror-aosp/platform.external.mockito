@@ -2,8 +2,11 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.internal.stubbing;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,10 +20,6 @@ import org.mockito.internal.stubbing.answers.ThrowsException;
 import org.mockito.invocation.Invocation;
 import org.mockitoutil.TestBase;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
-
 public class InvocationContainerImplStubbingTest extends TestBase {
 
     private InvocationContainerImpl invocationContainerImpl;
@@ -33,11 +32,13 @@ public class InvocationContainerImplStubbingTest extends TestBase {
         state = mockingProgress();
 
         invocationContainerImpl = new InvocationContainerImpl(new MockSettingsImpl());
-        invocationContainerImpl.setInvocationForPotentialStubbing(new InvocationBuilder().toInvocationMatcher());
+        invocationContainerImpl.setInvocationForPotentialStubbing(
+                new InvocationBuilder().toInvocationMatcher());
 
         invocationContainerImplStubOnly =
-          new InvocationContainerImpl( new MockSettingsImpl().stubOnly());
-        invocationContainerImplStubOnly.setInvocationForPotentialStubbing(new InvocationBuilder().toInvocationMatcher());
+                new InvocationContainerImpl(new MockSettingsImpl().stubOnly());
+        invocationContainerImplStubOnly.setInvocationForPotentialStubbing(
+                new InvocationBuilder().toInvocationMatcher());
 
         simpleMethod = new InvocationBuilder().simpleMethod().toInvocation();
     }
@@ -62,11 +63,13 @@ public class InvocationContainerImplStubbingTest extends TestBase {
 
     @Test
     public void should_get_results_for_methods() throws Throwable {
-        invocationContainerImpl.setInvocationForPotentialStubbing(new InvocationMatcher(simpleMethod));
+        invocationContainerImpl.setInvocationForPotentialStubbing(
+                new InvocationMatcher(simpleMethod));
         invocationContainerImpl.addAnswer(new Returns("simpleMethod"), null);
 
         Invocation differentMethod = new InvocationBuilder().differentMethod().toInvocation();
-        invocationContainerImpl.setInvocationForPotentialStubbing(new InvocationMatcher(differentMethod));
+        invocationContainerImpl.setInvocationForPotentialStubbing(
+                new InvocationMatcher(differentMethod));
         invocationContainerImpl.addAnswer(new ThrowsException(new MyException()), null);
 
         assertEquals("simpleMethod", invocationContainerImpl.answerTo(simpleMethod));
@@ -74,16 +77,19 @@ public class InvocationContainerImplStubbingTest extends TestBase {
         try {
             invocationContainerImpl.answerTo(differentMethod);
             fail();
-        } catch (MyException e) {}
+        } catch (MyException e) {
+        }
     }
 
     @Test
     public void should_get_results_for_methods_stub_only() throws Throwable {
-        invocationContainerImplStubOnly.setInvocationForPotentialStubbing(new InvocationMatcher(simpleMethod));
+        invocationContainerImplStubOnly.setInvocationForPotentialStubbing(
+                new InvocationMatcher(simpleMethod));
         invocationContainerImplStubOnly.addAnswer(new Returns("simpleMethod"), null);
 
         Invocation differentMethod = new InvocationBuilder().differentMethod().toInvocation();
-        invocationContainerImplStubOnly.setInvocationForPotentialStubbing(new InvocationMatcher(differentMethod));
+        invocationContainerImplStubOnly.setInvocationForPotentialStubbing(
+                new InvocationMatcher(differentMethod));
         invocationContainerImplStubOnly.addAnswer(new ThrowsException(new MyException()), null);
 
         assertEquals("simpleMethod", invocationContainerImplStubOnly.answerTo(simpleMethod));
@@ -91,7 +97,8 @@ public class InvocationContainerImplStubbingTest extends TestBase {
         try {
             invocationContainerImplStubOnly.answerTo(differentMethod);
             fail();
-        } catch (MyException e) {}
+        } catch (MyException e) {
+        }
     }
 
     @Test
@@ -99,7 +106,8 @@ public class InvocationContainerImplStubbingTest extends TestBase {
         try {
             invocationContainerImpl.addAnswer(new ThrowsException(null), null);
             fail();
-        } catch (MockitoException e) {}
+        } catch (MockitoException e) {
+        }
     }
 
     @SuppressWarnings("serial")
