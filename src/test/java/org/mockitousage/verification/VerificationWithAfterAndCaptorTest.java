@@ -2,16 +2,8 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockitousage.verification;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.after;
-import static org.mockito.Mockito.verify;
-import static org.mockito.junit.MockitoJUnit.rule;
-import static org.mockitoutil.Stopwatch.createNotStarted;
 
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -22,6 +14,14 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoRule;
 import org.mockitousage.IMethods;
 import org.mockitoutil.Stopwatch;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.verify;
+import static org.mockito.junit.MockitoJUnit.rule;
+import static org.mockitoutil.Stopwatch.createNotStarted;
 
 public class VerificationWithAfterAndCaptorTest {
 
@@ -62,7 +62,7 @@ public class VerificationWithAfterAndCaptorTest {
         // when
         exerciseMockNTimes(n);
 
-        // Then
+        //Then
         verify(mock, after(200).times(n)).oneArg((char) captor.capture());
         assertEquals(n, captor.getAllValues().size());
         assertEquals('0', (char) captor.getAllValues().get(0));
@@ -79,7 +79,7 @@ public class VerificationWithAfterAndCaptorTest {
         // when
         exerciseMockNTimes(n);
 
-        // Then
+        //Then
         verify(mock, after(200).atLeast(n)).oneArg((char) captor.capture());
         assertEquals(n, captor.getAllValues().size());
         assertEquals('0', (char) captor.getAllValues().get(0));

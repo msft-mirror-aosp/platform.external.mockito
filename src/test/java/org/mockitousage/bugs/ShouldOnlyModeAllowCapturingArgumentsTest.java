@@ -2,11 +2,8 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-package org.mockitousage.bugs;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.verify;
+package org.mockitousage.bugs;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -14,21 +11,25 @@ import org.mockito.Mock;
 import org.mockitousage.IMethods;
 import org.mockitoutil.TestBase;
 
-// bug 197
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
+
+//bug 197
 public class ShouldOnlyModeAllowCapturingArgumentsTest extends TestBase {
 
     @Mock IMethods mock;
 
     @Test
     public void shouldAllowCapturingArguments() {
-        // given
+        //given
         mock.simpleMethod("o");
         ArgumentCaptor<String> arg = ArgumentCaptor.forClass(String.class);
 
-        // when
+        //when
         verify(mock, only()).simpleMethod(arg.capture());
 
-        // then
+        //then
         assertEquals("o", arg.getValue());
     }
 }

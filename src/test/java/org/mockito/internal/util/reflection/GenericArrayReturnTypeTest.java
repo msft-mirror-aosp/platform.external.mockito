@@ -4,19 +4,19 @@
  */
 package org.mockito.internal.util.reflection;
 
-import static org.mockito.Mockito.mock;
+import org.junit.Test;
+import org.mockito.Answers;
 
 import java.util.Set;
 
-import org.junit.Test;
-import org.mockito.Answers;
+import static org.mockito.Mockito.mock;
 
 public class GenericArrayReturnTypeTest {
 
     @Test
     public void toArrayTypedDoesNotWork() throws Exception {
         Container container = mock(Container.class, Answers.RETURNS_DEEP_STUBS);
-        container.getInnerContainer().getTheProblem().toArray(new String[] {});
+        container.getInnerContainer().getTheProblem().toArray(new String[]{});
     }
 
     class Container {
@@ -36,4 +36,5 @@ public class GenericArrayReturnTypeTest {
             return theProblem;
         }
     }
+
 }

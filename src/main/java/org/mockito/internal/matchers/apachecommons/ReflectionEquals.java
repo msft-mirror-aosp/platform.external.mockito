@@ -2,11 +2,12 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.internal.matchers.apachecommons;
 
-import java.io.Serializable;
-
 import org.mockito.ArgumentMatcher;
+
+import java.io.Serializable;
 
 public class ReflectionEquals implements ArgumentMatcher<Object>, Serializable {
 
@@ -18,12 +19,10 @@ public class ReflectionEquals implements ArgumentMatcher<Object>, Serializable {
         this.excludeFields = excludeFields;
     }
 
-    @Override
     public boolean matches(Object actual) {
         return EqualsBuilder.reflectionEquals(wanted, actual, excludeFields);
     }
 
-    @Override
     public String toString() {
         return "refEq(" + wanted + ")";
     }
