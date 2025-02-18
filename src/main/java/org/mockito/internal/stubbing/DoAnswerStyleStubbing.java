@@ -4,19 +4,19 @@
  */
 package org.mockito.internal.stubbing;
 
-import org.mockito.quality.Strictness;
-import org.mockito.stubbing.Answer;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.mockito.quality.Strictness;
+import org.mockito.stubbing.Answer;
 
 /**
  * Holds answers declared using 'doAnswer' stubbing style.
  */
 class DoAnswerStyleStubbing implements Serializable {
 
-    private final List<Answer<?>> answers = new ArrayList<Answer<?>>();
+    private final List<Answer<?>> answers = new ArrayList<>();
     private Strictness stubbingStrictness;
 
     void setAnswers(List<Answer<?>> answers, Strictness stubbingStrictness) {
