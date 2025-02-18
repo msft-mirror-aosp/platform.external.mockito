@@ -4,18 +4,7 @@
  */
 package org.mockitousage.misuse;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.anyObject;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.validateMockitoUsage;
-import static org.mockito.Mockito.verify;
-
 import java.util.Observer;
-
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -23,6 +12,16 @@ import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
 import org.mockito.exceptions.misusing.UnfinishedVerificationException;
 import org.mockitousage.IMethods;
 import org.mockitoutil.TestBase;
+
+import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyObject;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.validateMockitoUsage;
+import static org.mockito.Mockito.verify;
 
 public class DetectingMisusedMatchersTest extends TestBase {
 
@@ -40,15 +39,15 @@ public class DetectingMisusedMatchersTest extends TestBase {
     }
 
     private void misplaced_anyObject_argument_matcher() {
-        Object ignored = anyObject();
+        anyObject();
     }
 
     private void misplaced_anyInt_argument_matcher() {
-        int ignored = anyInt();
+        anyInt();
     }
 
     private void misplaced_anyBoolean_argument_matcher() {
-        boolean ignored = anyBoolean();
+        anyBoolean();
     }
 
     @Test
@@ -77,14 +76,12 @@ public class DetectingMisusedMatchersTest extends TestBase {
             fail();
         } catch (InvalidUseOfMatchersException e) {
             assertThat(e)
-                    .hasMessageContaining(
-                            "DetectingMisusedMatchersTest.misplaced_anyInt_argument_matcher")
-                    .hasMessageContaining(
-                            "DetectingMisusedMatchersTest.misplaced_anyObject_argument_matcher")
-                    .hasMessageContaining(
-                            "DetectingMisusedMatchersTest.misplaced_anyBoolean_argument_matcher");
+                .hasMessageContaining("DetectingMisusedMatchersTest.misplaced_anyInt_argument_matcher")
+                .hasMessageContaining("DetectingMisusedMatchersTest.misplaced_anyObject_argument_matcher")
+                .hasMessageContaining("DetectingMisusedMatchersTest.misplaced_anyBoolean_argument_matcher");
         }
     }
+
 
     @SuppressWarnings({"MockitoUsage", "CheckReturnValue"})
     @Test
@@ -94,7 +91,6 @@ public class DetectingMisusedMatchersTest extends TestBase {
         try {
             verify(withFinal);
             fail();
-        } catch (UnfinishedVerificationException e) {
-        }
+        } catch (UnfinishedVerificationException e) {}
     }
 }

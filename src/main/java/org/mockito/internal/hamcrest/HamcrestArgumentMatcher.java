@@ -17,7 +17,6 @@ public class HamcrestArgumentMatcher<T> implements ArgumentMatcher<T> {
         this.matcher = matcher;
     }
 
-    @Override
     public boolean matches(Object argument) {
         return this.matcher.matches(argument);
     }
@@ -26,9 +25,8 @@ public class HamcrestArgumentMatcher<T> implements ArgumentMatcher<T> {
         return matcher instanceof VarargMatcher;
     }
 
-    @Override
     public String toString() {
-        // TODO SF add unit tests and integ test coverage for toString()
+        //TODO SF add unit tests and integ test coverage for describeTo()
         return StringDescription.toString(matcher);
     }
 }

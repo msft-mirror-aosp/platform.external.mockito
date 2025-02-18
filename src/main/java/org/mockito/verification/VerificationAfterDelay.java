@@ -2,9 +2,11 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.verification;
 
 import org.mockito.Mockito;
+
 
 /**
  * VerificationAfterDelay is a {@link VerificationMode} that allows combining existing verification modes with an initial delay, e.g.
@@ -48,12 +50,6 @@ public interface VerificationAfterDelay extends VerificationMode {
     VerificationMode atLeast(int minNumberOfInvocations);
 
     /**
-     * Verifies that there is  most 1 invocation during the given period. This will wait the full period given,
-     * unless too many invocations occur (in which case there will be an immediate failure)
-     */
-    VerificationMode atMostOnce();
-
-    /**
      * Verifies that there is are most N invocations during the given period. This will wait the full period given,
      * unless too many invocations occur (in which case there will be an immediate failure)
      */
@@ -64,4 +60,5 @@ public interface VerificationAfterDelay extends VerificationMode {
      * period given, unless another method is invoked (in which case there will be an immediate failure)
      */
     VerificationMode only();
+
 }

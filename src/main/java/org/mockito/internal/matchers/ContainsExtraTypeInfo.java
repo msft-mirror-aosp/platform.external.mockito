@@ -9,25 +9,18 @@ package org.mockito.internal.matchers;
  * When ArgumentMatcher fails, chance is that the actual object has the same output of toString() than
  * the wanted object. This looks weird when failures are reported.
  * Therefore when matcher fails but toString() yields the same outputs,
- * we will try to use the {@link #toStringWithType(String)} method.
+ * we will try to use the {@link #toStringWithType()} method.
  */
 public interface ContainsExtraTypeInfo {
 
     /**
-     * @param className - name of the class to be printed in description
      * Returns more verbose description of the object which include type information
      */
-    String toStringWithType(String className);
+    String toStringWithType();
 
     /**
      * Checks if target target has matching type.
-     * If the type matches, there is no point in rendering result from {@link #toStringWithType(String)}
+     * If the type matches, there is no point in rendering result from {@link #toStringWithType()}
      */
     boolean typeMatches(Object target);
-
-    /**
-     *
-     * @return Returns the wanted argument
-     */
-    Object getWanted();
 }

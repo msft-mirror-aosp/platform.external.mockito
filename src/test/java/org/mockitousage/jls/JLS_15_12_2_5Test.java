@@ -4,6 +4,13 @@
  */
 package org.mockitousage.jls;
 
+import net.bytebuddy.ClassFileVersion;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+
 import static net.bytebuddy.ClassFileVersion.JAVA_V6;
 import static net.bytebuddy.ClassFileVersion.JAVA_V7;
 import static net.bytebuddy.ClassFileVersion.JAVA_V8;
@@ -12,12 +19,6 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import net.bytebuddy.ClassFileVersion;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 /**
  * Illustrate differences in the JLS depending on the Java version.
@@ -45,10 +46,8 @@ public class JLS_15_12_2_5Test {
     public static class JLS_15_12_2_5_Java6_Java7_Test {
         @Before
         public void setUp() throws Exception {
-            Assume.assumeTrue(
-                    ClassFileVersion.of(JLS_15_12_2_5_Java6_Java7_Test.class).equals(JAVA_V6)
-                            || ClassFileVersion.of(JLS_15_12_2_5_Java6_Java7_Test.class)
-                                    .equals(JAVA_V7));
+            Assume.assumeTrue(ClassFileVersion.of(JLS_15_12_2_5_Java6_Java7_Test.class).equals(JAVA_V6)
+                              || ClassFileVersion.of(JLS_15_12_2_5_Java6_Java7_Test.class).equals(JAVA_V7));
         }
 
         @Test
@@ -57,12 +56,10 @@ public class JLS_15_12_2_5Test {
 
             when(mock.oneArg(isNull())).thenReturn("ok");
 
-            assertThat(mock.oneArg(null))
-                    .describedAs(
-                            "Most generic method chosen for matcher "
-                                    + "(isNull generic upper bound is Object), but null applies "
-                                    + "to select most specific method")
-                    .isEqualTo(null);
+            assertThat(mock.oneArg(null)).describedAs("Most generic method chosen for matcher " +
+                                                      "(isNull generic upper bound is Object), but null applies " +
+                                                      "to select most specific method")
+                                         .isEqualTo(null);
         }
 
         @Test
@@ -71,9 +68,7 @@ public class JLS_15_12_2_5Test {
 
             when(mock.oneArg((String) isNull())).thenReturn("ok");
 
-            assertThat(mock.oneArg(null))
-                    .describedAs("Most specific method enforced for matcher via cast")
-                    .isEqualTo("ok");
+            assertThat(mock.oneArg(null)).describedAs("Most specific method enforced for matcher via cast").isEqualTo("ok");
         }
 
         @Test
@@ -83,9 +78,7 @@ public class JLS_15_12_2_5Test {
             when(mock.oneArg(isNull())).thenReturn("ok");
 
             Object arg = null;
-            assertThat(mock.oneArg(arg))
-                    .describedAs("Most generic method chosen for matcher")
-                    .isEqualTo("ok");
+            assertThat(mock.oneArg(arg)).describedAs("Most generic method chosen for matcher").isEqualTo("ok");
         }
 
         @Test
@@ -94,12 +87,10 @@ public class JLS_15_12_2_5Test {
 
             when(mock.varargs(isNull())).thenReturn("ok");
 
-            assertThat(mock.varargs(null))
-                    .describedAs(
-                            "Most generic method chosen for matcher "
-                                    + "(isNull generic upper bound is Object), but null applies "
-                                    + "to select most specific method")
-                    .isEqualTo(null);
+            assertThat(mock.varargs(null)).describedAs("Most generic method chosen for matcher " +
+                                                       "(isNull generic upper bound is Object), but null applies " +
+                                                       "to select most specific method")
+                                          .isEqualTo(null);
         }
 
         @Test
@@ -108,9 +99,7 @@ public class JLS_15_12_2_5Test {
 
             when(mock.varargs((String) isNull())).thenReturn("ok");
 
-            assertThat(mock.varargs(null))
-                    .describedAs("Most specific method enforced for matcher via String cast")
-                    .isEqualTo("ok");
+            assertThat(mock.varargs(null)).describedAs("Most specific method enforced for matcher via String cast").isEqualTo("ok");
         }
 
         @Test
@@ -119,9 +108,7 @@ public class JLS_15_12_2_5Test {
 
             when(mock.varargs((String[]) isNull())).thenReturn("ok");
 
-            assertThat(mock.varargs(null))
-                    .describedAs("Most specific method enforced for matcher via String[] cast")
-                    .isEqualTo("ok");
+            assertThat(mock.varargs(null)).describedAs("Most specific method enforced for matcher via String[] cast").isEqualTo("ok");
         }
 
         @Test
@@ -131,9 +118,7 @@ public class JLS_15_12_2_5Test {
             when(mock.varargs(isNull())).thenReturn("ok");
 
             Object[] args = null;
-            assertThat(mock.varargs(args))
-                    .describedAs("isNull matcher generic upper bound is Object")
-                    .isEqualTo("ok");
+            assertThat(mock.varargs(args)).describedAs("isNull matcher generic upper bound is Object").isEqualTo("ok");
         }
 
         @Test
@@ -143,9 +128,7 @@ public class JLS_15_12_2_5Test {
             when(mock.varargs(isNull())).thenReturn("ok");
 
             Object arg = null;
-            assertThat(mock.varargs(arg))
-                    .describedAs("isNull matcher generic upper bound is Object")
-                    .isEqualTo("ok");
+            assertThat(mock.varargs(arg)).describedAs("isNull matcher generic upper bound is Object").isEqualTo("ok");
         }
     }
 
@@ -198,8 +181,7 @@ public class JLS_15_12_2_5Test {
     public static class JLS_15_12_2_5_Java8_Test {
         @Before
         public void setUp() throws Exception {
-            Assume.assumeTrue(
-                    ClassFileVersion.of(JLS_15_12_2_5_Java8_Test.class).isAtLeast(JAVA_V8));
+            Assume.assumeTrue(ClassFileVersion.of(JLS_15_12_2_5_Java8_Test.class).isAtLeast(JAVA_V8));
         }
 
         @Test
@@ -208,9 +190,7 @@ public class JLS_15_12_2_5Test {
 
             when(mock.oneArg(isNull())).thenReturn("ok");
 
-            assertThat(mock.oneArg(null))
-                    .describedAs("Most specific method chosen for matcher and for null")
-                    .isEqualTo("ok");
+            assertThat(mock.oneArg(null)).describedAs("Most specific method chosen for matcher and for null").isEqualTo("ok");
         }
 
         @Test
@@ -229,9 +209,7 @@ public class JLS_15_12_2_5Test {
 
             when(mock.varargs(isNull())).thenReturn("ok");
 
-            assertThat(mock.varargs(null))
-                    .describedAs("Most specific method chosen for matcher and for null")
-                    .isEqualTo("ok");
+            assertThat(mock.varargs(null)).describedAs("Most specific method chosen for matcher and for null").isEqualTo("ok");
         }
 
         @Test
@@ -241,9 +219,7 @@ public class JLS_15_12_2_5Test {
             when(mock.varargs(isNull())).thenReturn("ok");
 
             Object[] args = null;
-            assertThat(mock.varargs(args))
-                    .describedAs("Most specific method chosen for matcher")
-                    .isEqualTo(null);
+            assertThat(mock.varargs(args)).describedAs("Most specific method chosen for matcher").isEqualTo(null);
         }
 
         @Test
@@ -253,19 +229,16 @@ public class JLS_15_12_2_5Test {
             when(mock.varargs(isNull())).thenReturn("ok");
 
             Object arg = null;
-            assertThat(mock.varargs(arg))
-                    .describedAs("Most specific method chosen for matcher")
-                    .isEqualTo(null);
+            assertThat(mock.varargs(arg)).describedAs("Most specific method chosen for matcher").isEqualTo(null);
         }
+
     }
 
     interface SingleOverload {
         String oneArg(Object arg);
-
         String oneArg(String arg);
-
         String varargs(Object... args);
-
         String varargs(String... args);
     }
+
 }

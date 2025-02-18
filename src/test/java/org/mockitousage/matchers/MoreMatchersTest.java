@@ -2,23 +2,22 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockitousage.matchers;
 
+import org.assertj.core.api.ThrowableAssert;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
+import org.mockitousage.IMethods;
+import org.mockitoutil.TestBase;
+
+import java.util.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.*;
-
-import org.assertj.core.api.ThrowableAssert;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.exceptions.verification.opentest4j.ArgumentsAreDifferent;
-import org.mockitousage.IMethods;
-import org.mockitoutil.TestBase;
 
 public class MoreMatchersTest extends TestBase {
 
@@ -35,8 +34,8 @@ public class MoreMatchersTest extends TestBase {
     public void any_should_be_actual_alias_to_anyObject() {
         mock.simpleMethod((Object) null);
 
-        verify(mock).simpleMethod(Mockito.<Object>any());
-        verify(mock).simpleMethod(Mockito.<Object>anyObject());
+        verify(mock).simpleMethod(any());
+        verify(mock).simpleMethod(anyObject());
     }
 
     @Test
@@ -48,29 +47,25 @@ public class MoreMatchersTest extends TestBase {
 
         mock.simpleMethod((String) null);
 
-        assertThatThrownBy(
-                        new ThrowableAssert.ThrowingCallable() {
-                            @Override
-                            public void call() {
-                                verify(mock).simpleMethod(isA(String.class));
-                            }
-                        })
-                .isInstanceOf(ArgumentsAreDifferent.class);
+        assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() {
+                verify(mock).simpleMethod(isA(String.class));
+            }
+        }).isInstanceOf(ArgumentsAreDifferent.class);
 
-        assertThatThrownBy(
-                        new ThrowableAssert.ThrowingCallable() {
-                            @Override
-                            public void call() {
-                                verify(mock).simpleMethod(any(String.class));
-                            }
-                        })
-                .isInstanceOf(ArgumentsAreDifferent.class);
+        assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() {
+                verify(mock).simpleMethod(any(String.class));
+            }
+        }).isInstanceOf(ArgumentsAreDifferent.class);
     }
 
     @Test
     public void should_help_out_with_unnecessary_casting_of_lists() {
-        // Below yields compiler warning:
-        // when(mock.listArgMethod(anyList())).thenReturn("list");
+        //Below yields compiler warning:
+        //when(mock.listArgMethod(anyList())).thenReturn("list");
         when(mock.listArgMethod(anyListOf(String.class))).thenReturn("list");
 
         assertEquals("list", mock.listArgMethod(new LinkedList<String>()));
@@ -79,8 +74,8 @@ public class MoreMatchersTest extends TestBase {
 
     @Test
     public void should_help_out_with_unnecessary_casting_of_sets() {
-        // Below yields compiler warning:
-        // when(mock.setArgMethod(anySet())).thenReturn("set");
+        //Below yields compiler warning:
+        //when(mock.setArgMethod(anySet())).thenReturn("set");
         when(mock.setArgMethod(anySetOf(String.class))).thenReturn("set");
 
         assertEquals("set", mock.setArgMethod(new HashSet<String>()));
@@ -89,8 +84,8 @@ public class MoreMatchersTest extends TestBase {
 
     @Test
     public void should_help_out_with_unnecessary_casting_of_maps() {
-        // Below yields compiler warning:
-        // when(mock.setArgMethod(anySet())).thenReturn("set");
+        //Below yields compiler warning:
+        //when(mock.setArgMethod(anySet())).thenReturn("set");
         when(mock.forMap(anyMapOf(String.class, String.class))).thenReturn("map");
 
         assertEquals("map", mock.forMap(new HashMap<String, String>()));
@@ -99,8 +94,8 @@ public class MoreMatchersTest extends TestBase {
 
     @Test
     public void should_help_out_with_unnecessary_casting_of_collections() {
-        // Below yields compiler warning:
-        // when(mock.setArgMethod(anySet())).thenReturn("set");
+        //Below yields compiler warning:
+        //when(mock.setArgMethod(anySet())).thenReturn("set");
         when(mock.collectionArgMethod(anyCollectionOf(String.class))).thenReturn("collection");
 
         assertEquals("collection", mock.collectionArgMethod(new ArrayList<String>()));
@@ -109,8 +104,8 @@ public class MoreMatchersTest extends TestBase {
 
     @Test
     public void should_help_out_with_unnecessary_casting_of_iterables() {
-        // Below yields compiler warning:
-        // when(mock.setArgMethod(anySet())).thenReturn("set");
+        //Below yields compiler warning:
+        //when(mock.setArgMethod(anySet())).thenReturn("set");
         when(mock.iterableArgMethod(anyIterableOf(String.class))).thenReturn("iterable");
 
         assertEquals("iterable", mock.iterableArgMethod(new ArrayList<String>()));
@@ -127,4 +122,5 @@ public class MoreMatchersTest extends TestBase {
         assertEquals("string", mock.objectArgMethod("foo"));
         assertEquals("string", mock.objectArgMethod("foo"));
     }
+
 }
