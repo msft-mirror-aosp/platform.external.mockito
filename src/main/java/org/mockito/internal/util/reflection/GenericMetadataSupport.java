@@ -91,7 +91,7 @@ public abstract class GenericMetadataSupport {
 
             Class<?> rawType = extractRawTypeOf(typeToRegister);
             typesToRegister.add(rawType.getGenericSuperclass());
-            Collections.addAll(typesToRegister, rawType.getGenericInterfaces());
+            typesToRegister.addAll(Arrays.asList(rawType.getGenericInterfaces()));
         }
     }
 
