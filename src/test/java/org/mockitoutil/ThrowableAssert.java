@@ -24,12 +24,10 @@ public class ThrowableAssert {
     }
 
     public ThrowableAssert throwsException(Class<? extends Throwable> exceptionType) {
-        if (!exceptionType.isInstance(reportedException)) {
-            throw new AssertionError(
-                    "Exception should be of type: "
-                            + exceptionType.getSimpleName()
-                            + " but it was: "
-                            + reportedException.getClass().getSimpleName());
+        if(!exceptionType.isInstance(reportedException)) {
+            throw new AssertionError("Exception should be of type: "
+                    + exceptionType.getSimpleName() + " but it was: "
+                    + reportedException.getClass().getSimpleName());
         }
         return this;
     }

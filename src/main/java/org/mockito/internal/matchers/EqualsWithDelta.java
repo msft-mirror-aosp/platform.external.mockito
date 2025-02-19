@@ -2,11 +2,12 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.internal.matchers;
 
-import java.io.Serializable;
-
 import org.mockito.ArgumentMatcher;
+
+import java.io.Serializable;
 
 public class EqualsWithDelta implements ArgumentMatcher<Number>, Serializable {
 
@@ -18,7 +19,6 @@ public class EqualsWithDelta implements ArgumentMatcher<Number>, Serializable {
         this.delta = delta;
     }
 
-    @Override
     public boolean matches(Number actual) {
         if (wanted == null ^ actual == null) {
             return false;
@@ -29,10 +29,10 @@ public class EqualsWithDelta implements ArgumentMatcher<Number>, Serializable {
         }
 
         return wanted.doubleValue() - delta.doubleValue() <= actual.doubleValue()
-                && actual.doubleValue() <= wanted.doubleValue() + delta.doubleValue();
+                && actual.doubleValue() <= wanted.doubleValue()
+                        + delta.doubleValue();
     }
 
-    @Override
     public String toString() {
         return "eq(" + wanted + ", " + delta + ")";
     }

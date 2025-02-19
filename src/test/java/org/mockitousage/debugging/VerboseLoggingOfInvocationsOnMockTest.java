@@ -4,13 +4,6 @@
  */
 package org.mockitousage.debugging;
 
-import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
@@ -19,6 +12,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.internal.util.MockUtil;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the verbose logging of invocation on mock methods.
@@ -123,8 +123,8 @@ public class VerboseLoggingOfInvocationsOnMockTest {
     @Test
     public void shouldPrintRealInvocationOnSpyToStdOut() {
         // given
-        FooImpl fooSpy =
-                mock(FooImpl.class, withSettings().spiedInstance(new FooImpl()).verboseLogging());
+        FooImpl fooSpy = mock(FooImpl.class,
+                withSettings().spiedInstance(new FooImpl()).verboseLogging());
         doCallRealMethod().when(fooSpy).doSomething("Klipsch");
 
         // when
@@ -142,7 +142,8 @@ public class VerboseLoggingOfInvocationsOnMockTest {
     public void usage() {
         // given
         Foo foo = mock(Foo.class, withSettings().verboseLogging());
-        given(foo.giveMeSomeString("Apple")).willReturn("earbuds");
+        given(foo.giveMeSomeString("Apple")).willReturn(
+                "earbuds");
 
         // when
         foo.giveMeSomeString("Shure");
@@ -159,7 +160,8 @@ public class VerboseLoggingOfInvocationsOnMockTest {
     }
 
     private static class UnrelatedClass {
-        void unrelatedMethod(String anotherStringValue) {}
+        void unrelatedMethod(String anotherStringValue) {
+        }
     }
 
     /**
@@ -175,6 +177,7 @@ public class VerboseLoggingOfInvocationsOnMockTest {
             return null;
         }
 
-        public void doSomething(String param) {}
+        public void doSomething(String param) {
+        }
     }
 }

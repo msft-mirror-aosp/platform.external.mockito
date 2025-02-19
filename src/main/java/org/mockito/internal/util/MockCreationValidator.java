@@ -25,8 +25,7 @@ public class MockCreationValidator {
         }
     }
 
-    public void validateExtraInterfaces(
-            Class<?> classToMock, Collection<Class<?>> extraInterfaces) {
+    public void validateExtraInterfaces(Class<?> classToMock, Collection<Class<?>> extraInterfaces) {
         if (extraInterfaces == null) {
             return;
         }

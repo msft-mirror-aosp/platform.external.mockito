@@ -9,4 +9,5 @@ public interface TestFinishedEvent {
     Throwable getFailure();
 
     String getTestName();
+
 }

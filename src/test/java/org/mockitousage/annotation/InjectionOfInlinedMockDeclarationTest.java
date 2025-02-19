@@ -4,15 +4,15 @@
  */
 package org.mockitousage.annotation;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InjectionOfInlinedMockDeclarationTest {
@@ -44,6 +44,7 @@ public class InjectionOfInlinedMockDeclarationTest {
         assertSame(antenna, receiver.dvbtAntenna);
     }
 
+
     @Test
     public void inject_mocks_even_in_declared_spy() throws Exception {
         assertNotNull(spiedReceiver.oldAntenna);
@@ -57,12 +58,10 @@ public class InjectionOfInlinedMockDeclarationTest {
         Antenna dvbtAntenna;
         Tuner tuner;
 
-        public boolean tune() {
-            return true;
-        }
+        public boolean tune() { return true; }
     }
 
-    private static class Antenna {}
+    private static class Antenna { }
+    private static class Tuner { }
 
-    private static class Tuner {}
 }

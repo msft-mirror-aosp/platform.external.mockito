@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.exceptions.base;
 
 import java.util.Arrays;
@@ -11,7 +12,7 @@ public class StackTraceBuilder {
 
     private String[] methods;
 
-    public StackTraceBuilder methods(String... methods) {
+    public StackTraceBuilder methods(String ... methods) {
         this.methods = methods;
         return this;
     }

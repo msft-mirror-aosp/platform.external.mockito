@@ -4,13 +4,13 @@
  */
 package org.mockito.hamcrest;
 
-import static org.mockito.internal.hamcrest.MatcherGenericTypeExtractor.genericTypeOfMatcher;
-import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
-import static org.mockito.internal.util.Primitives.defaultValue;
-
 import org.hamcrest.Matcher;
 import org.mockito.ArgumentMatcher;
 import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
+
+import static org.mockito.internal.hamcrest.MatcherGenericTypeExtractor.genericTypeOfMatcher;
+import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
+import static org.mockito.internal.util.Primitives.defaultValue;
 
 /**
  * Allows matching arguments with hamcrest matchers.
@@ -45,7 +45,7 @@ import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
  *
  * @since 2.1.0
  */
-public final class MockitoHamcrest {
+public class MockitoHamcrest {
 
     /**
      * Allows matching arguments with hamcrest matchers.
@@ -59,7 +59,7 @@ public final class MockitoHamcrest {
     @SuppressWarnings("unchecked")
     public static <T> T argThat(Matcher<T> matcher) {
         reportMatcher(matcher);
-        return (T) defaultValue(genericTypeOfMatcher(matcher.getClass()));
+        return  (T) defaultValue(genericTypeOfMatcher(matcher.getClass()));
     }
 
     /**
@@ -175,10 +175,6 @@ public final class MockitoHamcrest {
     }
 
     private static <T> void reportMatcher(Matcher<T> matcher) {
-        mockingProgress()
-                .getArgumentMatcherStorage()
-                .reportMatcher(new HamcrestArgumentMatcher<T>(matcher));
+        mockingProgress().getArgumentMatcherStorage().reportMatcher(new HamcrestArgumentMatcher<T>(matcher));
     }
-
-    private MockitoHamcrest() {}
 }

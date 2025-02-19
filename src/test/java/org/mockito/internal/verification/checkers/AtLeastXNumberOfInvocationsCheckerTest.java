@@ -4,15 +4,10 @@
  */
 package org.mockito.internal.verification.checkers;
 
-import static java.util.Arrays.asList;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.internal.verification.checkers.AtLeastXNumberOfInvocationsChecker.checkAtLeastNumberOfInvocations;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.exceptions.verification.TooFewActualInvocations;
+import org.mockito.exceptions.verification.TooLittleActualInvocations;
 import org.mockito.exceptions.verification.VerificationInOrderFailure;
 import org.mockito.internal.invocation.InvocationBuilder;
 import org.mockito.internal.invocation.InvocationMatcher;
@@ -20,29 +15,33 @@ import org.mockito.internal.verification.InOrderContextImpl;
 import org.mockito.internal.verification.api.InOrderContext;
 import org.mockito.invocation.Invocation;
 
-public class AtLeastXNumberOfInvocationsCheckerTest {
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.internal.verification.checkers.AtLeastXNumberOfInvocationsChecker.checkAtLeastNumberOfInvocations;
 
-    @Rule public ExpectedException exception = ExpectedException.none();
+public class AtLeastXNumberOfInvocationsCheckerTest   {
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void shouldMarkActualInvocationsAsVerifiedInOrder() {
         InOrderContext context = new InOrderContextImpl();
-        // given
+        //given
         Invocation invocation = new InvocationBuilder().simpleMethod().toInvocation();
         Invocation invocationTwo = new InvocationBuilder().differentMethod().toInvocation();
 
-        // when
-        checkAtLeastNumberOfInvocations(
-                asList(invocation, invocationTwo), new InvocationMatcher(invocation), 1, context);
+        //when
+        checkAtLeastNumberOfInvocations(asList(invocation, invocationTwo), new InvocationMatcher(invocation), 1, context);
 
-        // then
+        //then
         assertThat(invocation.isVerified()).isTrue();
     }
 
     @Test
-    public void shouldReportTooFewInvocationsInOrder() {
+    public void shouldReportTooLittleInvocationsInOrder() {
         InOrderContext context = new InOrderContextImpl();
-        // given
+        //given
         Invocation invocation = new InvocationBuilder().simpleMethod().toInvocation();
         Invocation invocationTwo = new InvocationBuilder().differentMethod().toInvocation();
 
@@ -51,38 +50,37 @@ public class AtLeastXNumberOfInvocationsCheckerTest {
         exception.expectMessage("Wanted *at least* 2 times");
         exception.expectMessage("But was 1 time");
 
-        // when
-        checkAtLeastNumberOfInvocations(
-                asList(invocation, invocationTwo), new InvocationMatcher(invocation), 2, context);
+        //when
+        checkAtLeastNumberOfInvocations(asList(invocation, invocationTwo), new InvocationMatcher(invocation), 2, context);
+
+
     }
 
     @Test
     public void shouldMarkActualInvocationsAsVerified() {
-        // given
+        //given
         Invocation invocation = new InvocationBuilder().simpleMethod().toInvocation();
         Invocation invocationTwo = new InvocationBuilder().differentMethod().toInvocation();
 
-        // when
-        checkAtLeastNumberOfInvocations(
-                asList(invocation, invocationTwo), new InvocationMatcher(invocation), 1);
+        //when
+        checkAtLeastNumberOfInvocations(asList(invocation, invocationTwo), new InvocationMatcher(invocation), 1);
 
-        // then
+        //then
         assertThat(invocation.isVerified()).isTrue();
     }
 
     @Test
-    public void shouldReportTooFewInvocations() {
-        // given
+    public void shouldReportTooLittleInvocations() {
+        //given
         Invocation invocation = new InvocationBuilder().simpleMethod().toInvocation();
         Invocation invocationTwo = new InvocationBuilder().differentMethod().toInvocation();
 
-        exception.expect(TooFewActualInvocations.class);
+        exception.expect(TooLittleActualInvocations.class);
         exception.expectMessage("iMethods.simpleMethod()");
         exception.expectMessage("Wanted *at least* 2 times");
         exception.expectMessage("But was 1 time");
 
-        // when
-        checkAtLeastNumberOfInvocations(
-                asList(invocation, invocationTwo), new InvocationMatcher(invocation), 2);
+        //when
+        checkAtLeastNumberOfInvocations(asList(invocation, invocationTwo), new InvocationMatcher(invocation), 2);
     }
 }

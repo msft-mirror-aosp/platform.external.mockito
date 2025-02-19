@@ -2,7 +2,9 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.internal.invocation;
+
 
 import static org.mockito.internal.exceptions.Reporter.invalidUseOfMatchers;
 
@@ -18,12 +20,11 @@ import org.mockito.invocation.Invocation;
 @SuppressWarnings("unchecked")
 public class MatchersBinder implements Serializable {
 
-    public InvocationMatcher bindMatchers(
-            ArgumentMatcherStorage argumentMatcherStorage, Invocation invocation) {
+    public InvocationMatcher bindMatchers(ArgumentMatcherStorage argumentMatcherStorage, Invocation invocation) {
         List<LocalizedMatcher> lastMatchers = argumentMatcherStorage.pullLocalizedMatchers();
         validateMatchers(invocation, lastMatchers);
 
-        List<ArgumentMatcher> matchers = new LinkedList<>();
+        List<ArgumentMatcher> matchers = new LinkedList<ArgumentMatcher>();
         for (LocalizedMatcher m : lastMatchers) {
             matchers.add(m.getMatcher());
         }

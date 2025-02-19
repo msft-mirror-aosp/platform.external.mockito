@@ -4,6 +4,7 @@
  */
 package org.mockitousage.bugs.creation;
 
+
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockitousage.bugs.creation.api.PublicClass;

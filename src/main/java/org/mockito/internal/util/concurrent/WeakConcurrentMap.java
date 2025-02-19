@@ -22,8 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * This class does not implement the {@link java.util.Map} interface because this implementation is incompatible
  * with the map contract. While iterating over a map's entries, any key that has not passed iteration is referenced non-weakly.
  */
-public class WeakConcurrentMap<K, V> extends ReferenceQueue<K>
-        implements Runnable, Iterable<Map.Entry<K, V>> {
+public class WeakConcurrentMap<K, V> extends ReferenceQueue<K> implements Runnable, Iterable<Map.Entry<K, V>> {
 
     private static final AtomicLong ID = new AtomicLong();
 
@@ -35,7 +34,7 @@ public class WeakConcurrentMap<K, V> extends ReferenceQueue<K>
      * @param cleanerThread {@code true} if a thread should be started that removes stale entries.
      */
     public WeakConcurrentMap(boolean cleanerThread) {
-        target = new ConcurrentHashMap<>();
+        target = new ConcurrentHashMap<WeakKey<K>, V>();
         if (cleanerThread) {
             thread = new Thread(this);
             thread.setName("weak-ref-cleaner-" + ID.getAndIncrement());
@@ -53,9 +52,7 @@ public class WeakConcurrentMap<K, V> extends ReferenceQueue<K>
      */
     @SuppressWarnings("CollectionIncompatibleType")
     public V get(K key) {
-        if (key == null) {
-            throw new NullPointerException();
-        }
+        if (key == null) throw new NullPointerException();
         V value = target.get(new LatentKey<K>(key));
         if (value == null) {
             value = defaultValue(key);
@@ -75,9 +72,7 @@ public class WeakConcurrentMap<K, V> extends ReferenceQueue<K>
      */
     @SuppressWarnings("CollectionIncompatibleType")
     public boolean containsKey(K key) {
-        if (key == null) {
-            throw new NullPointerException();
-        }
+        if (key == null) throw new NullPointerException();
         return target.containsKey(new LatentKey<K>(key));
     }
 
@@ -87,9 +82,7 @@ public class WeakConcurrentMap<K, V> extends ReferenceQueue<K>
      * @return The previous entry or {@code null} if it does not exist.
      */
     public V put(K key, V value) {
-        if (key == null || value == null) {
-            throw new NullPointerException();
-        }
+        if (key == null || value == null) throw new NullPointerException();
         return target.put(new WeakKey<K>(key, this), value);
     }
 
@@ -99,9 +92,7 @@ public class WeakConcurrentMap<K, V> extends ReferenceQueue<K>
      */
     @SuppressWarnings("CollectionIncompatibleType")
     public V remove(K key) {
-        if (key == null) {
-            throw new NullPointerException();
-        }
+        if (key == null) throw new NullPointerException();
         return target.remove(new LatentKey<K>(key));
     }
 
@@ -369,9 +360,7 @@ public class WeakConcurrentMap<K, V> extends ReferenceQueue<K>
 
         @Override
         public V setValue(V value) {
-            if (value == null) {
-                throw new NullPointerException();
-            }
+            if (value == null) throw new NullPointerException();
             return entry.setValue(value);
         }
     }

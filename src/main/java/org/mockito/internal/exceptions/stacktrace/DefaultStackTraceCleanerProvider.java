@@ -12,7 +12,6 @@ import org.mockito.plugins.StackTraceCleanerProvider;
  */
 public class DefaultStackTraceCleanerProvider implements StackTraceCleanerProvider {
 
-    @Override
     public StackTraceCleaner getStackTraceCleaner(StackTraceCleaner defaultCleaner) {
         return defaultCleaner;
     }

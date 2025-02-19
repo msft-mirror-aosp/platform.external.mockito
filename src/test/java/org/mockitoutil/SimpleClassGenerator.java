@@ -4,11 +4,20 @@
  */
 package org.mockitoutil;
 
-import net.bytebuddy.ByteBuddy;
+import org.objectweb.asm.ClassWriter;
+
+import static org.objectweb.asm.Opcodes.*;
 
 public class SimpleClassGenerator {
 
     public static byte[] makeMarkerInterface(String qualifiedName) {
-        return new ByteBuddy().makeInterface().name(qualifiedName).make().getBytes();
+        String relativePath = qualifiedName.replace('.', '/');
+
+        ClassWriter cw = new ClassWriter(0);
+        cw.visit(V1_6, ACC_PUBLIC + ACC_ABSTRACT + ACC_INTERFACE, relativePath, null, "java/lang/Object", null);
+        cw.visitEnd();
+
+        return cw.toByteArray();
     }
+
 }

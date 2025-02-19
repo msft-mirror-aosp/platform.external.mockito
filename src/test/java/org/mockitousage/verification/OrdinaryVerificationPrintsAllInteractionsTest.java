@@ -2,17 +2,18 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-package org.mockitousage.verification;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.verify;
+package org.mockitousage.verification;
 
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.exceptions.verification.WantedButNotInvoked;
 import org.mockitousage.IMethods;
 import org.mockitoutil.TestBase;
+
+import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 public class OrdinaryVerificationPrintsAllInteractionsTest extends TestBase {
 
@@ -21,22 +22,21 @@ public class OrdinaryVerificationPrintsAllInteractionsTest extends TestBase {
 
     @Test
     public void shouldShowAllInteractionsOnMockWhenOrdinaryVerificationFail() throws Exception {
-        // given
+        //given
         firstInteraction();
         secondInteraction();
 
-        verify(mock).otherMethod(); // verify 1st interaction
+        verify(mock).otherMethod(); //verify 1st interaction
         try {
-            // when
+            //when
             verify(mock).simpleMethod();
             fail();
         } catch (WantedButNotInvoked e) {
-            // then
+            //then
             assertThat(e)
-                    .hasMessageContaining(
-                            "However, there were exactly 2 interactions with this mock")
-                    .hasMessageContaining("firstInteraction(")
-                    .hasMessageContaining("secondInteraction(");
+                .hasMessageContaining("However, there were exactly 2 interactions with this mock")
+                .hasMessageContaining("firstInteraction(")
+                .hasMessageContaining("secondInteraction(");
         }
     }
 
@@ -49,9 +49,7 @@ public class OrdinaryVerificationPrintsAllInteractionsTest extends TestBase {
             verify(mock).simpleMethod();
             fail();
         } catch (WantedButNotInvoked e) {
-            assertThat(e.getMessage())
-                    .contains("firstInteraction(")
-                    .doesNotContain("differentMockInteraction(");
+            assertThat(e.getMessage()).contains("firstInteraction(").doesNotContain("differentMockInteraction(");
         }
     }
 

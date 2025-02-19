@@ -12,7 +12,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -24,9 +23,11 @@ import org.mockitousage.IMethods;
 public class CompareMatcherTest {
     private static final Object NOT_A_COMPARABLE = new Object();
 
-    @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-    @Mock public IMethods mock;
+    @Mock
+    public IMethods mock;
 
     /**
      * Should not throw an {@link NullPointerException}
@@ -39,7 +40,7 @@ public class CompareMatcherTest {
 
         when(mock.forInteger(leq(5))).thenReturn("");
 
-        assertThat(mock.forInteger(null)).isNull(); // a default value must be returned
+        assertThat(mock.forInteger(null)).isNull();// a default value must be returned
     }
 
     /**
@@ -49,7 +50,7 @@ public class CompareMatcherTest {
     public void compareToNonCompareable() {
         when(mock.forObject(leq(5))).thenReturn("");
 
-        assertThat(mock.forObject(NOT_A_COMPARABLE)).isNull(); // a default value must be returned
+        assertThat(mock.forObject(NOT_A_COMPARABLE)).isNull();// a default value must be returned
     }
 
     /**
@@ -59,7 +60,7 @@ public class CompareMatcherTest {
     public void compareToNull() {
         when(mock.forInteger(leq((Integer) null))).thenReturn("");
 
-        assertThat(mock.forInteger(null)).isNull(); // a default value must be returned
+        assertThat(mock.forInteger(null)).isNull();// a default value must be returned
     }
 
     /**
@@ -69,7 +70,7 @@ public class CompareMatcherTest {
     public void compareToStringVsInt() {
         when(mock.forObject(startsWith("Hello"))).thenReturn("");
 
-        assertThat(mock.forObject(123)).isNull(); // a default value must be returned
+        assertThat(mock.forObject(123)).isNull();// a default value must be returned
     }
 
     @Test
@@ -96,6 +97,7 @@ public class CompareMatcherTest {
             public boolean matches(Integer arg, Void v) {
                 throw new UnsupportedOperationException();
             }
+
         }
 
         when(mock.forObject(argThat(new TestMatcher()))).thenReturn("x");
@@ -129,4 +131,5 @@ public class CompareMatcherTest {
 
         assertThat(mock.forObject(123)).isNull();
     }
+
 }

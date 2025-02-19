@@ -4,14 +4,14 @@
  */
 package org.mockito.internal.creation;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.lang.reflect.Method;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockitoutil.TestBase;
+
+import java.lang.reflect.Method;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class DelegatingMethodTest extends TestBase {
 

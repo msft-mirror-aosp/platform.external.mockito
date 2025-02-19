@@ -8,9 +8,7 @@ import org.mockito.mock.MockCreationSettings;
 
 public class NoOpTestListener implements MockitoTestListener {
 
-    @Override
     public void testFinished(TestFinishedEvent event) {}
 
-    @Override
     public void onMockCreated(Object mock, MockCreationSettings settings) {}
 }
