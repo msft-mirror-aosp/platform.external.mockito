@@ -2,12 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockitousage.bugs.varargs;
-
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockitoutil.TestBase;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.anyObject;
@@ -18,7 +13,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-//see issue 62
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockitoutil.TestBase;
+
+// see issue 62
 public class VarargsNotPlayingWithAnyObjectTest extends TestBase {
 
     interface VarargMethod {

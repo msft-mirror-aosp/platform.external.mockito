@@ -4,23 +4,24 @@
  */
 package org.mockito.internal.listeners;
 
-import org.assertj.core.util.Lists;
-import org.junit.Test;
-import org.mockito.ArgumentMatcher;
-import org.mockito.internal.creation.settings.CreationSettings;
-import org.mockito.invocation.Invocation;
-import org.mockito.stubbing.Stubbing;
-import org.mockitoutil.TestBase;
-
-import java.util.Collection;
-import java.util.List;
-
 import static org.assertj.core.util.Lists.emptyList;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.internal.listeners.StubbingLookupNotifier.notifyStubbedAnswerLookup;
+
+import java.util.Collection;
+import java.util.List;
+
+import org.assertj.core.util.Lists;
+import org.junit.Test;
+import org.mockito.ArgumentMatcher;
+import org.mockito.internal.creation.settings.CreationSettings;
+import org.mockito.invocation.Invocation;
+import org.mockito.listeners.StubbingLookupListener;
+import org.mockito.stubbing.Stubbing;
+import org.mockitoutil.TestBase;
 
 public class StubbingLookupNotifierTest extends TestBase {
 
@@ -60,10 +61,10 @@ public class StubbingLookupNotifierTest extends TestBase {
 
         @Override
         public boolean matches(StubbingLookupNotifier.Event argument) {
-            return invocation == argument.getInvocation() &&
-                stubbingFound == argument.getStubbingFound() &&
-                allStubbings == argument.getAllStubbings() &&
-                creationSettings == argument.getMockSettings();
+            return invocation == argument.getInvocation()
+                    && stubbingFound == argument.getStubbingFound()
+                    && allStubbings == argument.getAllStubbings()
+                    && creationSettings == argument.getMockSettings();
         }
     }
 }
