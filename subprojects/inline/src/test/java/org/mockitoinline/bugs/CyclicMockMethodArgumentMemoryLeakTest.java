@@ -2,7 +2,6 @@
  * Copyright (c) 2019 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockitoinline.bugs;
 
 import org.junit.Test;
@@ -37,4 +36,3 @@ public class CyclicMockMethodArgumentMemoryLeakTest {
         void accept(A a) {}
     }
 }
-

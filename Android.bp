@@ -64,6 +64,8 @@ java_library_static {
             // dexmaker instead and including it causes conflicts.
             exclude_srcs: [
                 "src/main/java/org/mockito/internal/creation/bytebuddy/**/*.java",
+                "src/main/java/org/mockito/internal/util/reflection/ModuleMemberAccessor.java",
+                "src/main/java/org/mockito/internal/util/reflection/InstrumentationMemberAccessor.java",
             ],
         },
         host: {
@@ -77,10 +79,11 @@ java_library_static {
 
     errorprone: {
         javacflags: [
-            "-Xep:CollectionIncompatibleType:WARN",  // b/74213384
+            "-Xep:CollectionIncompatibleType:WARN", // b/74213384
             "-Xep:BoxedPrimitiveEquality:WARN",
+            "-Xep:ReturnValueIgnored:WARN",
         ],
-    }
+    },
 }
 
 // Compatibility library for Maven artifact naming scheme
