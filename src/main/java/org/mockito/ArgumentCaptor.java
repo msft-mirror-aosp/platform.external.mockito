@@ -40,7 +40,7 @@ import org.mockito.internal.matchers.CapturingMatcher;
  *
  * <p>
  * In a way ArgumentCaptor is related to custom argument matchers (see javadoc for {@link ArgumentMatcher} class).
- * Both techniques can be used for making sure certain arguments where passed to mocks.
+ * Both techniques can be used for making sure certain arguments were passed to mocks.
  * However, ArgumentCaptor may be a better fit if:
  * <ul>
  * <li>custom argument matcher is not likely to be reused</li>
@@ -59,8 +59,8 @@ import org.mockito.internal.matchers.CapturingMatcher;
  * @see Captor
  * @since 1.8.0
  */
+@CheckReturnValue
 public class ArgumentCaptor<T> {
-
 
     private final CapturingMatcher<T> capturingMatcher = new CapturingMatcher<T>();
     private final Class<? extends T> clazz;
@@ -80,7 +80,7 @@ public class ArgumentCaptor<T> {
      * @return null or default values
      */
     public T capture() {
-        Mockito.argThat(capturingMatcher);
+        T ignored = Mockito.argThat(capturingMatcher);
         return defaultValue(clazz);
     }
 
@@ -145,7 +145,7 @@ public class ArgumentCaptor<T> {
      * @param <U> Type of object captured by the newly built ArgumentCaptor
      * @return A new ArgumentCaptor
      */
-    public static <U,S extends U> ArgumentCaptor<U> forClass(Class<S> clazz) {
+    public static <U, S extends U> ArgumentCaptor<U> forClass(Class<S> clazz) {
         return new ArgumentCaptor<U>(clazz);
     }
 }
