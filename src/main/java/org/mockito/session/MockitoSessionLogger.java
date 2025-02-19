@@ -6,7 +6,6 @@ package org.mockito.session;
 
 import org.mockito.Incubating;
 import org.mockito.MockitoSession;
-import org.mockito.NotExtensible;
 
 /**
  * Logger for {@linkplain org.mockito.quality.MockitoHint hints} emitted when
@@ -18,7 +17,6 @@ import org.mockito.NotExtensible;
  * @since 2.15.0
  */
 @Incubating
-@NotExtensible
 public interface MockitoSessionLogger {
 
     /**
@@ -28,4 +26,5 @@ public interface MockitoSessionLogger {
      */
     @Incubating
     void log(String hint);
+
 }

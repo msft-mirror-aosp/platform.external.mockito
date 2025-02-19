@@ -4,24 +4,17 @@
  */
 package org.mockito.internal.util.io;
 
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import org.mockito.exceptions.base.MockitoException;
+
+import java.io.*;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import org.mockito.exceptions.base.MockitoException;
 
 /**
- * IO utils. A bit of reinventing the wheel but we don't want extra dependencies at this stage and
- * we want to be java.
+ * IO utils. A bit of reinventing the wheel but we don't want extra dependencies at this stage and we want to be java.
  */
-public final class IOUtil {
+public class IOUtil {
 
     /**
      * Writes text to file
@@ -39,11 +32,11 @@ public final class IOUtil {
     }
 
     public static Collection<String> readLines(InputStream is) {
-        List<String> out = new LinkedList<>();
+        List<String> out = new LinkedList<String>();
         BufferedReader r = new BufferedReader(new InputStreamReader(is));
         String line;
         try {
-            while ((line = r.readLine()) != null) {
+            while((line = r.readLine()) != null) {
                 out.add(line);
             }
         } catch (IOException e) {
@@ -61,7 +54,7 @@ public final class IOUtil {
         try {
             close(closeable);
         } catch (MockitoException ignored) {
-            // ignore, for backwards compatibility
+            //ignore, for backwards compatibility
         }
     }
 
@@ -79,6 +72,4 @@ public final class IOUtil {
             }
         }
     }
-
-    private IOUtil() {}
 }

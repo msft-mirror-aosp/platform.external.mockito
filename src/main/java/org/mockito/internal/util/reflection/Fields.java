@@ -4,14 +4,14 @@
  */
 package org.mockito.internal.util.reflection;
 
+import org.mockito.internal.util.Checks;
+import org.mockito.internal.util.collections.ListUtil;
+import org.mockito.internal.util.collections.ListUtil.Filter;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.mockito.internal.util.Checks;
-import org.mockito.internal.util.collections.ListUtil;
-import org.mockito.internal.util.collections.ListUtil.Filter;
 
 /**
  * Small fluent reflection tools to work with fields.
@@ -27,10 +27,8 @@ public abstract class Fields {
      * @return InstanceFields of this object instance.
      */
     public static InstanceFields allDeclaredFieldsOf(Object instance) {
-        List<InstanceField> instanceFields = new ArrayList<>();
-        for (Class<?> clazz = instance.getClass();
-                clazz != Object.class;
-                clazz = clazz.getSuperclass()) {
+        List<InstanceField> instanceFields = new ArrayList<InstanceField>();
+        for (Class<?> clazz = instance.getClass(); clazz != Object.class; clazz = clazz.getSuperclass()) {
             instanceFields.addAll(instanceFieldsIn(instance, clazz.getDeclaredFields()));
         }
         return new InstanceFields(instance, instanceFields);
@@ -43,13 +41,13 @@ public abstract class Fields {
      * @return InstanceFields of this object instance.
      */
     public static InstanceFields declaredFieldsOf(Object instance) {
-        List<InstanceField> instanceFields = new ArrayList<>();
+        List<InstanceField> instanceFields = new ArrayList<InstanceField>();
         instanceFields.addAll(instanceFieldsIn(instance, instance.getClass().getDeclaredFields()));
         return new InstanceFields(instance, instanceFields);
     }
 
     private static List<InstanceField> instanceFieldsIn(Object instance, Field[] fields) {
-        List<InstanceField> instanceDeclaredFields = new ArrayList<>();
+        List<InstanceField> instanceDeclaredFields = new ArrayList<InstanceField>();
         for (Field field : fields) {
             InstanceField instanceField = new InstanceField(field, instance);
             instanceDeclaredFields.add(instanceField);
@@ -64,15 +62,13 @@ public abstract class Fields {
      * @return The filter.
      */
     @SuppressWarnings({"unchecked", "vararg"})
-    public static Filter<InstanceField> annotatedBy(
-            final Class<? extends Annotation>... annotations) {
+    public static Filter<InstanceField> annotatedBy(final Class<? extends Annotation>... annotations) {
         return new Filter<InstanceField>() {
-            @Override
             public boolean isOut(InstanceField instanceField) {
                 Checks.checkNotNull(annotations, "Provide at least one annotation class");
 
                 for (Class<? extends Annotation> annotation : annotations) {
-                    if (instanceField.isAnnotatedBy(annotation)) {
+                    if(instanceField.isAnnotatedBy(annotation)) {
                         return false;
                     }
                 }
@@ -88,7 +84,6 @@ public abstract class Fields {
      */
     private static Filter<InstanceField> nullField() {
         return new Filter<InstanceField>() {
-            @Override
             public boolean isOut(InstanceField instanceField) {
                 return instanceField.isNull();
             }
@@ -102,7 +97,6 @@ public abstract class Fields {
      */
     public static Filter<InstanceField> syntheticField() {
         return new Filter<InstanceField>() {
-            @Override
             public boolean isOut(InstanceField instanceField) {
                 return instanceField.isSynthetic();
             }
@@ -128,11 +122,11 @@ public abstract class Fields {
         }
 
         public List<InstanceField> instanceFields() {
-            return new ArrayList<>(instanceFields);
+            return new ArrayList<InstanceField>(instanceFields);
         }
 
         public List<Object> assignedValues() {
-            List<Object> values = new ArrayList<>(instanceFields.size());
+            List<Object> values = new ArrayList<Object>(instanceFields.size());
             for (InstanceField instanceField : instanceFields) {
                 values.add(instanceField.read());
             }
@@ -140,7 +134,7 @@ public abstract class Fields {
         }
 
         public List<String> names() {
-            List<String> fieldNames = new ArrayList<>(instanceFields.size());
+            List<String> fieldNames = new ArrayList<String>(instanceFields.size());
             for (InstanceField instanceField : instanceFields) {
                 fieldNames.add(instanceField.name());
             }
