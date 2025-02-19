@@ -9,8 +9,9 @@ package org.mockito.mock;
  */
 public interface MockName {
 
-    /** the name */
-    @Override
+    /**
+     * the name
+     */
     String toString();
 
     /**

@@ -2,10 +2,8 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-package org.mockitousage.verification;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+package org.mockitousage.verification;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +13,9 @@ import org.mockito.exceptions.verification.NoInteractionsWanted;
 import org.mockito.exceptions.verification.VerificationInOrderFailure;
 import org.mockitousage.IMethods;
 import org.mockitoutil.TestBase;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class VerificationInOrderMixedWithOrdiraryVerificationTest extends TestBase {
 
@@ -82,8 +83,7 @@ public class VerificationInOrderMixedWithOrdiraryVerificationTest extends TestBa
         try {
             verifyNoMoreInteractions(mockOne, mockTwo, mockThree);
             fail();
-        } catch (NoInteractionsWanted e) {
-        }
+        } catch (NoInteractionsWanted e) {}
     }
 
     @Test
@@ -95,8 +95,7 @@ public class VerificationInOrderMixedWithOrdiraryVerificationTest extends TestBa
         try {
             verifyNoMoreInteractions(mockOne, mockTwo, mockThree);
             fail();
-        } catch (NoInteractionsWanted e) {
-        }
+        } catch (NoInteractionsWanted e) {}
     }
 
     @Test
@@ -117,11 +116,10 @@ public class VerificationInOrderMixedWithOrdiraryVerificationTest extends TestBa
         try {
             inOrder.verify(mockOne, atLeastOnce()).simpleMethod(1);
             fail();
-        } catch (VerificationInOrderFailure e) {
-        }
+        } catch (VerificationInOrderFailure e) {}
     }
 
-    @Test(expected = MockitoException.class)
+    @Test(expected=MockitoException.class)
     public void shouldScreamWhenUnfamiliarMockPassedToInOrderObject() {
         inOrder.verify(mockTwo, atLeastOnce()).simpleMethod(1);
     }

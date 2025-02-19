@@ -2,12 +2,8 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-package org.mockitousage.verification;
 
-import static org.mockito.Mockito.after;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.junit.MockitoJUnit.rule;
+package org.mockitousage.verification;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert;
@@ -23,6 +19,11 @@ import org.mockito.junit.MockitoRule;
 import org.mockitousage.IMethods;
 import org.mockitoutil.async.AsyncTesting;
 
+import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.junit.MockitoJUnit.rule;
+
 public class VerificationInOrderWithTimeoutTest {
 
     @Rule public MockitoRule mockito = rule();
@@ -32,28 +33,23 @@ public class VerificationInOrderWithTimeoutTest {
 
     private AsyncTesting async;
 
-    @Before
-    public void setUp() {
+    @Before public void setUp() {
         async = new AsyncTesting();
     }
 
-    @After
-    public void tearDown() {
+    @After public void tearDown() {
         async.cleanUp();
     }
 
     @Test
     public void should_not_allow_in_order_with_after() {
         // expect
-        Assertions.assertThatThrownBy(
-                        new ThrowableAssert.ThrowingCallable() {
-                            public void call() {
-                                inOrder(mock1).verify(mock1, after(100)).oneArg('a');
-                            }
-                        })
-                .isInstanceOf(MockitoException.class)
-                .hasMessageContaining("not implemented to work with InOrder");
-        // TODO specific exception
+        Assertions.assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
+            public void call() {
+                inOrder(mock1).verify(mock1, after(100)).oneArg('a');
+            }
+        }).isInstanceOf(MockitoException.class).hasMessageContaining("not implemented to work with InOrder");
+        //TODO specific exception
     }
 
     @Test
@@ -78,16 +74,13 @@ public class VerificationInOrderWithTimeoutTest {
         // then
         final InOrder inOrder = inOrder(mock1, mock2);
         inOrder.verify(mock2, timeout(300)).oneArg('b');
-        Assertions.assertThatThrownBy(
-                        new ThrowableAssert.ThrowingCallable() {
-                            public void call() {
-                                inOrder.verify(mock1, timeout(300)).oneArg('a');
-                            }
-                        })
-                .isInstanceOf(VerificationInOrderFailure.class)
-                .hasMessageContaining("Wanted but not invoked:\nmock1.oneArg('a');")
-                .hasMessageContaining(
-                        "Wanted anywhere AFTER following interaction:\nmock2.oneArg('b');");
+        Assertions.assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
+            public void call() {
+                inOrder.verify(mock1, timeout(300)).oneArg('a');
+            }
+        }).isInstanceOf(VerificationInOrderFailure.class)
+            .hasMessageContaining("Wanted but not invoked:\nmock1.oneArg('a');")
+            .hasMessageContaining("Wanted anywhere AFTER following interaction:\nmock2.oneArg('b');");
     }
 
     @Test
@@ -116,30 +109,24 @@ public class VerificationInOrderWithTimeoutTest {
         final InOrder inOrder = inOrder(mock1, mock2);
         inOrder.verify(mock2, timeout(500).times(2)).oneArg('b');
 
-        Assertions.assertThatThrownBy(
-                        new ThrowableAssert.ThrowingCallable() {
-                            public void call() {
-                                inOrder.verify(mock1, timeout(100).times(2)).oneArg('a');
-                            }
-                        })
-                .isInstanceOf(VerificationInOrderFailure.class)
-                .hasMessageContaining("Wanted but not invoked:\nmock1.oneArg('a');")
-                .hasMessageContaining(
-                        "Wanted anywhere AFTER following interaction:\nmock2.oneArg('b');");
+        Assertions.assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
+            public void call() {
+                inOrder.verify(mock1, timeout(100).times(2)).oneArg('a');
+            }
+        }).isInstanceOf(VerificationInOrderFailure.class)
+            .hasMessageContaining("Wanted but not invoked:\nmock1.oneArg('a');")
+            .hasMessageContaining("Wanted anywhere AFTER following interaction:\nmock2.oneArg('b');");
     }
 
     @Test
     public void should_not_allow_in_order_with_only() {
-        Assertions.assertThatThrownBy(
-                        new ThrowableAssert.ThrowingCallable() {
-                            @Override
-                            public void call() throws Throwable {
-                                inOrder(mock1).verify(mock1, timeout(200).only()).oneArg('a');
-                            }
-                        })
-                .isInstanceOf(MockitoException.class)
-                .hasMessageContaining("not implemented to work with InOrder");
-        // TODO specific exception
+        Assertions.assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                inOrder(mock1).verify(mock1, timeout(200).only()).oneArg('a');
+            }
+        }).isInstanceOf(MockitoException.class).hasMessageContaining("not implemented to work with InOrder");
+        //TODO specific exception
     }
 
     @Test
@@ -167,16 +154,13 @@ public class VerificationInOrderWithTimeoutTest {
         // then
         final InOrder inOrder = inOrder(mock1, mock2);
         inOrder.verify(mock2, timeout(300).atLeastOnce()).oneArg('b');
-        Assertions.assertThatThrownBy(
-                        new ThrowableAssert.ThrowingCallable() {
-                            public void call() {
-                                inOrder.verify(mock1, timeout(500).atLeastOnce()).oneArg('a');
-                            }
-                        })
-                .isInstanceOf(VerificationInOrderFailure.class)
-                .hasMessageContaining("Wanted but not invoked:\nmock1.oneArg('a');")
-                .hasMessageContaining(
-                        "Wanted anywhere AFTER following interaction:\nmock2.oneArg('b');");
+        Assertions.assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
+            public void call() {
+                inOrder.verify(mock1, timeout(500).atLeastOnce()).oneArg('a');
+            }
+        }).isInstanceOf(VerificationInOrderFailure.class)
+            .hasMessageContaining("Wanted but not invoked:\nmock1.oneArg('a');")
+            .hasMessageContaining("Wanted anywhere AFTER following interaction:\nmock2.oneArg('b');");
     }
 
     @Test
@@ -204,14 +188,12 @@ public class VerificationInOrderWithTimeoutTest {
         // then
         final InOrder inOrder = inOrder(mock1, mock2);
         inOrder.verify(mock2, timeout(300).atLeast(2)).oneArg('b');
-        Assertions.assertThatThrownBy(
-                        new ThrowableAssert.ThrowingCallable() {
-                            public void call() {
-                                inOrder.verify(mock1, timeout(500).atLeast(2)).oneArg('a');
-                            }
-                        })
-                .isInstanceOf(AssertionError.class)
-                .hasMessageContaining("Verification in order failure");
+        Assertions.assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
+            public void call() {
+                inOrder.verify(mock1, timeout(500).atLeast(2)).oneArg('a');
+            }
+        }).isInstanceOf(AssertionError.class)
+            .hasMessageContaining("Verification in order failure");
     }
 
     private Runnable callMock(final IMethods mock, final char c) {
