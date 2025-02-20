@@ -4,15 +4,7 @@
  */
 package org.mockitousage.annotation;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.assertj.core.api.Assertions;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -24,6 +16,13 @@ import org.mockito.internal.util.MockUtil;
 import org.mockitousage.IMethods;
 import org.mockitoutil.TestBase;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import static org.junit.Assert.*;
+
 @SuppressWarnings({"unchecked", "unused"})
 public class MockInjectionUsingSetterOrPropertyTest extends TestBase {
 
@@ -32,9 +31,7 @@ public class MockInjectionUsingSetterOrPropertyTest extends TestBase {
     @InjectMocks private BaseUnderTesting baseUnderTest = new BaseUnderTesting();
     @InjectMocks private SubUnderTesting subUnderTest = new SubUnderTesting();
     @InjectMocks private OtherBaseUnderTesting otherBaseUnderTest = new OtherBaseUnderTesting();
-
-    @InjectMocks
-    private HasTwoFieldsWithSameType hasTwoFieldsWithSameType = new HasTwoFieldsWithSameType();
+    @InjectMocks private HasTwoFieldsWithSameType hasTwoFieldsWithSameType = new HasTwoFieldsWithSameType();
 
     private BaseUnderTesting baseUnderTestingInstance = new BaseUnderTesting();
     @InjectMocks private BaseUnderTesting initializedBase = baseUnderTestingInstance;
@@ -51,19 +48,10 @@ public class MockInjectionUsingSetterOrPropertyTest extends TestBase {
 
     @Spy private TreeSet<String> searchTree = new TreeSet<String>();
 
-    private AutoCloseable session;
-
     @Before
     public void enforces_new_instances() {
-        // openMocks called in TestBase Before method, so instances are not the same
-        session = MockitoAnnotations.openMocks(this);
-    }
-
-    @After
-    public void close_new_instances() throws Exception {
-        if (session != null) {
-            session.close();
-        }
+        // initMocks called in TestBase Before method, so instances are not the same
+        MockitoAnnotations.initMocks(this);
     }
 
     @Test
@@ -91,43 +79,41 @@ public class MockInjectionUsingSetterOrPropertyTest extends TestBase {
 
     @Test
     public void should_inject_mocks_if_annotated() {
-        MockitoAnnotations.openMocks(this);
+        MockitoAnnotations.initMocks(this);
         assertSame(list, superUnderTest.getAList());
     }
 
     @Test
     public void should_not_inject_if_not_annotated() {
-        MockitoAnnotations.openMocks(this);
+        MockitoAnnotations.initMocks(this);
         assertNull(superUnderTestWithoutInjection.getAList());
     }
 
     @Test
     public void should_inject_mocks_for_class_hierarchy_if_annotated() {
-        MockitoAnnotations.openMocks(this);
+        MockitoAnnotations.initMocks(this);
         assertSame(list, baseUnderTest.getAList());
         assertSame(map, baseUnderTest.getAMap());
     }
 
     @Test
     public void should_inject_mocks_by_name() {
-        MockitoAnnotations.openMocks(this);
+        MockitoAnnotations.initMocks(this);
         assertSame(histogram1, subUnderTest.getHistogram1());
         assertSame(histogram2, subUnderTest.getHistogram2());
     }
 
     @Test
     public void should_inject_spies() {
-        MockitoAnnotations.openMocks(this);
+        MockitoAnnotations.initMocks(this);
         assertSame(searchTree, otherBaseUnderTest.getSearchTree());
     }
 
     @Test
-    public void
-            should_insert_into_field_with_matching_name_when_multiple_fields_of_same_type_exists_in_injectee() {
-        MockitoAnnotations.openMocks(this);
+    public void should_insert_into_field_with_matching_name_when_multiple_fields_of_same_type_exists_in_injectee() {
+        MockitoAnnotations.initMocks(this);
         assertNull("not injected, no mock named 'candidate1'", hasTwoFieldsWithSameType.candidate1);
-        assertNotNull(
-                "injected, there's a mock named 'candidate2'", hasTwoFieldsWithSameType.candidate2);
+        assertNotNull("injected, there's a mock named 'candidate2'", hasTwoFieldsWithSameType.candidate2);
     }
 
     @Test
@@ -142,63 +128,46 @@ public class MockInjectionUsingSetterOrPropertyTest extends TestBase {
 
     @Test
     public void should_report_nicely() throws Exception {
-        Object failing =
-                new Object() {
-                    @InjectMocks ThrowingConstructor failingConstructor;
-                };
+        Object failing = new Object() {
+            @InjectMocks ThrowingConstructor failingConstructor;
+        };
         try {
-            MockitoAnnotations.openMocks(failing);
+            MockitoAnnotations.initMocks(failing);
             fail();
         } catch (MockitoException e) {
-            Assertions.assertThat(e.getMessage())
-                    .contains("failingConstructor")
-                    .contains("constructor")
-                    .contains("threw an exception");
+            Assertions.assertThat(e.getMessage()).contains("failingConstructor").contains("constructor").contains("threw an exception");
             Assertions.assertThat(e.getCause()).isInstanceOf(RuntimeException.class);
         }
     }
 
     static class ThrowingConstructor {
-        ThrowingConstructor() {
-            throw new RuntimeException("aha");
-        }
+        ThrowingConstructor() { throw new RuntimeException("aha"); }
     }
 
     static class SuperUnderTesting {
         private List<?> aList;
 
-        public List<?> getAList() {
-            return aList;
-        }
+        public List<?> getAList() { return aList; }
     }
 
     static class BaseUnderTesting extends SuperUnderTesting {
         private Map<?, ?> aMap;
 
-        public Map<?, ?> getAMap() {
-            return aMap;
-        }
+        public Map<?, ?> getAMap() { return aMap; }
     }
 
     static class OtherBaseUnderTesting extends SuperUnderTesting {
         private TreeSet<?> searchTree;
 
-        public TreeSet<?> getSearchTree() {
-            return searchTree;
-        }
+        public TreeSet<?> getSearchTree() { return searchTree; }
     }
 
     static class SubUnderTesting extends BaseUnderTesting {
         private Set<?> histogram1;
         private Set<?> histogram2;
 
-        public Set<?> getHistogram1() {
-            return histogram1;
-        }
-
-        public Set<?> getHistogram2() {
-            return histogram2;
-        }
+        public Set<?> getHistogram1() { return histogram1; }
+        public Set<?> getHistogram2() { return histogram2; }
     }
 
     static class HasTwoFieldsWithSameType {

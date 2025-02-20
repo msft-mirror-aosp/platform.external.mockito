@@ -4,13 +4,13 @@
  */
 package org.mockitousage.puzzlers;
 
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 import org.junit.Test;
 import org.mockito.exceptions.verification.WantedButNotInvoked;
 import org.mockitoutil.TestBase;
+
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class OverloadingPuzzleTest extends TestBase {
 
@@ -40,7 +40,6 @@ public class OverloadingPuzzleTest extends TestBase {
         try {
             verify(sub).say("Hello");
             fail();
-        } catch (WantedButNotInvoked e) {
-        }
+        } catch (WantedButNotInvoked e) {}
     }
 }

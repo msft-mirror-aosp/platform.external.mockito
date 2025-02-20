@@ -7,7 +7,6 @@ package org.mockito.session;
 import org.mockito.Incubating;
 import org.mockito.MockitoAnnotations;
 import org.mockito.MockitoSession;
-import org.mockito.NotExtensible;
 import org.mockito.exceptions.misusing.UnfinishedMockingSessionException;
 import org.mockito.quality.Strictness;
 
@@ -18,7 +17,6 @@ import org.mockito.quality.Strictness;
  * @since 2.7.0
  */
 @Incubating
-@NotExtensible
 public interface MockitoSessionBuilder {
 
     /**
@@ -26,10 +24,10 @@ public interface MockitoSessionBuilder {
      * like {@link org.mockito.Mock}.
      * When this method is invoked it <strong>does not perform</strong> initialization of mocks on the spot!
      * Only when {@link #startMocking()} is invoked then annotated fields will be initialized.
-     * Traditional API to initialize mocks, the {@link MockitoAnnotations#openMocks(Object)} method
+     * Traditional API to initialize mocks, the {@link MockitoAnnotations#initMocks(Object)} method
      * has limited support for driving cleaner tests because it does not support configuring {@link Strictness}.
      * Want cleaner tests and better productivity?
-     * Migrate from {@link MockitoAnnotations#openMocks(Object)}
+     * Migrate from {@link MockitoAnnotations#initMocks(Object)}
      * to {@link MockitoSession}!
      * <p>
      * This method may be called multiple times to add multiple, e.g. nested, test class instances.

@@ -2,11 +2,11 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.internal.matchers;
 
 import java.io.Serializable;
 import java.util.regex.Pattern;
-
 import org.mockito.ArgumentMatcher;
 
 public class Matches implements ArgumentMatcher<Object>, Serializable {
@@ -21,13 +21,11 @@ public class Matches implements ArgumentMatcher<Object>, Serializable {
         this.pattern = pattern;
     }
 
-    @Override
     public boolean matches(Object actual) {
-        return (actual instanceof String) && pattern.matcher((String) actual).find();
+        return (actual instanceof String) && pattern.matcher((String) actual).matches();
     }
 
-    @Override
     public String toString() {
-        return "matches(\"" + pattern.pattern().replace("\\", "\\\\") + "\")";
+        return "matches(\"" + pattern.pattern().replaceAll("\\\\", "\\\\\\\\") + "\")";
     }
 }

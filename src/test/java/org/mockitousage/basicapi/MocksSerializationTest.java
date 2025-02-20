@@ -2,19 +2,8 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockitousage.basicapi;
-
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
-import static org.mockito.Mockito.*;
-import static org.mockitoutil.SimpleSerializationUtil.*;
-
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Observable;
 
 import net.bytebuddy.ClassFileVersion;
 import org.assertj.core.api.Assertions;
@@ -28,6 +17,18 @@ import org.mockito.stubbing.Answer;
 import org.mockitousage.IMethods;
 import org.mockitoutil.SimpleSerializationUtil;
 import org.mockitoutil.TestBase;
+
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Observable;
+
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
+import static org.mockito.Mockito.*;
+import static org.mockitoutil.SimpleSerializationUtil.*;
 
 @SuppressWarnings({"unchecked", "serial"})
 public class MocksSerializationTest extends TestBase implements Serializable {
@@ -49,7 +50,7 @@ public class MocksSerializationTest extends TestBase implements Serializable {
         Foo fooMock = mock(Foo.class);
         when(barMock.doSomething()).thenAnswer(new ThrowsException(new RuntimeException()));
 
-        // when-serialize then-deserialize
+        //when-serialize then-deserialize
         serializeAndBack(barMock);
     }
 
@@ -107,8 +108,7 @@ public class MocksSerializationTest extends TestBase implements Serializable {
     }
 
     @Test
-    public void should_serialize_method_call_with_parameters_that_are_serializable()
-            throws Exception {
+    public void should_serialize_method_call_with_parameters_that_are_serializable() throws Exception {
         IMethods mock = mock(IMethods.class, withSettings().serializable());
         List<?> value = Collections.emptyList();
         when(mock.objectArgMethod(value)).thenReturn(value);
@@ -152,7 +152,7 @@ public class MocksSerializationTest extends TestBase implements Serializable {
 
     @Test
     public void should_verify_even_if_some_methods_called_after_serialization() throws Exception {
-        // given
+        //given
         IMethods mock = mock(IMethods.class, withSettings().serializable());
 
         // when
@@ -164,9 +164,8 @@ public class MocksSerializationTest extends TestBase implements Serializable {
         // then
         verify(readObject, times(2)).simpleMethod(1);
 
-        // this test is working because it seems that java serialization mechanism replaces all
-        // instances
-        // of serialized object in the object graph (if there are any)
+        //this test is working because it seems that java serialization mechanism replaces all instances
+        //of serialized object in the object graph (if there are any)
     }
 
     class Bar implements Serializable {
@@ -179,7 +178,6 @@ public class MocksSerializationTest extends TestBase implements Serializable {
 
     class Foo implements Serializable {
         Bar bar;
-
         Foo() {
             bar = new Bar();
             bar.foo = this;
@@ -188,17 +186,17 @@ public class MocksSerializationTest extends TestBase implements Serializable {
 
     @Test
     public void should_serialization_work() throws Exception {
-        // given
+        //given
         Foo foo = new Foo();
-        // when
+        //when
         foo = serializeAndBack(foo);
-        // then
+        //then
         assertSame(foo, foo.bar.foo);
     }
 
     @Test
     public void should_stub_even_if_some_methods_called_after_serialization() throws Exception {
-        // given
+        //given
         IMethods mock = mock(IMethods.class, withSettings().serializable());
 
         // when
@@ -267,7 +265,6 @@ public class MocksSerializationTest extends TestBase implements Serializable {
     class CustomAnswersMustImplementSerializableForSerializationToWork
             implements Answer<Object>, Serializable {
         private String string;
-
         public Object answer(InvocationOnMock invocation) throws Throwable {
             invocation.getArguments();
             invocation.getMock();
@@ -279,13 +276,10 @@ public class MocksSerializationTest extends TestBase implements Serializable {
     public void should_serialize_with_real_object_spy() throws Exception {
         // given
         SerializableClass sample = new SerializableClass();
-        SerializableClass spy =
-                mock(
-                        SerializableClass.class,
-                        withSettings()
-                                .spiedInstance(sample)
-                                .defaultAnswer(CALLS_REAL_METHODS)
-                                .serializable());
+        SerializableClass spy = mock(SerializableClass.class, withSettings()
+                .spiedInstance(sample)
+                .defaultAnswer(CALLS_REAL_METHODS)
+                .serializable());
         when(spy.foo()).thenReturn("foo");
 
         // when
@@ -339,13 +333,11 @@ public class MocksSerializationTest extends TestBase implements Serializable {
 
     @Test
     public void should_be_serialize_and_have_extra_interfaces() throws Exception {
-        // when
-        IMethods mock =
-                mock(IMethods.class, withSettings().serializable().extraInterfaces(List.class));
-        IMethods mockTwo =
-                mock(IMethods.class, withSettings().extraInterfaces(List.class).serializable());
+        //when
+        IMethods mock = mock(IMethods.class, withSettings().serializable().extraInterfaces(List.class));
+        IMethods mockTwo = mock(IMethods.class, withSettings().extraInterfaces(List.class).serializable());
 
-        // then
+        //then
         Assertions.assertThat((Object) serializeAndBack((List) mock))
                 .isInstanceOf(List.class)
                 .isInstanceOf(IMethods.class);
@@ -355,34 +347,28 @@ public class MocksSerializationTest extends TestBase implements Serializable {
     }
 
     static class SerializableAndNoDefaultConstructor implements Serializable {
-        SerializableAndNoDefaultConstructor(Observable o) {
-            super();
-        }
+        SerializableAndNoDefaultConstructor(Observable o) { super(); }
     }
 
     @Test
-    public void
-            should_be_able_to_serialize_type_that_implements_Serializable_but_but_dont_declare_a_no_arg_constructor()
-                    throws Exception {
+    public void should_be_able_to_serialize_type_that_implements_Serializable_but_but_dont_declare_a_no_arg_constructor() throws Exception {
         serializeAndBack(mock(SerializableAndNoDefaultConstructor.class));
     }
 
+
+
     public static class AClassWithPrivateNoArgConstructor {
         private AClassWithPrivateNoArgConstructor() {}
-
-        List returningSomething() {
-            return Collections.emptyList();
-        }
+        List returningSomething() { return Collections.emptyList(); }
     }
 
     @Test
-    public void private_constructor_currently_not_supported_at_the_moment_at_deserialization_time()
-            throws Exception {
+    public void private_constructor_currently_not_supported_at_the_moment_at_deserialization_time() throws Exception {
         // given
-        AClassWithPrivateNoArgConstructor mockWithPrivateConstructor =
-                Mockito.mock(
-                        AClassWithPrivateNoArgConstructor.class,
-                        Mockito.withSettings().serializable());
+        AClassWithPrivateNoArgConstructor mockWithPrivateConstructor = Mockito.mock(
+                AClassWithPrivateNoArgConstructor.class,
+                Mockito.withSettings().serializable()
+        );
 
         try {
             // when
@@ -394,17 +380,14 @@ public class MocksSerializationTest extends TestBase implements Serializable {
         }
     }
 
+
     @Test
     public void BUG_ISSUE_399_try_some_mocks_with_current_answers() throws Exception {
         assumeTrue(ClassFileVersion.ofThisVm().isAtLeast(ClassFileVersion.JAVA_V7));
 
-        IMethods iMethods =
-                mock(
-                        IMethods.class,
-                        withSettings().serializable().defaultAnswer(RETURNS_DEEP_STUBS));
+        IMethods iMethods = mock(IMethods.class, withSettings().serializable().defaultAnswer(RETURNS_DEEP_STUBS));
 
-        when(iMethods.iMethodsReturningMethod().linkedListReturningMethod().contains(anyString()))
-                .thenReturn(false);
+        when(iMethods.iMethodsReturningMethod().linkedListReturningMethod().contains(anyString())).thenReturn(false);
 
         serializeAndBack(iMethods);
     }

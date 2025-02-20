@@ -23,10 +23,12 @@ class AndroidTempFileLocator {
         } catch (Throwable ignored) {
         }
         if (t == null) {
-            t = getCacheDirFromInstrumentationRegistry("android.support.test.InstrumentationRegistry");
-        }
-        if (t == null) {
-            t = getCacheDirFromInstrumentationRegistry("androidx.test.InstrumentationRegistry");
+            try {
+                Class<?> clazz = Class.forName("android.support.test.InstrumentationRegistry");
+                Object context = clazz.getDeclaredMethod("getTargetContext").invoke(clazz);
+                t = (File) context.getClass().getMethod("getCacheDir").invoke(context);
+            } catch (Throwable ignored) {
+            }
         }
         if (t == null) {
             try {
@@ -42,16 +44,6 @@ class AndroidTempFileLocator {
             }
         }
         target = t;
-    }
-
-    private static File getCacheDirFromInstrumentationRegistry(String className) {
-        try {
-            Class<?> clazz = Class.forName(className);
-            Object context = clazz.getDeclaredMethod("getTargetContext").invoke(clazz);
-            return (File) context.getClass().getMethod("getCacheDir").invoke(context);
-        } catch (Throwable ignored) {
-        }
-        return null;
     }
 
     private static File[] guessPath(String input) {
@@ -71,10 +63,10 @@ class AndroidTempFileLocator {
             }
             String packageName = potential.substring(start, end);
             File dataDir = new File("/data/data/" + packageName);
-            if (isWritableDirectory(dataDir)) {
+            if (isWriteableDirectory(dataDir)) {
                 File cacheDir = new File(dataDir, "cache");
                 if (fileOrDirExists(cacheDir) || cacheDir.mkdir()) {
-                    if (isWritableDirectory(cacheDir)) {
+                    if (isWriteableDirectory(cacheDir)) {
                         results.add(cacheDir);
                     }
                 }
@@ -99,7 +91,7 @@ class AndroidTempFileLocator {
         return file.exists();
     }
 
-    private static boolean isWritableDirectory(File file) {
+    private static boolean isWriteableDirectory(File file) {
         return file.isDirectory() && file.canWrite();
     }
 }

@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito;
 
 import org.mockito.verification.VerificationMode;
@@ -61,6 +62,7 @@ public interface InOrder {
      * @return mock object itself
      */
     <T> T verify(T mock, VerificationMode mode);
+
 
     /**
      * Verifies that no more interactions happened <b>in order</b>.

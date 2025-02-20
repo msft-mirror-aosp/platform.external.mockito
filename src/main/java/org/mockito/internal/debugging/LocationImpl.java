@@ -5,63 +5,42 @@
 package org.mockito.internal.debugging;
 
 import java.io.Serializable;
-
 import org.mockito.internal.exceptions.stacktrace.StackTraceFilter;
 import org.mockito.invocation.Location;
 
 public class LocationImpl implements Location, Serializable {
 
     private static final long serialVersionUID = -9054861157390980624L;
-    // Limit the amount of objects being created, as this class is heavily instantiated:
-    private static final StackTraceFilter stackTraceFilter = new StackTraceFilter();
+    //Limit the amount of objects being created, as this class is heavily instantiated:
+    private static final StackTraceFilter defaultStackTraceFilter = new StackTraceFilter();
 
-    private String stackTraceLine;
-    private String sourceFile;
+    private final Throwable stackTraceHolder;
+    private final StackTraceFilter stackTraceFilter;
 
     public LocationImpl() {
-        this(new Throwable(), false);
-    }
-
-    public LocationImpl(Throwable stackTraceHolder, boolean isInline) {
-        this(stackTraceFilter, stackTraceHolder, isInline);
+        this(defaultStackTraceFilter);
     }
 
     public LocationImpl(StackTraceFilter stackTraceFilter) {
-        this(stackTraceFilter, new Throwable(), false);
+        this(stackTraceFilter, new Throwable());
     }
 
-    private LocationImpl(
-            StackTraceFilter stackTraceFilter, Throwable stackTraceHolder, boolean isInline) {
-        computeStackTraceInformation(stackTraceFilter, stackTraceHolder, isInline);
+    public LocationImpl(Throwable stackTraceHolder) {
+        this(defaultStackTraceFilter, stackTraceHolder);
+    }
+
+    private LocationImpl(StackTraceFilter stackTraceFilter, Throwable stackTraceHolder) {
+        this.stackTraceFilter = stackTraceFilter;
+        this.stackTraceHolder = stackTraceHolder;
     }
 
     @Override
     public String toString() {
-        return stackTraceLine;
-    }
-
-    /**
-     * Eagerly compute the stacktrace line from the stackTraceHolder. Storing the Throwable is
-     * memory-intensive for tests that have large stacktraces and have a lot of invocations on
-     * mocks.
-     */
-    private void computeStackTraceInformation(
-            StackTraceFilter stackTraceFilter, Throwable stackTraceHolder, boolean isInline) {
-        StackTraceElement filtered = stackTraceFilter.filterFirst(stackTraceHolder, isInline);
-
-        // there are corner cases where exception can have a null or empty stack trace
-        // for example, a custom exception can override getStackTrace() method
-        if (filtered == null) {
-            this.stackTraceLine = "-> at <<unknown line>>";
-            this.sourceFile = "<unknown source file>";
-        } else {
-            this.stackTraceLine = "-> at " + filtered;
-            this.sourceFile = filtered.getFileName();
+        //TODO SF perhaps store the results after invocation?
+        StackTraceElement[] filtered = stackTraceFilter.filter(stackTraceHolder.getStackTrace(), false);
+        if (filtered.length == 0) {
+            return "-> at <<unknown line>>";
         }
-    }
-
-    @Override
-    public String getSourceFile() {
-        return sourceFile;
+        return "-> at " + filtered[0].toString();
     }
 }
