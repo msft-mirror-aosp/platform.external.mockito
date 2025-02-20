@@ -4,10 +4,10 @@
  */
 package org.mockitousage.performance;
 
-import static org.mockito.Mockito.*;
-
 import org.junit.Ignore;
 import org.junit.Test;
+
+import static org.mockito.Mockito.*;
 
 public class StubOnlyAvoidMemoryConsumptionTest {
 
@@ -17,7 +17,7 @@ public class StubOnlyAvoidMemoryConsumptionTest {
         when(obj.toString()).thenReturn("asdf");
 
         for (int i = 0; i < 1000000; i++) {
-            String ignored = obj.toString();
+            obj.toString();
         }
     }
 
@@ -28,7 +28,7 @@ public class StubOnlyAvoidMemoryConsumptionTest {
         when(obj.toString()).thenReturn("asdf");
 
         for (int i = 0; i < 1000000; i++) {
-            String ignored = obj.toString();
+            obj.toString();
         }
     }
 }

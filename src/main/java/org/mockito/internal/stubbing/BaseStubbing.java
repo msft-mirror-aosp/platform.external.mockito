@@ -6,28 +6,14 @@ package org.mockito.internal.stubbing;
 
 import static org.mockito.internal.exceptions.Reporter.notAnException;
 import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
+import static org.objenesis.ObjenesisHelper.newInstance;
 
 import org.mockito.internal.stubbing.answers.CallsRealMethods;
 import org.mockito.internal.stubbing.answers.Returns;
 import org.mockito.internal.stubbing.answers.ThrowsException;
-import org.mockito.internal.stubbing.answers.ThrowsExceptionForClassType;
-import org.mockito.stubbing.Answer;
 import org.mockito.stubbing.OngoingStubbing;
 
 public abstract class BaseStubbing<T> implements OngoingStubbing<T> {
-
-    // Keep strong ref to mock preventing premature garbage collection when using 'One-liner stubs'.
-    // See #1541.
-    private final Object strongMockRef;
-
-    BaseStubbing(Object mock) {
-        this.strongMockRef = mock;
-    }
-
-    @Override
-    public OngoingStubbing<T> then(Answer<?> answer) {
-        return thenAnswer(answer);
-    }
 
     @Override
     public OngoingStubbing<T> thenReturn(T value) {
@@ -39,8 +25,7 @@ public abstract class BaseStubbing<T> implements OngoingStubbing<T> {
         OngoingStubbing<T> stubbing = thenReturn(value);
         if (values == null) {
             // For no good reason we're configuring null answer here
-            // This has been like that since forever, so let's keep it for compatibility (unless
-            // users complain)
+            // This has been like that since forever, so let's keep it for compatibility (unless users complain)
             return stubbing.thenReturn(null);
         }
         for (T v : values) {
@@ -75,12 +60,11 @@ public abstract class BaseStubbing<T> implements OngoingStubbing<T> {
             mockingProgress().reset();
             throw notAnException();
         }
-        return thenAnswer(new ThrowsExceptionForClassType(throwableType));
+        return thenThrow(newInstance(throwableType));
     }
 
     @Override
-    public OngoingStubbing<T> thenThrow(
-            Class<? extends Throwable> toBeThrown, Class<? extends Throwable>... nextToBeThrown) {
+    public OngoingStubbing<T> thenThrow(Class<? extends Throwable> toBeThrown, Class<? extends Throwable>... nextToBeThrown) {
         if (nextToBeThrown == null) {
             return thenThrow((Class<Throwable>) null);
         }
@@ -95,10 +79,6 @@ public abstract class BaseStubbing<T> implements OngoingStubbing<T> {
     public OngoingStubbing<T> thenCallRealMethod() {
         return thenAnswer(new CallsRealMethods());
     }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <M> M getMock() {
-        return (M) this.strongMockRef;
-    }
 }
+
+

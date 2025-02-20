@@ -4,21 +4,22 @@
  */
 package org.mockito.internal.matchers;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class InstanceOfTest {
 
     @Test
     public void should_describe_the_matcher() {
-        assertThat(new InstanceOf(Object.class).toString()).contains("isA").contains("Object");
-        assertThat(new InstanceOf(Object[].class).toString()).contains("isA").contains("Object[]");
-        assertThat(new InstanceOf(Object.class, "matches something").toString())
-                .isEqualTo("matches something");
+        assertThat(new InstanceOf(Object.class).toString()).contains("isA")
+                                                           .contains("Object");
+        assertThat(new InstanceOf(Object[].class).toString()).contains("isA")
+                                                           .contains("Object[]");
+        assertThat(new InstanceOf(Object.class, "matches something").toString()).isEqualTo("matches something");
     }
 
     @Test

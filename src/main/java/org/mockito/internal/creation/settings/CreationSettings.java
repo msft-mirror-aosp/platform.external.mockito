@@ -4,41 +4,34 @@
  */
 package org.mockito.internal.creation.settings;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-
+import org.mockito.internal.listeners.StubbingLookupListener;
 import org.mockito.listeners.InvocationListener;
-import org.mockito.listeners.StubbingLookupListener;
 import org.mockito.listeners.VerificationStartedListener;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.mock.MockName;
 import org.mockito.mock.SerializableMode;
 import org.mockito.stubbing.Answer;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 public class CreationSettings<T> implements MockCreationSettings<T>, Serializable {
     private static final long serialVersionUID = -6789800638070123629L;
 
     protected Class<T> typeToMock;
-    protected Set<Class<?>> extraInterfaces = new LinkedHashSet<>();
+    protected Set<Class<?>> extraInterfaces = new LinkedHashSet<Class<?>>();
     protected String name;
     protected Object spiedInstance;
     protected Answer<Object> defaultAnswer;
     protected MockName mockName;
     protected SerializableMode serializableMode = SerializableMode.NONE;
-    protected List<InvocationListener> invocationListeners = new ArrayList<>();
-
-    // Other listeners in this class may also need concurrency-safe implementation. However, no
-    // issue was reported about it.
-    // If we do it, we need to understand usage patterns and choose the right concurrent
-    // implementation.
-    protected List<StubbingLookupListener> stubbingLookupListeners = new CopyOnWriteArrayList<>();
-
-    protected List<VerificationStartedListener> verificationStartedListeners = new LinkedList<>();
+    protected List<InvocationListener> invocationListeners = new ArrayList<InvocationListener>();
+    protected final List<StubbingLookupListener> stubbingLookupListeners = new ArrayList<StubbingLookupListener>();
+    protected List<VerificationStartedListener> verificationStartedListeners = new LinkedList<VerificationStartedListener>();
     protected boolean stubOnly;
     protected boolean stripAnnotations;
     private boolean useConstructor;
@@ -50,7 +43,6 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
 
     @SuppressWarnings("unchecked")
     public CreationSettings(CreationSettings copy) {
-        // TODO can we have a reflection test here? We had a couple of bugs here in the past.
         this.typeToMock = copy.typeToMock;
         this.extraInterfaces = copy.extraInterfaces;
         this.name = copy.name;
@@ -59,7 +51,6 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
         this.mockName = copy.mockName;
         this.serializableMode = copy.serializableMode;
         this.invocationListeners = copy.invocationListeners;
-        this.stubbingLookupListeners = copy.stubbingLookupListeners;
         this.verificationStartedListeners = copy.verificationStartedListeners;
         this.stubOnly = copy.stubOnly;
         this.useConstructor = copy.isUsingConstructor();
@@ -113,7 +104,6 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
         return this;
     }
 
-    @Override
     public boolean isSerializable() {
         return serializableMode != SerializableMode.NONE;
     }
@@ -138,7 +128,6 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
         return verificationStartedListeners;
     }
 
-    @Override
     public List<StubbingLookupListener> getStubbingLookupListeners() {
         return stubbingLookupListeners;
     }
