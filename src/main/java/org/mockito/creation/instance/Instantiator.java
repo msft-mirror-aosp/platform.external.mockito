@@ -17,5 +17,6 @@ public interface Instantiator {
      *
      * @since 2.15.4
      */
-    <T> T newInstance(Class<T> cls);
+    <T> T newInstance(Class<T> cls) throws InstantiationException;
+
 }

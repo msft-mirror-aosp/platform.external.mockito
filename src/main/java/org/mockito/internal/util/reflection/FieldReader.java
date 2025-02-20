@@ -4,33 +4,31 @@
  */
 package org.mockito.internal.util.reflection;
 
-import java.lang.reflect.Field;
-
 import org.mockito.exceptions.base.MockitoException;
-import org.mockito.internal.configuration.plugins.Plugins;
-import org.mockito.plugins.MemberAccessor;
+
+import java.lang.reflect.Field;
 
 public class FieldReader {
 
     final Object target;
     final Field field;
-    final MemberAccessor accessor = Plugins.getMemberAccessor();
+    final AccessibilityChanger changer = new AccessibilityChanger();
 
     public FieldReader(Object target, Field field) {
         this.target = target;
         this.field = field;
+        changer.enableAccess(field);
     }
 
     public boolean isNull() {
-        return read() == null;
+            return read() == null;
     }
 
     public Object read() {
         try {
-            return accessor.get(field, target);
+            return field.get(target);
         } catch (Exception e) {
-            throw new MockitoException(
-                    "Cannot read state from field: " + field + ", on instance: " + target, e);
+            throw new MockitoException("Cannot read state from field: " + field + ", on instance: " + target);
         }
     }
 }

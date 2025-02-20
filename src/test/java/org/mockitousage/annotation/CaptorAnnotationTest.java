@@ -2,16 +2,8 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockitousage.annotation;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 import org.junit.Test;
 import org.mockito.*;
@@ -19,22 +11,36 @@ import org.mockito.exceptions.base.MockitoException;
 import org.mockitousage.IMethods;
 import org.mockitoutil.TestBase;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class CaptorAnnotationTest extends TestBase {
 
     @Retention(RetentionPolicy.RUNTIME)
-    public @interface NotAMock {}
+    public @interface NotAMock {
+    }
 
-    @Captor final ArgumentCaptor<String> finalCaptor = ArgumentCaptor.forClass(String.class);
+    @Captor
+    final ArgumentCaptor<String> finalCaptor = ArgumentCaptor.forClass(String.class);
 
-    @Captor ArgumentCaptor<List<List<String>>> genericsCaptor;
+    @Captor
+    ArgumentCaptor<List<List<String>>> genericsCaptor;
 
     @SuppressWarnings("rawtypes")
     @Captor
     ArgumentCaptor nonGenericCaptorIsAllowed;
 
-    @Mock MockInterface mockInterface;
+    @Mock
+    MockInterface mockInterface;
 
-    @NotAMock Set<?> notAMock;
+    @NotAMock
+    Set<?> notAMock;
 
     public interface MockInterface {
         void testMe(String simple, List<List<String>> genericList);
@@ -43,7 +49,7 @@ public class CaptorAnnotationTest extends TestBase {
     @Test
     public void testNormalUsage() {
 
-        MockitoAnnotations.openMocks(this);
+        MockitoAnnotations.initMocks(this);
 
         // check if assigned correctly
         assertNotNull(finalCaptor);
@@ -61,41 +67,44 @@ public class CaptorAnnotationTest extends TestBase {
 
         assertEquals(argForFinalCaptor, finalCaptor.getValue());
         assertEquals(argForGenericsCaptor, genericsCaptor.getValue());
+
     }
 
     public static class WrongType {
-        @Captor List<?> wrongType;
+        @Captor
+        List<?> wrongType;
     }
 
     @Test
     public void shouldScreamWhenWrongTypeForCaptor() {
         try {
-            MockitoAnnotations.openMocks(new WrongType());
+            MockitoAnnotations.initMocks(new WrongType());
             fail();
-        } catch (MockitoException e) {
-        }
+        } catch (MockitoException e) {}
     }
 
     public static class ToManyAnnotations {
-        @Captor @Mock ArgumentCaptor<List> missingGenericsField;
+        @Captor
+        @Mock
+        ArgumentCaptor<List> missingGenericsField;
     }
 
     @Test
     public void shouldScreamWhenMoreThanOneMockitoAnnotation() {
         try {
-            MockitoAnnotations.openMocks(new ToManyAnnotations());
+            MockitoAnnotations.initMocks(new ToManyAnnotations());
             fail();
         } catch (MockitoException e) {
             assertThat(e)
-                    .hasMessageContaining("missingGenericsField")
-                    .hasMessageContaining("multiple Mockito annotations");
+                .hasMessageContaining("missingGenericsField")
+                .hasMessageContaining("multiple Mockito annotations");
         }
     }
 
     @Test
     public void shouldScreamWhenInitializingCaptorsForNullClass() throws Exception {
         try {
-            MockitoAnnotations.openMocks(null);
+            MockitoAnnotations.initMocks(null);
             fail();
         } catch (MockitoException e) {
         }
@@ -104,7 +113,7 @@ public class CaptorAnnotationTest extends TestBase {
     @Test
     public void shouldLookForAnnotatedCaptorsInSuperClasses() throws Exception {
         Sub sub = new Sub();
-        MockitoAnnotations.openMocks(sub);
+        MockitoAnnotations.initMocks(sub);
 
         assertNotNull(sub.getCaptor());
         assertNotNull(sub.getBaseCaptor());
@@ -112,7 +121,8 @@ public class CaptorAnnotationTest extends TestBase {
     }
 
     class SuperBase {
-        @Captor private ArgumentCaptor<IMethods> mock;
+        @Captor
+        private ArgumentCaptor<IMethods> mock;
 
         public ArgumentCaptor<IMethods> getSuperBaseCaptor() {
             return mock;
@@ -120,7 +130,8 @@ public class CaptorAnnotationTest extends TestBase {
     }
 
     class Base extends SuperBase {
-        @Captor private ArgumentCaptor<IMethods> mock;
+        @Captor
+        private ArgumentCaptor<IMethods> mock;
 
         public ArgumentCaptor<IMethods> getBaseCaptor() {
             return mock;
@@ -128,7 +139,8 @@ public class CaptorAnnotationTest extends TestBase {
     }
 
     class Sub extends Base {
-        @Captor private ArgumentCaptor<IMethods> mock;
+        @Captor
+        private ArgumentCaptor<IMethods> mock;
 
         public ArgumentCaptor<IMethods> getCaptor() {
             return mock;

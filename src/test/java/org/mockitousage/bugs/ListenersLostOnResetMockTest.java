@@ -4,13 +4,14 @@
  */
 package org.mockitousage.bugs;
 
-import static org.mockito.Mockito.*;
-
-import java.util.List;
 
 import org.junit.Test;
 import org.mockito.listeners.InvocationListener;
 import org.mockito.listeners.MethodInvocationReport;
+
+import java.util.List;
+
+import static org.mockito.Mockito.*;
 
 public class ListenersLostOnResetMockTest {
 

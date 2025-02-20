@@ -4,15 +4,14 @@
  */
 package org.mockito.internal.configuration.injection.filter;
 
-import static org.mockito.internal.exceptions.Reporter.cannotInjectDependency;
+import org.mockito.internal.util.reflection.BeanPropertySetter;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 
-import org.mockito.internal.configuration.plugins.Plugins;
-import org.mockito.internal.util.reflection.BeanPropertySetter;
-import org.mockito.plugins.MemberAccessor;
+import static org.mockito.internal.exceptions.Reporter.cannotInjectDependency;
+import static org.mockito.internal.util.reflection.FieldSetter.setField;
 
 /**
  * This node returns an actual injecter which will be either :
@@ -23,29 +22,28 @@ import org.mockito.plugins.MemberAccessor;
  * </ul>
  */
 public class TerminalMockCandidateFilter implements MockCandidateFilter {
-    @Override
-    public OngoingInjector filterCandidate(
-            final Collection<Object> mocks,
-            final Field candidateFieldToBeInjected,
-            final List<Field> allRemainingCandidateFields,
-            final Object injectee) {
-        if (mocks.size() == 1) {
+    public OngoingInjector filterCandidate(final Collection<Object> mocks,
+                                           final Field candidateFieldToBeInjected,
+                                           final List<Field> allRemainingCandidateFields,
+                                           final Object injectee) {
+        if(mocks.size() == 1) {
             final Object matchingMock = mocks.iterator().next();
 
-            MemberAccessor accessor = Plugins.getMemberAccessor();
-            return () -> {
-                try {
-                    if (!new BeanPropertySetter(injectee, candidateFieldToBeInjected)
-                            .set(matchingMock)) {
-                        accessor.set(candidateFieldToBeInjected, injectee, matchingMock);
+            return new OngoingInjector() {
+                public Object thenInject() {
+                    try {
+                        if (!new BeanPropertySetter(injectee, candidateFieldToBeInjected).set(matchingMock)) {
+                            setField(injectee, candidateFieldToBeInjected,matchingMock);
+                        }
+                    } catch (RuntimeException e) {
+                        throw cannotInjectDependency(candidateFieldToBeInjected, matchingMock, e);
                     }
-                } catch (RuntimeException | IllegalAccessException e) {
-                    throw cannotInjectDependency(candidateFieldToBeInjected, matchingMock, e);
+                    return matchingMock;
                 }
-                return matchingMock;
             };
         }
 
         return OngoingInjector.nop;
+
     }
 }

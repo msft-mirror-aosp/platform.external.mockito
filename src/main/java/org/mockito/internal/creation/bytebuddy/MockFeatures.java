@@ -4,11 +4,10 @@
  */
 package org.mockito.internal.creation.bytebuddy;
 
+import org.mockito.mock.SerializableMode;
+
 import java.util.Collections;
 import java.util.Set;
-
-import org.mockito.mock.SerializableMode;
-import org.mockito.stubbing.Answer;
 
 class MockFeatures<T> {
 
@@ -16,28 +15,18 @@ class MockFeatures<T> {
     final Set<Class<?>> interfaces;
     final SerializableMode serializableMode;
     final boolean stripAnnotations;
-    final Answer defaultAnswer;
 
-    private MockFeatures(
-            Class<T> mockedType,
-            Set<Class<?>> interfaces,
-            SerializableMode serializableMode,
-            boolean stripAnnotations,
-            Answer defaultAnswer) {
+    private MockFeatures(Class<T> mockedType, Set<Class<?>> interfaces, SerializableMode serializableMode, boolean stripAnnotations) {
         this.mockedType = mockedType;
         this.interfaces = Collections.unmodifiableSet(interfaces);
         this.serializableMode = serializableMode;
         this.stripAnnotations = stripAnnotations;
-        this.defaultAnswer = defaultAnswer;
     }
 
-    public static <T> MockFeatures<T> withMockFeatures(
-            Class<T> mockedType,
-            Set<Class<?>> interfaces,
-            SerializableMode serializableMode,
-            boolean stripAnnotations,
-            Answer defaultAnswer) {
-        return new MockFeatures<T>(
-                mockedType, interfaces, serializableMode, stripAnnotations, defaultAnswer);
+    public static <T> MockFeatures<T> withMockFeatures(Class<T> mockedType,
+                                                       Set<Class<?>> interfaces,
+                                                       SerializableMode serializableMode,
+                                                       boolean stripAnnotations) {
+        return new MockFeatures<T>(mockedType, interfaces, serializableMode, stripAnnotations);
     }
 }

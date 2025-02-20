@@ -6,14 +6,10 @@ package org.mockito.internal.util.reflection;
 
 import java.lang.reflect.Field;
 
-/** Do not use. To be removed after last usage is gone. */
-@Deprecated
 public class FieldSetter {
 
     private FieldSetter(){}
 
-    /** Do not use. To be removed after last usage is gone. */
-    @Deprecated
     public static void setField(Object target, Field field,Object value) {
         AccessibilityChanger changer = new AccessibilityChanger();
         changer.enableAccess(field);

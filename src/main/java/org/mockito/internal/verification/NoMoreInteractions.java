@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.internal.verification;
 
 import static org.mockito.internal.exceptions.Reporter.noMoreInteractionsWanted;
@@ -19,7 +20,6 @@ import org.mockito.verification.VerificationMode;
 
 public class NoMoreInteractions implements VerificationMode, VerificationInOrderMode {
 
-    @Override
     @SuppressWarnings("unchecked")
     public void verify(VerificationData data) {
         Invocation unverified = findFirstUnverified(data.getAllInvocations());
@@ -28,7 +28,6 @@ public class NoMoreInteractions implements VerificationMode, VerificationInOrder
         }
     }
 
-    @Override
     public void verifyInOrder(VerificationDataInOrder data) {
         List<Invocation> invocations = data.getAllInvocations();
         Invocation unverified = findFirstUnverifiedInOrder(data.getOrderingContext(), invocations);
@@ -36,5 +35,10 @@ public class NoMoreInteractions implements VerificationMode, VerificationInOrder
         if (unverified != null) {
             throw noMoreInteractionsWantedInOrder(unverified);
         }
+    }
+
+    @Override
+    public VerificationMode description(String description) {
+        return VerificationModeFactory.description(this, description);
     }
 }

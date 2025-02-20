@@ -2,10 +2,8 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-package org.mockitousage.verification;
 
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+package org.mockitousage.verification;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +12,9 @@ import org.mockito.exceptions.verification.NoInteractionsWanted;
 import org.mockito.exceptions.verification.VerificationInOrderFailure;
 import org.mockitousage.IMethods;
 import org.mockitoutil.TestBase;
+
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 
 public class SelectedMocksInOrderVerificationTest extends TestBase {
 
@@ -84,8 +85,7 @@ public class SelectedMocksInOrderVerificationTest extends TestBase {
         try {
             inOrder.verify(mockOne).differentMethod();
             fail();
-        } catch (VerificationInOrderFailure e) {
-        }
+        } catch (VerificationInOrderFailure e) {}
     }
 
     @Test
@@ -96,8 +96,7 @@ public class SelectedMocksInOrderVerificationTest extends TestBase {
         try {
             inOrder.verify(mockOne).simpleMethod(1);
             fail();
-        } catch (VerificationInOrderFailure e) {
-        }
+        } catch (VerificationInOrderFailure e) {}
     }
 
     @Test
@@ -125,8 +124,7 @@ public class SelectedMocksInOrderVerificationTest extends TestBase {
         try {
             inOrder.verify(mockTwo).simpleMethod(2);
             fail();
-        } catch (VerificationInOrderFailure e) {
-        }
+        } catch (VerificationInOrderFailure e) {}
     }
 
     @Test
@@ -136,19 +134,17 @@ public class SelectedMocksInOrderVerificationTest extends TestBase {
         try {
             inOrder.verify(mockTwo, times(2)).simpleMethod(2);
             fail();
-        } catch (VerificationInOrderFailure e) {
-        }
+        } catch (VerificationInOrderFailure e) {}
     }
 
     @Test
-    public void shouldThrowTooFewInvocationsForMockTwo() {
+    public void shouldThrowTooLittleInvocationsForMockTwo() {
         InOrder inOrder = inOrder(mockTwo);
 
         try {
             inOrder.verify(mockTwo, times(4)).simpleMethod(2);
             fail();
-        } catch (VerificationInOrderFailure e) {
-        }
+        } catch (VerificationInOrderFailure e) {}
     }
 
     @Test
@@ -158,8 +154,7 @@ public class SelectedMocksInOrderVerificationTest extends TestBase {
         try {
             inOrder.verify(mockTwo, times(2)).simpleMethod(2);
             fail();
-        } catch (VerificationInOrderFailure e) {
-        }
+        } catch (VerificationInOrderFailure e) {}
     }
 
     @Test
@@ -188,7 +183,6 @@ public class SelectedMocksInOrderVerificationTest extends TestBase {
         try {
             verifyNoMoreInteractions(mockTwo);
             fail();
-        } catch (NoInteractionsWanted e) {
-        }
+        } catch (NoInteractionsWanted e) {}
     }
 }

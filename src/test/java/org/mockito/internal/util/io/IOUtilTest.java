@@ -4,17 +4,16 @@
  */
 package org.mockito.internal.util.io;
 
-import static java.util.Arrays.asList;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
 
 public class IOUtilTest {
 

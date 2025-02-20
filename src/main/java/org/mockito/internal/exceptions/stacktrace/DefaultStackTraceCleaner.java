@@ -23,8 +23,7 @@ public class DefaultStackTraceCleaner implements StackTraceCleaner {
     }
 
     private static boolean isMockDispatcher(String className) {
-        return (className.contains("$$EnhancerByMockitoWithCGLIB$$")
-                || className.contains("$MockitoMock$"));
+        return (className.contains("$$EnhancerByMockitoWithCGLIB$$") || className.contains("$MockitoMock$"));
     }
 
     private static boolean isFromMockito(String className) {
@@ -37,7 +36,7 @@ public class DefaultStackTraceCleaner implements StackTraceCleaner {
 
     private static boolean isFromMockitoRunner(String className) {
         return className.startsWith("org.mockito.internal.runners.")
-                || className.startsWith("org.mockito.runners.")
-                || className.startsWith("org.mockito.junit.");
+               || className.startsWith("org.mockito.runners.")
+               || className.startsWith("org.mockito.junit.");
     }
 }

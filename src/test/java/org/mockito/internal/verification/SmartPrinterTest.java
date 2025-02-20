@@ -22,10 +22,7 @@ public class SmartPrinterTest extends TestBase {
 
     @Before
     public void setup() throws Exception {
-        mock.varargs(
-                "first very long argument",
-                "second very long argument",
-                "another very long argument");
+        mock.varargs("first very long argument", "second very long argument", "another very long argument");
         multi = new InvocationMatcher(getLastInvocation());
 
         mock.varargs("short arg");
@@ -34,49 +31,41 @@ public class SmartPrinterTest extends TestBase {
 
     @Test
     public void shouldPrintBothInMultilinesWhenFirstIsMulti() {
-        // when
+        //when
         SmartPrinter printer = new SmartPrinter(multi, shortie.getInvocation());
 
-        // then
+        //then
         assertThat(printer.getWanted()).contains("\n");
-        for (String actual : printer.getActuals()) {
-            assertThat(actual).contains("\n");
-        }
+        assertThat(printer.getActual()).contains("\n");
     }
 
     @Test
     public void shouldPrintBothInMultilinesWhenSecondIsMulti() {
-        // when
+        //when
         SmartPrinter printer = new SmartPrinter(shortie, multi.getInvocation());
 
-        // then
+        //then
         assertThat(printer.getWanted()).contains("\n");
-        for (String actual : printer.getActuals()) {
-            assertThat(actual).contains("\n");
-        }
+        assertThat(printer.getActual()).contains("\n");
     }
 
     @Test
     public void shouldPrintBothInMultilinesWhenBothAreMulti() {
-        // when
+        //when
         SmartPrinter printer = new SmartPrinter(multi, multi.getInvocation());
 
-        // then
+        //then
         assertThat(printer.getWanted()).contains("\n");
-        for (String actual : printer.getActuals()) {
-            assertThat(actual).contains("\n");
-        }
+        assertThat(printer.getActual()).contains("\n");
     }
 
     @Test
     public void shouldPrintBothInSingleLineWhenBothAreShort() {
-        // when
+        //when
         SmartPrinter printer = new SmartPrinter(shortie, shortie.getInvocation());
 
-        // then
+        //then
         assertThat(printer.getWanted()).doesNotContain("\n");
-        for (String actual : printer.getActuals()) {
-            assertThat(actual).doesNotContain("\n");
-        }
+        assertThat(printer.getActual()).doesNotContain("\n");
     }
 }
