@@ -5,14 +5,15 @@
 package org.mockito.internal.matchers.text;
 
 import static org.mockito.internal.util.ObjectMethodsGuru.isToStringMethod;
-import static org.mockito.internal.util.StringUtil.decamelizeMatcherName;
+import static org.mockito.internal.util.StringUtil.decamelizeMatcher;
 
 import java.lang.reflect.Method;
-
 import org.mockito.ArgumentMatcher;
 
-/** Provides better toString() text for matcher that don't have toString() method declared. */
-final class MatcherToString {
+/**
+ * Provides better toString() text for matcher that don't have toString() method declared.
+ */
+class MatcherToString {
 
     /**
      * Attempts to provide more descriptive toString() for given matcher.
@@ -26,28 +27,17 @@ final class MatcherToString {
      */
     static String toString(ArgumentMatcher<?> matcher) {
         Class<?> cls = matcher.getClass();
-        while (cls != Object.class) {
+        while(cls != Object.class) {
             Method[] methods = cls.getDeclaredMethods();
             for (Method m : methods) {
-                if (isToStringMethod(m)) {
+                if(isToStringMethod(m)) {
                     return matcher.toString();
                 }
             }
             cls = cls.getSuperclass();
         }
-
-        String matcherName;
-        Class<?> matcherClass = matcher.getClass();
-        // Lambdas have non-empty getSimpleName() (despite being synthetic)
-        // but that name is not useful for user
-        if (matcherClass.isSynthetic()) {
-            matcherName = "";
-        } else {
-            matcherName = matcherClass.getSimpleName();
-        }
-
-        return decamelizeMatcherName(matcherName);
+        return decamelizeMatcher(matcher.getClass().getSimpleName());
     }
 
-    private MatcherToString() {}
+
 }

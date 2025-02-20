@@ -2,6 +2,7 @@
  * Copyright (c) 2015 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
+
 package org.mockito.internal.util.reflection;
 
 import java.lang.reflect.Field;
@@ -17,14 +18,15 @@ import java.util.List;
  */
 public class SuperTypesLastSorter {
 
-    private SuperTypesLastSorter() {}
+    private SuperTypesLastSorter() {
+    }
 
     /**
      * Return a new collection with the fields sorted first by name,
      * then with any fields moved after their supertypes.
      */
     public static List<Field> sortSuperTypesLast(Collection<? extends Field> unsortedFields) {
-        List<Field> fields = new ArrayList<>(unsortedFields);
+        List<Field> fields = new ArrayList<Field>(unsortedFields);
 
         Collections.sort(fields, compareFieldsByName);
 
@@ -53,8 +55,11 @@ public class SuperTypesLastSorter {
         return fields;
     }
 
-    private static final Comparator<Field> compareFieldsByName =
-            (Field o1, Field o2) -> {
-                return o1.getName().compareTo(o2.getName());
-            };
+
+    private static final Comparator<Field> compareFieldsByName = new Comparator<Field>() {
+        @Override
+        public int compare(Field o1, Field o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+    };
 }

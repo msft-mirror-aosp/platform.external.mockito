@@ -4,6 +4,7 @@
  */
 package org.mockito.internal.debugging;
 
+
 import org.mockito.invocation.Location;
 
 public class Localized<T> {

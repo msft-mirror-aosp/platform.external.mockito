@@ -25,9 +25,11 @@ public class TypeSafeMatchingTest {
 
     private static final Object NOT_A_COMPARABLE = new Object();
 
-    @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-    @Mock public IMethods mock;
+    @Mock
+    public IMethods mock;
 
     /**
      * Should not throw an {@link NullPointerException}
@@ -38,6 +40,7 @@ public class TypeSafeMatchingTest {
     public void compareNullArgument() {
         boolean match = matchesTypeSafe().apply(new LessOrEqual<Integer>(5), null);
         assertThat(match).isFalse();
+
     }
 
     /**
@@ -99,6 +102,7 @@ public class TypeSafeMatchingTest {
             public boolean matches(Integer arg, Void v) {
                 throw new UnsupportedOperationException();
             }
+
         }
 
         boolean match = matchesTypeSafe().apply(new TestMatcher(), 123);
@@ -107,7 +111,8 @@ public class TypeSafeMatchingTest {
 
     @Test
     public void matchesWithSubTypeExtendingGenericClass() {
-        abstract class GenericMatcher<T> implements ArgumentMatcher<T> {}
+        abstract class GenericMatcher<T> implements ArgumentMatcher<T> {
+        }
         class TestMatcher extends GenericMatcher<Integer> {
             @Override
             public boolean matches(Integer argument) {
@@ -122,7 +127,8 @@ public class TypeSafeMatchingTest {
     public void dontMatchesWithSubTypeExtendingGenericClass() {
         final AtomicBoolean wasCalled = new AtomicBoolean();
 
-        abstract class GenericMatcher<T> implements ArgumentMatcher<T> {}
+        abstract class GenericMatcher<T> implements ArgumentMatcher<T> {
+        }
         class TestMatcher extends GenericMatcher<Integer> {
             @Override
             public boolean matches(Integer argument) {
