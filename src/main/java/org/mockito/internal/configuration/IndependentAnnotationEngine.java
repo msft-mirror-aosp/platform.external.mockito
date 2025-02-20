@@ -4,23 +4,18 @@
  */
 package org.mockito.internal.configuration;
 
-import static org.mockito.internal.exceptions.Reporter.moreThanOneAnnotationNotAllowed;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.ScopedMock;
 import org.mockito.exceptions.base.MockitoException;
-import org.mockito.internal.configuration.plugins.Plugins;
 import org.mockito.plugins.AnnotationEngine;
-import org.mockito.plugins.MemberAccessor;
+
+import static org.mockito.internal.exceptions.Reporter.moreThanOneAnnotationNotAllowed;
+import static org.mockito.internal.util.reflection.FieldSetter.setField;
 
 /**
  * Initializes fields annotated with &#64;{@link org.mockito.Mock} or &#64;{@link org.mockito.Captor}.
@@ -31,10 +26,8 @@ import org.mockito.plugins.MemberAccessor;
  * @see MockitoAnnotations
  */
 @SuppressWarnings("unchecked")
-public class IndependentAnnotationEngine
-        implements AnnotationEngine, org.mockito.configuration.AnnotationEngine {
-    private final Map<Class<? extends Annotation>, FieldAnnotationProcessor<?>>
-            annotationProcessorMap = new HashMap<>();
+public class IndependentAnnotationEngine implements AnnotationEngine, org.mockito.configuration.AnnotationEngine {
+    private final Map<Class<? extends Annotation>, FieldAnnotationProcessor<?>> annotationProcessorMap = new HashMap<Class<? extends Annotation>, FieldAnnotationProcessor<?>>();
 
     public IndependentAnnotationEngine() {
         registerAnnotationProcessor(Mock.class, new MockAnnotationProcessor());
@@ -47,58 +40,38 @@ public class IndependentAnnotationEngine
 
     private <A extends Annotation> FieldAnnotationProcessor<A> forAnnotation(A annotation) {
         if (annotationProcessorMap.containsKey(annotation.annotationType())) {
-            return (FieldAnnotationProcessor<A>)
-                    annotationProcessorMap.get(annotation.annotationType());
+            return (FieldAnnotationProcessor<A>) annotationProcessorMap.get(annotation.annotationType());
         }
         return new FieldAnnotationProcessor<A>() {
-            @Override
             public Object process(A annotation, Field field) {
                 return null;
             }
         };
     }
 
-    private <A extends Annotation> void registerAnnotationProcessor(
-            Class<A> annotationClass, FieldAnnotationProcessor<A> fieldAnnotationProcessor) {
+    private <A extends Annotation> void registerAnnotationProcessor(Class<A> annotationClass, FieldAnnotationProcessor<A> fieldAnnotationProcessor) {
         annotationProcessorMap.put(annotationClass, fieldAnnotationProcessor);
     }
 
     @Override
-    public AutoCloseable process(Class<?> clazz, Object testInstance) {
-        List<ScopedMock> scopedMocks = new ArrayList<>();
+    public void process(Class<?> clazz, Object testInstance) {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             boolean alreadyAssigned = false;
-            for (Annotation annotation : field.getAnnotations()) {
+            for(Annotation annotation : field.getAnnotations()) {
                 Object mock = createMockFor(annotation, field);
-                if (mock instanceof ScopedMock) {
-                    scopedMocks.add((ScopedMock) mock);
-                }
                 if (mock != null) {
                     throwIfAlreadyAssigned(field, alreadyAssigned);
                     alreadyAssigned = true;
-                    final MemberAccessor accessor = Plugins.getMemberAccessor();
                     try {
-                        accessor.set(field, testInstance, mock);
+                        setField(testInstance, field,mock);
                     } catch (Exception e) {
-                        for (ScopedMock scopedMock : scopedMocks) {
-                            scopedMock.close();
-                        }
-                        throw new MockitoException(
-                                "Problems setting field "
-                                        + field.getName()
-                                        + " annotated with "
-                                        + annotation,
-                                e);
+                        throw new MockitoException("Problems setting field " + field.getName() + " annotated with "
+                                + annotation, e);
                     }
                 }
             }
         }
-        return () -> {
-            for (ScopedMock scopedMock : scopedMocks) {
-                scopedMock.closeOnDemand();
-            }
-        };
     }
 
     void throwIfAlreadyAssigned(Field field, boolean alreadyAssigned) {
@@ -106,4 +79,5 @@ public class IndependentAnnotationEngine
             throw moreThanOneAnnotationNotAllowed(field.getName());
         }
     }
+
 }

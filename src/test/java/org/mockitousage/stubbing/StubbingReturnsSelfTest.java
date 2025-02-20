@@ -4,13 +4,13 @@
  */
 package org.mockitousage.stubbing;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class StubbingReturnsSelfTest {
 
@@ -150,5 +150,6 @@ public class StubbingReturnsSelfTest {
         public String request() {
             return uri + headers.toString();
         }
+
     }
 }

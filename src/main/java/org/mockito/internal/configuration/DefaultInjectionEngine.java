@@ -16,8 +16,7 @@ import org.mockito.internal.configuration.injection.MockInjection;
  */
 public class DefaultInjectionEngine {
 
-    public void injectMocksOnFields(
-            Set<Field> needingInjection, Set<Object> mocks, Object testClassInstance) {
+    public void injectMocksOnFields(Set<Field> needingInjection, Set<Object> mocks, Object testClassInstance) {
         MockInjection.onFields(needingInjection, testClassInstance)
                 .withMocks(mocks)
                 .tryConstructorInjection()
@@ -25,4 +24,5 @@ public class DefaultInjectionEngine {
                 .handleSpyAnnotation()
                 .apply();
     }
+
 }

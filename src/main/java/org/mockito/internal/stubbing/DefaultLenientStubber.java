@@ -13,7 +13,7 @@ import org.mockito.stubbing.Stubber;
 
 public class DefaultLenientStubber implements LenientStubber {
 
-    private static final MockitoCore MOCKITO_CORE = new MockitoCore();
+    private final static MockitoCore MOCKITO_CORE = new MockitoCore();
 
     @Override
     public Stubber doThrow(Throwable... toBeThrown) {
@@ -26,8 +26,7 @@ public class DefaultLenientStubber implements LenientStubber {
     }
 
     @Override
-    public Stubber doThrow(
-            Class<? extends Throwable> toBeThrown, Class<? extends Throwable>... nextToBeThrown) {
+    public Stubber doThrow(Class<? extends Throwable> toBeThrown, Class<? extends Throwable>... nextToBeThrown) {
         return stubber().doThrow(toBeThrown, nextToBeThrown);
     }
 
@@ -58,8 +57,7 @@ public class DefaultLenientStubber implements LenientStubber {
 
     @Override
     public <T> OngoingStubbing<T> when(T methodCall) {
-        OngoingStubbingImpl<T> ongoingStubbing =
-                (OngoingStubbingImpl) MOCKITO_CORE.when(methodCall);
+        OngoingStubbingImpl<T> ongoingStubbing = (OngoingStubbingImpl) MOCKITO_CORE.when(methodCall);
         ongoingStubbing.setStrictness(Strictness.LENIENT);
         return ongoingStubbing;
     }

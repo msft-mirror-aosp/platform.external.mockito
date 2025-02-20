@@ -4,16 +4,16 @@
  */
 package org.mockitousage.bugs;
 
-import static org.mockito.Mockito.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
+import static org.mockito.Mockito.*;
 
 // issue 322
 // the only evidence of this failing test was shown on a RHEL with IBM J9 JVM 64bits
@@ -39,8 +39,7 @@ public class ConcurrentModificationExceptionOnMultiThreadedVerificationTest {
 
     @Test
     public void shouldSuccessfullyVerifyConcurrentInvocationsWithTimeout() throws Exception {
-        int potentialOverhead =
-                1000; // Leave 1000ms extra before timing out as leeway for test overheads
+        int potentialOverhead = 1000; // Leave 1000ms extra before timing out as leeway for test overheads
         int expectedMaxTestLength = TIMES * INTERVAL_MILLIS + potentialOverhead;
 
         reset(target);
@@ -50,11 +49,13 @@ public class ConcurrentModificationExceptionOnMultiThreadedVerificationTest {
         verifyNoMoreInteractions(target);
     }
 
-    private void startInvocations() throws InterruptedException, ExecutionException {
+    private void startInvocations() throws InterruptedException,
+            ExecutionException {
 
-        for (int i = 0; i < nThreads; i++) {
+        for(int i=0; i<nThreads; i++) {
             fixedThreadPool.submit(new TargetInvoker(i));
         }
+
     }
 
     public class TargetInvoker implements Callable<Object> {
@@ -74,9 +75,11 @@ public class ConcurrentModificationExceptionOnMultiThreadedVerificationTest {
             System.err.println("finished" + seq);
             return seq;
         }
+
     }
 
     public interface ITarget {
         String targetMethod(String arg);
     }
+
 }

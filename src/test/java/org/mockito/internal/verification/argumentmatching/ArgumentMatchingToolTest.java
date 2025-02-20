@@ -4,20 +4,19 @@
  */
 package org.mockito.internal.verification.argumentmatching;
 
-import static java.util.Collections.singletonList;
-
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.internal.matchers.ContainsExtraTypeInfo;
 import org.mockito.internal.matchers.Equals;
 import org.mockitoutil.TestBase;
 
-@SuppressWarnings({"unchecked", "serial"})
+import java.util.Arrays;
+import java.util.List;
+
+import static java.util.Collections.singletonList;
+import static org.junit.Assert.assertEquals;
+
+@SuppressWarnings({ "unchecked", "serial" })
 public class ArgumentMatchingToolTest extends TestBase {
 
     @Test
@@ -26,9 +25,7 @@ public class ArgumentMatchingToolTest extends TestBase {
         List<ArgumentMatcher> matchers = (List) Arrays.asList(new Equals(1));
 
         // when
-        Integer[] suspicious =
-                ArgumentMatchingTool.getSuspiciouslyNotMatchingArgsIndexes(
-                        matchers, new Object[] {10, 20});
+        Integer[] suspicious = ArgumentMatchingTool.getSuspiciouslyNotMatchingArgsIndexes(matchers, new Object[] { 10, 20 });
 
         // then
         assertEquals(0, suspicious.length);
@@ -40,9 +37,7 @@ public class ArgumentMatchingToolTest extends TestBase {
         List<ArgumentMatcher> matchers = (List) Arrays.asList(new Equals(10), new Equals(20));
 
         // when
-        Integer[] suspicious =
-                ArgumentMatchingTool.getSuspiciouslyNotMatchingArgsIndexes(
-                        matchers, new Object[] {10, 20});
+        Integer[] suspicious = ArgumentMatchingTool.getSuspiciouslyNotMatchingArgsIndexes(matchers, new Object[] { 10, 20 });
 
         // then
         assertEquals(0, suspicious.length);
@@ -56,9 +51,7 @@ public class ArgumentMatchingToolTest extends TestBase {
 
         // when
         List<ArgumentMatcher> matchers = (List) Arrays.asList(new Equals(10), matcherInt20);
-        Integer[] suspicious =
-                ArgumentMatchingTool.getSuspiciouslyNotMatchingArgsIndexes(
-                        matchers, new Object[] {10, longPretendingAnInt});
+        Integer[] suspicious = ArgumentMatchingTool.getSuspiciouslyNotMatchingArgsIndexes(matchers, new Object[] { 10, longPretendingAnInt });
 
         // then
         assertEquals(1, suspicious.length);
@@ -68,18 +61,15 @@ public class ArgumentMatchingToolTest extends TestBase {
     @Test
     public void shouldNotFindSuspiciousMatchersWhenTypesAreTheSame() {
         // given
-        Equals matcherWithBadDescription =
-                new Equals(20) {
-                    public String toString() {
-                        return "10";
-                    }
-                };
+        Equals matcherWithBadDescription = new Equals(20) {
+            public String toString() {
+                return "10";
+            }
+        };
         Integer argument = 10;
 
         // when
-        Integer[] suspicious =
-                ArgumentMatchingTool.getSuspiciouslyNotMatchingArgsIndexes(
-                        (List) Arrays.asList(matcherWithBadDescription), new Object[] {argument});
+        Integer[] suspicious = ArgumentMatchingTool.getSuspiciouslyNotMatchingArgsIndexes((List) Arrays.asList(matcherWithBadDescription), new Object[] { argument });
 
         // then
         assertEquals(0, suspicious.length);
@@ -88,9 +78,7 @@ public class ArgumentMatchingToolTest extends TestBase {
     @Test
     public void shouldWorkFineWhenGivenArgIsNull() {
         // when
-        Integer[] suspicious =
-                ArgumentMatchingTool.getSuspiciouslyNotMatchingArgsIndexes(
-                        (List) Arrays.asList(new Equals(20)), new Object[] {null});
+        Integer[] suspicious = ArgumentMatchingTool.getSuspiciouslyNotMatchingArgsIndexes((List) Arrays.asList(new Equals(20)), new Object[] { null });
 
         // then
         assertEquals(0, suspicious.length);
@@ -99,10 +87,8 @@ public class ArgumentMatchingToolTest extends TestBase {
     @Test
     @SuppressWarnings("rawtypes")
     public void shouldUseMatchersSafely() {
-        // This matcher is evil cause typeMatches(Object) returns true for every passed type but
-        // matches(T)
-        // method accepts only Strings. When a Integer is passed (thru the matches(Object) bridge
-        // method )  a
+        // This matcher is evil cause typeMatches(Object) returns true for every passed type but matches(T)
+        // method accepts only Strings. When a Integer is passed (thru the matches(Object) bridge method )  a
         // ClassCastException will be thrown.
         class StringMatcher implements ArgumentMatcher<String>, ContainsExtraTypeInfo {
             @Override
@@ -111,7 +97,7 @@ public class ArgumentMatchingToolTest extends TestBase {
             }
 
             @Override
-            public String toStringWithType(String className) {
+            public String toStringWithType() {
                 return "";
             }
 
@@ -119,22 +105,16 @@ public class ArgumentMatchingToolTest extends TestBase {
             public boolean typeMatches(Object target) {
                 return true;
             }
-
-            @Override
-            public Object getWanted() {
-                return "";
-            }
         }
 
         // given
         List<ArgumentMatcher> matchers = (List) singletonList(new StringMatcher());
 
         // when
-        Integer[] suspicious =
-                ArgumentMatchingTool.getSuspiciouslyNotMatchingArgsIndexes(
-                        matchers, new Object[] {10});
+        Integer[] suspicious = ArgumentMatchingTool.getSuspiciouslyNotMatchingArgsIndexes(matchers, new Object[] { 10 });
 
         // then
         assertEquals(0, suspicious.length);
     }
+
 }
