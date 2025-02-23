@@ -2,19 +2,19 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.mock;
+
+import java.util.List;
+import java.util.Set;
 
 import org.mockito.Incubating;
 import org.mockito.MockSettings;
 import org.mockito.NotExtensible;
 import org.mockito.listeners.InvocationListener;
+import org.mockito.listeners.StubbingLookupListener;
 import org.mockito.listeners.VerificationStartedListener;
 import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * Informs about the mock settings. An immutable view of {@link org.mockito.MockSettings}.
@@ -70,7 +70,17 @@ public interface MockCreationSettings<T> {
     boolean isStripAnnotations();
 
     /**
-     * {@link InvocationListener} instances attached to this mock, see {@link org.mockito.MockSettings#invocationListeners}.
+     * Returns {@link StubbingLookupListener} instances attached to this mock via {@link MockSettings#stubbingLookupListeners(StubbingLookupListener...)}.
+     * The resulting list is mutable, you can add/remove listeners even after the mock was created.
+     * <p>
+     * For more details see {@link StubbingLookupListener}.
+     *
+     * @since 2.24.6
+     */
+    List<StubbingLookupListener> getStubbingLookupListeners();
+
+    /**
+     * {@link InvocationListener} instances attached to this mock, see {@link org.mockito.MockSettings#invocationListeners(InvocationListener...)}.
      */
     List<InvocationListener> getInvocationListeners();
 
