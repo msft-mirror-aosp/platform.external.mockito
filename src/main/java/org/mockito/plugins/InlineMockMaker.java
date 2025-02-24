@@ -2,7 +2,6 @@
  * Copyright (c) 2019 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-
 package org.mockito.plugins;
 
 import org.mockito.Incubating;
@@ -48,6 +47,4 @@ public interface InlineMockMaker extends MockMaker {
      */
     @Incubating
     void clearAllMocks();
-
 }
-
