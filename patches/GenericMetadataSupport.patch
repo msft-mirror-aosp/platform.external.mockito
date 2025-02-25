@@ -1,0 +1,13 @@
+diff --git a/src/main/java/org/mockito/internal/util/reflection/GenericMetadataSupport.java b/src/main/java/org/mockito/internal/util/reflection/GenericMetadataSupport.java
+index ef64c5bb6..c7edd9cea 100644
+--- a/src/main/java/org/mockito/internal/util/reflection/GenericMetadataSupport.java
++++ b/src/main/java/org/mockito/internal/util/reflection/GenericMetadataSupport.java
+@@ -91,7 +91,7 @@ public abstract class GenericMetadataSupport {
+ 
+             Class<?> rawType = extractRawTypeOf(typeToRegister);
+             typesToRegister.add(rawType.getGenericSuperclass());
+-            typesToRegister.addAll(Arrays.asList(rawType.getGenericInterfaces()));
++            Collections.addAll(typesToRegister, rawType.getGenericInterfaces());
+         }
+     }
+ 
