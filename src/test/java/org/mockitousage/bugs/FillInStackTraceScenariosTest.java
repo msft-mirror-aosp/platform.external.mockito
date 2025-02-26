@@ -4,13 +4,13 @@
  */
 package org.mockitousage.bugs;
 
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
+
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockitousage.IMethods;
 import org.mockitoutil.TestBase;
-
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
 
 /**
  * These tests check that ThrowsException#answer throws an instance returned
@@ -42,14 +42,15 @@ public class FillInStackTraceScenariosTest extends TestBase {
         }
     }
 
-    //issue 866
+    // issue 866
     @Test
     public void avoids_NPE() {
         when(mock.simpleMethod()).thenThrow(new NullStackTraceException());
         try {
             mock.simpleMethod();
             fail();
-        } catch(NullStackTraceException e) {}
+        } catch (NullStackTraceException e) {
+        }
     }
 
     @Test
@@ -58,6 +59,7 @@ public class FillInStackTraceScenariosTest extends TestBase {
         try {
             mock.simpleMethod();
             fail();
-        } catch(SomeException e) {}
+        } catch (SomeException e) {
+        }
     }
 }
