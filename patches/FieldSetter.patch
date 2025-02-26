@@ -1,0 +1,74 @@
+diff --git a/src/main/java/org/mockito/internal/util/reflection/AccessibilityChanger.java b/src/main/java/org/mockito/internal/util/reflection/AccessibilityChanger.java
+new file mode 100644
+index 0000000..9d1b756
+--- /dev/null
++++ b/src/main/java/org/mockito/internal/util/reflection/AccessibilityChanger.java
+@@ -0,0 +1,32 @@
++/*
++ * Copyright (c) 2007 Mockito contributors
++ * This program is made available under the terms of the MIT License.
++ */
++package org.mockito.internal.util.reflection;
++
++import java.lang.reflect.AccessibleObject;
++
++class AccessibilityChanger {
++
++    private Boolean wasAccessible = null;
++
++    /**
++     * safely disables access
++     */
++    public void safelyDisableAccess(AccessibleObject accessibleObject) {
++        assert wasAccessible != null : "accessibility info shall not be null";
++        try {
++            accessibleObject.setAccessible(wasAccessible);
++        } catch (Throwable t) {
++            //ignore
++        }
++    }
++
++    /**
++     * changes the accessibleObject accessibility and returns true if accessibility was changed
++     */
++    public void enableAccess(AccessibleObject accessibleObject) {
++        wasAccessible = accessibleObject.isAccessible();
++        accessibleObject.setAccessible(true);
++    }
++}
+diff --git a/src/main/java/org/mockito/internal/util/reflection/FieldSetter.java b/src/main/java/org/mockito/internal/util/reflection/FieldSetter.java
+new file mode 100644
+index 0000000..35b1210
+--- /dev/null
++++ b/src/main/java/org/mockito/internal/util/reflection/FieldSetter.java
+@@ -0,0 +1,30 @@
++/*
++ * Copyright (c) 2007 Mockito contributors
++ * This program is made available under the terms of the MIT License.
++ */
++package org.mockito.internal.util.reflection;
++
++import java.lang.reflect.Field;
++
++/** Do not use. To be removed after last usage is gone. */
++@Deprecated
++public class FieldSetter {
++
++    private FieldSetter(){}
++
++    /** Do not use. To be removed after last usage is gone. */
++    @Deprecated
++    public static void setField(Object target, Field field,Object value) {
++        AccessibilityChanger changer = new AccessibilityChanger();
++        changer.enableAccess(field);
++        try {
++            field.set(target, value);
++        } catch (IllegalAccessException e) {
++            throw new RuntimeException("Access not authorized on field '" + field + "' of object '" + target + "' with value: '" + value + "'", e);
++        } catch (IllegalArgumentException e) {
++            throw new RuntimeException("Wrong argument on field '" + field + "' of object '" + target + "' with value: '" + value + "', \n" +
++                    "reason : " + e.getMessage(), e);
++        }
++        changer.safelyDisableAccess(field);
++    }
++}
