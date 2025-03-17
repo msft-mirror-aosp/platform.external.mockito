@@ -23,7 +23,6 @@ import org.mockito.verification.VerificationMode;
  *
  * @param <T> The type being mocked.
  */
-@Incubating
 public interface MockedStatic<T> extends ScopedMock {
 
     /**
@@ -37,14 +36,6 @@ public interface MockedStatic<T> extends ScopedMock {
     default void verify(Verification verification) {
         verify(verification, times(1));
     }
-
-    /**
-     * See {@link Mockito#verify(Object, VerificationMode)}.
-     *
-     * @deprecated Please use {@link MockedStatic#verify(Verification, VerificationMode) instead
-     */
-    @Deprecated
-    void verify(VerificationMode mode, Verification verification);
 
     /**
      * See {@link Mockito#verify(Object, VerificationMode)}.

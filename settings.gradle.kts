@@ -2,8 +2,8 @@ plugins {
   id("com.gradle.enterprise").version("3.3.4")
 }
 
-include("deprecatedPluginsTest",
-    "inline",
+include("inline",
+    "proxy",
     "extTest",
     "groovyTest",
     "kotlinTest",
@@ -16,9 +16,10 @@ include("deprecatedPluginsTest",
     "memory-test",
     "errorprone",
     "junitJupiterParallelTest",
-    "osgi-test")
+    "osgi-test",
+    "bom")
 
-if (System.getenv("ANDROID_SDK_ROOT") != null || File(".local.properties").exists()) {
+if (!JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17) && (System.getenv("ANDROID_SDK_ROOT") != null || File(".local.properties").exists())) {
     include("androidTest")
 } else {
     logger.info("Not including android test project due to missing SDK configuration")
