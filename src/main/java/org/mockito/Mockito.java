@@ -105,6 +105,7 @@ import java.util.function.Function;
  *      <a href="#49">49. New API for mocking object construction (Since 3.5.0)</a><br/>
  *      <a href="#50">50. Avoiding code generation when restricting mocks to interfaces (Since 3.12.2)</a><br/>
  *      <a href="#51">51. New API for marking classes as unmockable (Since 4.1.0)</a><br/>
+ *      <a href="#51">52. New strictness attribute for @Mock annotation and <code>MockSettings.strictness()</code> methods (Since 4.6.0)</a><br/>
  * </b>
  *
  * <h3 id="0">0. <a class="meaningful_link" href="#mockito2" name="mockito2">Migrating to Mockito 2</a></h3>
@@ -1258,11 +1259,11 @@ import java.util.function.Function;
  * void receive(String item);
  *
  * // Java 8 - style 1
- * doAnswer(AdditionalAnswers.&lt;String,Callback&gt;answerVoid((operand, callback) -&gt; callback.receive("dummy"))
+ * doAnswer(AdditionalAnswers.&lt;String,Callback&gt;answerVoid((operand, callback) -&gt; callback.receive("dummy")))
  *     .when(mock).execute(anyString(), any(Callback.class));
  *
  * // Java 8 - style 2 - assuming static import of AdditionalAnswers
- * doAnswer(answerVoid((String operand, Callback callback) -&gt; callback.receive("dummy"))
+ * doAnswer(answerVoid((String operand, Callback callback) -&gt; callback.receive("dummy")))
  *     .when(mock).execute(anyString(), any(Callback.class));
  *
  * // Java 8 - style 3 - where mocking function to is a static member of test class
@@ -1270,7 +1271,7 @@ import java.util.function.Function;
  *     callback.receive("dummy");
  * }
  *
- * doAnswer(answerVoid(TestClass::dummyCallbackImpl)
+ * doAnswer(answerVoid(TestClass::dummyCallbackImpl))
  *     .when(mock).execute(anyString(), any(Callback.class));
  *
  * // Java 7
@@ -1286,7 +1287,7 @@ import java.util.function.Function;
  *
  * // this could be mocked
  * // Java 8
- * doAnswer(AdditionalAnswers.&lt;Boolean,String,String&gt;answer((input1, input2) -&gt; input1.equals(input2))))
+ * doAnswer(AdditionalAnswers.&lt;Boolean,String,String&gt;answer((input1, input2) -&gt; input1.equals(input2)))
  *     .when(mock).execute(anyString(), anyString());
  *
  * // Java 7
@@ -1606,6 +1607,21 @@ import java.util.function.Function;
  * For any class/interface you own that is problematic to mock, you can now mark the class with {@link org.mockito.DoNotMock @DoNotMock}. For usage
  * of the annotation and how to ship your own (to avoid a compile time dependency on a test artifact), please see its JavaDoc.
  * <p>
+ *
+ * <h3 id="52">52. <a class="meaningful_link" href="#mockito_strictness" name="mockito_strictness">
+ *  New strictness attribute for @Mock annotation and <code>MockSettings.strictness()</code> methods (Since 4.6.0)</a></h3>
+ *
+ * You can now customize the strictness level for a single mock, either using `@Mock` annotation strictness attribute or
+ * using `MockSettings.strictness()`. This can be useful if you want all of your mocks to be strict,
+ * but one of the mocks to be lenient.
+ *
+ * <pre class="code"><code class="java">
+ *   &#064;Mock(strictness = Strictness.LENIENT)
+ *   Foo mock;
+ *   // using MockSettings.withSettings()
+ *   Foo mock = Mockito.mock(Foo.class, withSettings().strictness(Strictness.WARN));
+ * </code></pre>
+ *
  */
 @CheckReturnValue
 @SuppressWarnings("unchecked")
