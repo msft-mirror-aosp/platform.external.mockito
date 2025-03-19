@@ -4,8 +4,6 @@
  */
 package org.mockito.stubbing;
 
-import org.mockito.Incubating;
-
 /**
  * Generic interface to be used for configuring mock's answer for a four argument invocation that returns nothing.
  *
@@ -23,7 +21,7 @@ import org.mockito.Incubating;
  *         }
  * })).when(mock).someMethod(anyString(), anyInt(), anyString(), anyChar());
  *
- * //Following will raise an exception with the message "ka-boom <3"
+ * //Following will raise an exception with the message "ka-boom &lt;3"
  * mock.someMethod("%s-boom %c%d", 3, "ka", '&lt;');
  * </code></pre>
  *
@@ -33,7 +31,6 @@ import org.mockito.Incubating;
  * @param <A3> type of the fourth argument
  * @see Answer
  */
-@Incubating
 public interface VoidAnswer4<A0, A1, A2, A3> {
     /**
      * @param argument0 the first argument.
