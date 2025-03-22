@@ -19,7 +19,6 @@ import org.mockito.plugins.MockitoPlugins;
  *
  * @since 2.1.0
  */
-@Incubating
 @NotExtensible
 public interface MockitoFramework {
 
@@ -33,7 +32,7 @@ public interface MockitoFramework {
      * Make sure you remove the listener when the job is complete, see {@link #removeListener(MockitoListener)}.
      * Currently the listeners list is thread local so you need to remove listener from the same thread otherwise
      * remove is ineffectual.
-     * In typical scenarios, it is not a problem, because adding & removing listeners typically happens in the same thread.
+     * In typical scenarios, it is not a problem, because adding and removing listeners typically happens in the same thread.
      * <p>
      * If you are trying to add the listener but a listener of the same type was already added (and not removed)
      * this method will throw {@link RedundantListenerException}.
@@ -53,14 +52,13 @@ public interface MockitoFramework {
      * @return this instance of mockito framework (fluent builder pattern)
      * @since 2.1.0
      */
-    @Incubating
     MockitoFramework addListener(MockitoListener listener) throws RedundantListenerException;
 
     /**
      * When you add listener using {@link #addListener(MockitoListener)} make sure to remove it.
      * Currently the listeners list is thread local so you need to remove listener from the same thread otherwise
      * remove is ineffectual.
-     * In typical scenarios, it is not a problem, because adding & removing listeners typically happens in the same thread.
+     * In typical scenarios, it is not a problem, because adding and removing listeners typically happens in the same thread.
      * <p>
      * For usage examples, see Mockito codebase.
      * If you have ideas and feature requests about Mockito listeners API
@@ -70,7 +68,6 @@ public interface MockitoFramework {
      * @return this instance of mockito framework (fluent builder pattern)
      * @since 2.1.0
      */
-    @Incubating
     MockitoFramework removeListener(MockitoListener listener);
 
     /**
@@ -81,7 +78,6 @@ public interface MockitoFramework {
      * @return object that gives access to mockito plugins
      * @since 2.10.0
      */
-    @Incubating
     MockitoPlugins getPlugins();
 
     /**
@@ -91,7 +87,6 @@ public interface MockitoFramework {
      * @return object that can construct invocations
      * @since 2.10.0
      */
-    @Incubating
     InvocationFactory getInvocationFactory();
 
     /**
@@ -130,7 +125,6 @@ public interface MockitoFramework {
      * @since 2.25.0
      * @see #clearInlineMock(Object)
      */
-    @Incubating
     void clearInlineMocks();
 
     /**
@@ -142,6 +136,5 @@ public interface MockitoFramework {
      * @since 2.25.0
      * @see #clearInlineMocks()
      */
-    @Incubating
     void clearInlineMock(Object mock);
 }

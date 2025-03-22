@@ -47,6 +47,8 @@ public final class MockedStaticImpl<T> implements MockedStatic<T> {
 
         try {
             verification.apply();
+        } catch (MockitoException exception) {
+            throw exception;
         } catch (Throwable ignored) {
         }
 
@@ -59,11 +61,6 @@ public final class MockedStaticImpl<T> implements MockedStatic<T> {
             throw missingMethodInvocation();
         }
         return stubbing;
-    }
-
-    @Override
-    public void verify(VerificationMode mode, Verification verification) {
-        verify(verification, mode);
     }
 
     @Override

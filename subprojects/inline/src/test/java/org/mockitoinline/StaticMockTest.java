@@ -6,7 +6,8 @@ package org.mockitoinline;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
-import static junit.framework.TestCase.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -38,32 +39,43 @@ public final class StaticMockTest {
         }
     }
 
-    @Test(expected = WantedButNotInvoked.class)
+    @Test
     public void testStaticMockWithVerificationFailed() {
         try (MockedStatic<Dummy> dummy = Mockito.mockStatic(Dummy.class)) {
-            dummy.verify(Dummy::foo);
+            assertThatThrownBy(
+                    () -> {
+                        dummy.verify(Dummy::foo);
+                    })
+                    .isInstanceOf(WantedButNotInvoked.class)
+                    .hasMessageContaining("there were zero interactions with this mock");
         }
     }
 
     @Test
-    public void testStaticMockWithMoInteractions() {
+    public void testStaticMockWithNoInteractions() {
         try (MockedStatic<Dummy> dummy = Mockito.mockStatic(Dummy.class)) {
             dummy.when(Dummy::foo).thenReturn("bar");
             dummy.verifyNoInteractions();
         }
     }
 
-    @Test(expected = NoInteractionsWanted.class)
-    public void testStaticMockWithMoInteractionsFailed() {
+    @Test
+    public void testStaticMockWithNoInteractionsFailed() {
         try (MockedStatic<Dummy> dummy = Mockito.mockStatic(Dummy.class)) {
             dummy.when(Dummy::foo).thenReturn("bar");
             assertEquals("bar", Dummy.foo());
-            dummy.verifyNoInteractions();
+            assertThatThrownBy(
+                    () -> {
+                        dummy.verifyNoInteractions();
+                    })
+                    .isInstanceOf(NoInteractionsWanted.class)
+                    .hasMessageContaining("No interactions wanted here")
+                    .hasMessageContaining("above is the only interaction with this mock.");
         }
     }
 
     @Test
-    public void testStaticMockWithMoMoreInteractions() {
+    public void testStaticMockWithNoMoreInteractions() {
         try (MockedStatic<Dummy> dummy = Mockito.mockStatic(Dummy.class)) {
             dummy.when(Dummy::foo).thenReturn("bar");
             assertEquals("bar", Dummy.foo());
@@ -72,12 +84,18 @@ public final class StaticMockTest {
         }
     }
 
-    @Test(expected = NoInteractionsWanted.class)
-    public void testStaticMockWithMoMoreInteractionsFailed() {
+    @Test
+    public void testStaticMockWithNoMoreInteractionsFailed() {
         try (MockedStatic<Dummy> dummy = Mockito.mockStatic(Dummy.class)) {
             dummy.when(Dummy::foo).thenReturn("bar");
             assertEquals("bar", Dummy.foo());
-            dummy.verifyNoMoreInteractions();
+            assertThatThrownBy(
+                    () -> {
+                        dummy.verifyNoInteractions();
+                    })
+                    .isInstanceOf(NoInteractionsWanted.class)
+                    .hasMessageContaining("No interactions wanted here")
+                    .hasMessageContaining("above is the only interaction with this mock.");
         }
     }
 
@@ -156,14 +174,18 @@ public final class StaticMockTest {
         }
     }
 
-    @Test(expected = MockitoException.class)
+    @Test
     public void testStaticMockMustBeExclusiveInScopeWithinThread() {
-        try (
-            MockedStatic<Dummy> dummy = Mockito.mockStatic(Dummy.class);
-            MockedStatic<Dummy> duplicate = Mockito.mockStatic(Dummy.class)
-        ) {
-            fail("Not supposed to allow duplicates");
-        }
+        assertThatThrownBy(
+                () -> {
+                    try (
+                            MockedStatic<Dummy> dummy = Mockito.mockStatic(Dummy.class);
+                            MockedStatic<Dummy> duplicate = Mockito.mockStatic(Dummy.class)
+                    ) {
+                    }
+                })
+                .isInstanceOf(MockitoException.class)
+                .hasMessageContaining("static mocking is already registered in the current thread");
     }
 
     @Test
@@ -171,10 +193,23 @@ public final class StaticMockTest {
         try (MockedStatic<Dummy> dummy = Mockito.mockStatic(Dummy.class)) {
             Dummy.fooVoid("bar");
             assertNull(Dummy.var1);
-            dummy.verify(()->Dummy.fooVoid("bar"));
+            dummy.verify(() -> Dummy.fooVoid("bar"));
         }
         Dummy.fooVoid("bar");
         assertEquals("bar", Dummy.var1);
+    }
+
+    @Test
+    public void testStaticMockMustUseValidMatchers() {
+        try (MockedStatic<Dummy> mockedClass = Mockito.mockStatic(Dummy.class)) {
+            assertThatThrownBy(
+                    () -> {
+                        mockedClass.when(() -> Dummy.fooVoid("foo", any())).thenReturn(null);
+                    })
+                .hasMessageContaining("Invalid use of argument matchers!");
+
+            Dummy.fooVoid("foo", "bar");
+        }
     }
 
     static class Dummy {
@@ -186,6 +221,10 @@ public final class StaticMockTest {
         }
 
         static void fooVoid(String var2) {
+            var1 = var2;
+        }
+
+        static void fooVoid(String var2, String var3) {
             var1 = var2;
         }
     }

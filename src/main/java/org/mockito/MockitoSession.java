@@ -8,6 +8,7 @@ import org.mockito.exceptions.misusing.PotentialStubbingProblem;
 import org.mockito.exceptions.misusing.UnfinishedMockingSessionException;
 import org.mockito.exceptions.misusing.UnnecessaryStubbingException;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner.StrictStubs;
 import org.mockito.junit.MockitoRule;
 import org.mockito.listeners.MockitoListener;
 import org.mockito.quality.MockitoHint;
@@ -72,7 +73,7 @@ import org.mockito.session.MockitoSessionBuilder;
  * There is no need to use {@code MockitoSession} if you already use {@link MockitoJUnitRunner} or {@link MockitoRule}.
  * If you are JUnit user who does not leverage Mockito rule or runner we strongly recommend to do so.
  * Both the runner and the rule support strict stubbing which can really help driving cleaner tests.
- * See {@link MockitoJUnitRunner.StrictStubs} and {@link MockitoRule#strictness(Strictness)}.
+ * See {@link StrictStubs MockitoJUnitRunner.StrictStubs} and {@link MockitoRule#strictness(Strictness)}.
  * If you cannot use Mockito's JUnit support {@code MockitoSession} exactly is for you!
  * You can automatically take advantage of strict stubbing ({@link Strictness}),
  * automatic initialization of annotated mocks ({@link MockitoAnnotations}),
@@ -86,7 +87,6 @@ import org.mockito.session.MockitoSessionBuilder;
  *
  * @since 2.7.0
  */
-@Incubating
 @NotExtensible
 public interface MockitoSession {
 
@@ -101,7 +101,6 @@ public interface MockitoSession {
      * @param strictness new strictness for this session.
      * @since 2.15.0
      */
-    @Incubating
     void setStrictness(Strictness strictness);
 
     /**
@@ -123,7 +122,6 @@ public interface MockitoSession {
      * @see #finishMocking(Throwable)
      * @since 2.7.0
      */
-    @Incubating
     void finishMocking();
 
     /**
@@ -140,6 +138,5 @@ public interface MockitoSession {
      * @see #finishMocking()
      * @since 2.15.0
      */
-    @Incubating
     void finishMocking(Throwable failure);
 }
