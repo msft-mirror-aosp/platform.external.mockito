@@ -6,7 +6,6 @@ package org.mockito.internal.verification.api;
 
 import java.util.List;
 
-import org.mockito.internal.invocation.InvocationMatcher;
 import org.mockito.invocation.Invocation;
 import org.mockito.invocation.MatchableInvocation;
 
@@ -27,10 +26,10 @@ public interface VerificationData {
      * The target or wanted invocation.
      * Below example illustrates what is the 'target' invocation:
      * <pre class="code"><code class="java">
-     *   mock.foo();   // <- invocation 1
-     *   mock.bar();   // <- invocation 2
+     *   mock.foo();   // &lt;- invocation 1
+     *   mock.bar();   // &lt;- invocation 2
      *
-     *   verify(mock).bar();  // <- target invocation
+     *   verify(mock).bar();  // &lt;- target invocation
      * </code></pre>
      *
      * Target invocation can contain argument matchers therefore the returned type is {@link MatchableInvocation}
@@ -39,13 +38,4 @@ public interface VerificationData {
      * @since 2.2.12
      */
     MatchableInvocation getTarget();
-
-    /**
-     * @deprecated - This internal method leaks internal class <code>InvocationMatcher</code>.
-     * Please use {@link org.mockito.internal.verification.api.VerificationData#getTarget()} instead.
-     *
-     * Deprecated since 2.2.12
-     */
-    @Deprecated
-    InvocationMatcher getWanted();
 }

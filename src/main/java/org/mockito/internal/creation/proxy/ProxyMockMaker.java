@@ -7,13 +7,15 @@ package org.mockito.internal.creation.proxy;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.internal.debugging.LocationImpl;
 import org.mockito.internal.invocation.RealMethod;
-import org.mockito.internal.invocation.SerializableMethod;
 import org.mockito.internal.util.Platform;
 import org.mockito.invocation.MockHandler;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.plugins.MockMaker;
 
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.mockito.internal.invocation.DefaultInvocationFactory.createInvocation;
@@ -27,34 +29,51 @@ public class ProxyMockMaker implements MockMaker {
 
     private static final Object[] EMPTY = new Object[0];
 
-    private final Method invokeDefault;
-
-    public ProxyMockMaker() {
-        Method m;
-        try {
-            m =
-                    InvocationHandler.class.getMethod(
-                            "invokeDefault", Object.class, Method.class, Object[].class);
-        } catch (NoSuchMethodException ignored) {
-            m = null;
-        }
-        invokeDefault = m;
-    }
+    private final ProxyRealMethod proxyRealMethod = ProxyRealMethod.make();
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T createMock(MockCreationSettings<T> settings, MockHandler handler) {
-        Class<?>[] ifaces = new Class<?>[settings.getExtraInterfaces().size() + 1];
-        ifaces[0] = settings.getTypeToMock();
-        int index = 1;
+        boolean object = settings.getTypeToMock() == Object.class;
+        Class<?>[] ifaces = new Class<?>[settings.getExtraInterfaces().size() + (object ? 0 : 1)];
+        int index = 0;
+        if (!object) {
+            ifaces[index++] = settings.getTypeToMock();
+        }
+        ClassLoader classLoader = settings.getTypeToMock().getClassLoader();
         for (Class<?> iface : settings.getExtraInterfaces()) {
             ifaces[index++] = iface;
+            classLoader = resolveCommonClassLoader(classLoader, iface);
         }
         return (T)
                 Proxy.newProxyInstance(
-                        settings.getTypeToMock().getClassLoader(),
+                        resolveCommonClassLoader(classLoader, ProxyMockMaker.class),
                         ifaces,
                         new MockInvocationHandler(handler, settings));
+    }
+
+    private static ClassLoader resolveCommonClassLoader(ClassLoader mostSpecific, Class<?> type) {
+        if (mostSpecific == null) {
+            return type.getClassLoader();
+        }
+        ClassLoader candidate = type.getClassLoader();
+        if (candidate == null || mostSpecific == candidate) {
+            return mostSpecific;
+        }
+        while (candidate != null) {
+            if (candidate == mostSpecific) {
+                return type.getClassLoader();
+            }
+            candidate = candidate.getParent();
+        }
+        candidate = mostSpecific;
+        while (candidate != null) {
+            if (candidate == type.getClassLoader()) {
+                return mostSpecific;
+            }
+            candidate = candidate.getParent();
+        }
+        return new CommonClassLoader(mostSpecific, type.getClassLoader());
     }
 
     @Override
@@ -79,7 +98,7 @@ public class ProxyMockMaker implements MockMaker {
         return new TypeMockability() {
             @Override
             public boolean mockable() {
-                return type.isInterface();
+                return type.isInterface() || type == Object.class;
             }
 
             @Override
@@ -126,10 +145,10 @@ public class ProxyMockMaker implements MockMaker {
                 }
             }
             RealMethod realMethod;
-            if (invokeDefault == null || Modifier.isAbstract(method.getModifiers())) {
+            if (Modifier.isAbstract(method.getModifiers())) {
                 realMethod = RealMethod.IsIllegal.INSTANCE;
             } else {
-                realMethod = new RealDefaultMethod(proxy, method, args);
+                realMethod = proxyRealMethod.resolve(proxy, method, args);
             }
             return handler.get()
                     .handle(
@@ -138,39 +157,22 @@ public class ProxyMockMaker implements MockMaker {
         }
     }
 
-    private class RealDefaultMethod implements RealMethod {
+    private static class CommonClassLoader extends ClassLoader {
 
-        private final Object proxy;
-        private final SerializableMethod serializableMethod;
-        private final Object[] args;
+        private final ClassLoader left, right;
 
-        private RealDefaultMethod(Object proxy, Method method, Object[] args) {
-            this.proxy = proxy;
-            this.serializableMethod = new SerializableMethod(method);
-            this.args = args;
+        private CommonClassLoader(ClassLoader left, ClassLoader right) {
+            super(null);
+            this.left = left;
+            this.right = right;
         }
 
         @Override
-        public boolean isInvokable() {
-            return true;
-        }
-
-        @Override
-        public Object invoke() throws Throwable {
+        public Class<?> loadClass(String name) throws ClassNotFoundException {
             try {
-                return invokeDefault.invoke(null, proxy, serializableMethod.getJavaMethod(), args);
-            } catch (InvocationTargetException e) {
-                throw e.getTargetException();
-            } catch (IllegalAccessException | IllegalArgumentException e) {
-                throw new MockitoException(
-                        join(
-                                "Failed to access default method or invoked method with illegal arguments",
-                                "",
-                                "Method "
-                                        + serializableMethod.getJavaMethod()
-                                        + " could not be delegated, this is not supposed to happen",
-                                Platform.describe()),
-                        e);
+                return left.loadClass(name);
+            } catch (ClassNotFoundException ignored) {
+                return right.loadClass(name);
             }
         }
     }

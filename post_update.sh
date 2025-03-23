@@ -34,6 +34,10 @@ subprojects/kotlinTest/
 subprojects/memory-test/
 subprojects/module-test/
 subprojects/osgi-test/
+subprojects/bom
+subprojects/groovyInlineTest/
+subprojects/proxy
+subprojects/subclass
 )
 
 for remove in ${excludes[@]}; do
