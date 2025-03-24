@@ -10,20 +10,20 @@ buildscript {
         classpath 'net.ltgt.gradle:gradle-errorprone-plugin:2.0.2'
 
         classpath "io.github.gradle-nexus:publish-plugin:1.1.0"
-        classpath 'org.shipkit:shipkit-changelog:1.2.0'
-        classpath 'org.shipkit:shipkit-auto-version:1.2.1'
+        classpath 'org.shipkit:shipkit-changelog:1.1.15'
+        classpath 'org.shipkit:shipkit-auto-version:1.1.19'
 
-        classpath 'com.google.googlejavaformat:google-java-format:1.15.0'
+        classpath 'com.google.googlejavaformat:google-java-format:1.13.0'
         classpath 'com.android.tools.build:gradle:4.2.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10"
     }
 }
 
 plugins {
-    id 'com.diffplug.spotless' version '6.9.1'
+    id 'com.diffplug.spotless' version '6.2.0'
     id 'eclipse'
-    id 'com.github.ben-manes.versions' version '0.42.0'
-    id 'biz.aQute.bnd.builder' version '6.3.1'
+    id 'com.github.ben-manes.versions' version '0.41.0'
+    id 'biz.aQute.bnd.builder' version '6.1.0'
     id 'ru.vyarus.animalsniffer' version '1.5.2'
 }
 
@@ -52,10 +52,8 @@ allprojects { proj ->
         mavenCentral()
         google()
     }
-    if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_11)) {
-        plugins.withId('java') {
-            proj.apply from: "$rootDir/gradle/errorprone.gradle"
-        }
+    plugins.withId('java') {
+        proj.apply from: "$rootDir/gradle/errorprone.gradle"
     }
     tasks.withType(JavaCompile) {
         //I don't believe those warnings add value given modern IDEs
@@ -72,8 +70,6 @@ allprojects { proj ->
     tasks.withType(AbstractArchiveTask) {
         preserveFileTimestamps = false
         reproducibleFileOrder = true
-        dirMode = Integer.parseInt("0755", 8)
-        fileMode = Integer.parseInt("0644", 8)
     }
 
     apply plugin: 'checkstyle'

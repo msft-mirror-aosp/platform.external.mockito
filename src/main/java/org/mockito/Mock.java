@@ -33,13 +33,12 @@ import org.mockito.stubbing.Answer;
  *       &#064;Mock(name = "database") private ArticleDatabase dbMock;
  *       &#064;Mock(answer = RETURNS_MOCKS) private UserProvider userProvider;
  *       &#064;Mock(extraInterfaces = {Queue.class, Observer.class}) private ArticleMonitor articleMonitor;
- *       &#064;Mock(strictness = Mock.Strictness.LENIENT) private ArticleConsumer articleConsumer;
  *       &#064;Mock(stubOnly = true) private Logger logger;
  *
  *       private ArticleManager manager;
  *
  *       &#064;Before public void setup() {
- *           manager = new ArticleManager(userProvider, database, calculator, articleMonitor, articleConsumer, logger);
+ *           manager = new ArticleManager(userProvider, database, calculator, articleMonitor, logger);
  *       }
  *   }
  *
@@ -60,6 +59,7 @@ import org.mockito.stubbing.Answer;
  * <p>
  * <strong><code>MockitoAnnotations.openMocks(this)</code></strong> method has to be called to initialize annotated objects.
  * In above example, <code>openMocks()</code> is called in &#064;Before (JUnit4) method of test's base class.
+ * For JUnit3 <code>openMocks()</code> can go to <code>setup()</code> method of a base class.
  * <strong>Instead</strong> you can also put openMocks() in your JUnit runner (&#064;RunWith) or use the built-in
  * {@link MockitoJUnitRunner}. Also, make sure to release any mocks after disposing your test class with a corresponding hook.
  * </p>
@@ -106,46 +106,10 @@ public @interface Mock {
     boolean serializable() default false;
 
     /**
-     * @deprecated Use {@link Mock#strictness()} instead.
-     *
      * Mock will be lenient, see {@link MockSettings#lenient()}.
      * For examples how to use 'Mock' annotation and parameters see {@link Mock}.
      *
      * @since 2.23.3
      */
-    @Deprecated
     boolean lenient() default false;
-
-    /**
-     * Mock will have custom strictness, see {@link MockSettings#strictness(org.mockito.quality.Strictness)}.
-     * For examples how to use 'Mock' annotation and parameters see {@link Mock}.
-     *
-     * @since 4.6.1
-     */
-    Strictness strictness() default Strictness.TEST_LEVEL_DEFAULT;
-
-    enum Strictness {
-
-        /**
-         * Default value used to indicate the mock does not override the test level strictness.
-         *
-         * @since 4.6.1
-         */
-        TEST_LEVEL_DEFAULT,
-
-        /**
-         * See {@link org.mockito.quality.Strictness#LENIENT}
-         */
-        LENIENT,
-
-        /**
-         * See {@link org.mockito.quality.Strictness#WARN}
-         */
-        WARN,
-
-        /**
-         * See {@link org.mockito.quality.Strictness#STRICT_STUBS}
-         */
-        STRICT_STUBS
-    }
 }

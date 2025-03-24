@@ -107,25 +107,18 @@ public class MockHandlerImpl<T> implements MockHandler<T> {
                 mockingProgress().reportOngoingStubbing(ongoingStubbing);
             }
         } else {
-            try {
-                Object ret = mockSettings.getDefaultAnswer().answer(invocation);
-                DefaultAnswerValidator.validateReturnValueFor(invocation, ret);
+            Object ret = mockSettings.getDefaultAnswer().answer(invocation);
+            DefaultAnswerValidator.validateReturnValueFor(invocation, ret);
 
-                return ret;
-            } finally {
-                // Mockito uses it to redo setting invocation for potential stubbing in case of
-                // partial
-                // mocks / spies.
-                // Without it, the real method inside 'when' might have delegated to other self
-                // method
-                // and overwrite the intended stubbed method with a different one.
-                // This means we would be stubbing a wrong method.
-                // Typically this would led to runtime exception that validates return type with
-                // stubbed
-                // method signature.
-                invocationContainer.resetInvocationForPotentialStubbing(invocationMatcher);
-                mockingProgress().reportOngoingStubbing(ongoingStubbing);
-            }
+            // Mockito uses it to redo setting invocation for potential stubbing in case of partial
+            // mocks / spies.
+            // Without it, the real method inside 'when' might have delegated to other self method
+            // and overwrite the intended stubbed method with a different one.
+            // This means we would be stubbing a wrong method.
+            // Typically this would led to runtime exception that validates return type with stubbed
+            // method signature.
+            invocationContainer.resetInvocationForPotentialStubbing(invocationMatcher);
+            return ret;
         }
     }
 

@@ -17,7 +17,6 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.internal.util.Supplier;
-import org.mockito.quality.Strictness;
 
 /**
  * Instantiates a mock on a field annotated by {@link Mock}
@@ -29,7 +28,6 @@ public class MockAnnotationProcessor implements FieldAnnotationProcessor<Mock> {
                 annotation, field.getType(), field::getGenericType, field.getName());
     }
 
-    @SuppressWarnings("deprecation")
     public static Object processAnnotationForMock(
             Mock annotation, Class<?> type, Supplier<Type> genericType, String name) {
         MockSettings mockSettings = Mockito.withSettings();
@@ -49,9 +47,6 @@ public class MockAnnotationProcessor implements FieldAnnotationProcessor<Mock> {
         }
         if (annotation.lenient()) {
             mockSettings.lenient();
-        }
-        if (annotation.strictness() != Mock.Strictness.TEST_LEVEL_DEFAULT) {
-            mockSettings.strictness(Strictness.valueOf(annotation.strictness().toString()));
         }
 
         // see @Mock answer default value

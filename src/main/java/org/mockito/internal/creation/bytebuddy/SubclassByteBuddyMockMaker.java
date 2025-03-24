@@ -22,7 +22,7 @@ import org.mockito.mock.MockCreationSettings;
  * the type to mock, extra interfaces, and serialization support.
  *
  * <p>
- * The type to mock has to be not final and not part of the JDK. The created mock will implement extra interfaces
+ * The type to mock has to be not final and not part of the JDK. THe created mock will implement extra interfaces
  * if any. And will implement <code>Serializable</code> if this settings is explicitly set.
  */
 public class SubclassByteBuddyMockMaker implements ClassCreatingMockMaker {
@@ -114,9 +114,8 @@ public class SubclassByteBuddyMockMaker implements ClassCreatingMockMaker {
                 join(
                         "Mockito cannot mock this class: " + mockFeatures.getTypeToMock() + ".",
                         "",
-                        "Mockito can only mock non-private & non-final classes, but the root cause of this error might be different.",
-                        "Please check the full stacktrace to understand what the issue is.",
-                        "If you're still not sure why you're getting this error, please open an issue on GitHub.",
+                        "Mockito can only mock non-private & non-final classes.",
+                        "If you're not sure why you're getting this error, please report to the mailing list.",
                         "",
                         Platform.warnForVM(
                                 "IBM J9 VM",

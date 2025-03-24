@@ -33,7 +33,6 @@ import net.bytebuddy.description.field.FieldList;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.method.MethodList;
 import net.bytebuddy.description.method.ParameterDescription;
-import net.bytebuddy.description.type.TypeDefinition;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.scaffold.MethodGraph;
 import net.bytebuddy.implementation.Implementation;
@@ -189,9 +188,7 @@ public class MockMethodAdvice extends MockMethodDispatcher {
         SoftReference<MethodGraph> reference = graphs.get(instance.getClass());
         MethodGraph methodGraph = reference == null ? null : reference.get();
         if (methodGraph == null) {
-            methodGraph =
-                    compiler.compile(
-                            (TypeDefinition) TypeDescription.ForLoadedType.of(instance.getClass()));
+            methodGraph = compiler.compile(new TypeDescription.ForLoadedType(instance.getClass()));
             graphs.put(instance.getClass(), new SoftReference<>(methodGraph));
         }
         MethodGraph.Node node =

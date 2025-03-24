@@ -30,7 +30,6 @@ public class InvocationBuilder {
     private int sequenceNumber = 0;
     private Object[] args = new Object[] {};
     private Object mock = Mockito.mock(IMethods.class);
-    private Class<?> mockClass = IMethods.class;
     private Method method;
     private boolean verified;
     private List<Class<?>> argTypes;
@@ -58,7 +57,7 @@ public class InvocationBuilder {
 
             try {
                 method =
-                        mockClass.getMethod(
+                        IMethods.class.getMethod(
                                 methodName, argTypes.toArray(new Class[argTypes.size()]));
             } catch (Exception e) {
                 throw new RuntimeException(
@@ -113,12 +112,6 @@ public class InvocationBuilder {
 
     public InvocationBuilder mock(Object mock) {
         this.mock = mock;
-        return this;
-    }
-
-    public InvocationBuilder mockClass(Class<?> mockClass) {
-        this.mockClass = mockClass;
-        this.mock = mock(mockClass);
         return this;
     }
 

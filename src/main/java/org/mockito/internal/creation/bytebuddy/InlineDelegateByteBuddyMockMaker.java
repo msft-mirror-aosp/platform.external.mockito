@@ -44,9 +44,9 @@ import static org.mockito.internal.util.StringUtil.join;
 /**
  * Agent and subclass based mock maker.
  * <p>
- * This mock maker uses a combination of the Java instrumentation API and sub-classing rather than creating
+ * This mock maker which uses a combination of the Java instrumentation API and sub-classing rather than creating
  * a new sub-class to create a mock. This way, it becomes possible to mock final types and methods. This mock
- * maker <strong>must be activated explicitly</strong> for supporting mocking final types and methods:
+ * maker <strong>must to be activated explicitly</strong> for supporting mocking final types and methods:
  * <p>
  * <p>
  * This mock maker can be activated by creating the file <code>/mockito-extensions/org.mockito.plugins.MockMaker</code>
@@ -62,7 +62,7 @@ import static org.mockito.internal.util.StringUtil.join;
  * assert mock(Foo.class).getClass() == Foo.class;
  * </pre></code>
  * <p>
- * unless any of the following conditions is met, in such case the mock maker <em>falls back</em> to
+ * unless any of the following conditions is met, in such case the mock maker <em>fall backs</em> to the
  * the creation of a subclass.
  * <p>
  * <ul>
@@ -87,7 +87,7 @@ import static org.mockito.internal.util.StringUtil.join;
  * include private types in a protected package.</li>
  * <li>Mockito can no longer mock <code>native</code> methods. Inline mocks require byte code manipulation of a
  * method where native methods do not offer any byte code to manipulate.</li>
- * <li>Mockito can no longer strip <code>synchronized</code> modifiers from mocked instances.</li>
+ * <li>Mockito cannot longer strip <code>synchronized</code> modifiers from mocked instances.</li>
  * </ul>
  * <p>
  * <p>
@@ -251,7 +251,6 @@ class InlineDelegateByteBuddyMockMaker
 
         ThreadLocal<Class<?>> currentConstruction = new ThreadLocal<>();
         ThreadLocal<Boolean> isSuspended = ThreadLocal.withInitial(() -> false);
-        Predicate<Class<?>> isCallFromSubclassConstructor = StackWalkerChecker.orFallback();
         Predicate<Class<?>> isMockConstruction =
                 type -> {
                     if (isSuspended.get()) {
@@ -261,11 +260,6 @@ class InlineDelegateByteBuddyMockMaker
                     }
                     Map<Class<?>, ?> interceptors = mockedConstruction.get();
                     if (interceptors != null && interceptors.containsKey(type)) {
-                        // We only initiate a construction mock, if the call originates from an
-                        // un-mocked (as suppression is not enabled) subclass constructor.
-                        if (isCallFromSubclassConstructor.test(type)) {
-                            return false;
-                        }
                         currentConstruction.set(type);
                         return true;
                     } else {
@@ -440,7 +434,7 @@ class InlineDelegateByteBuddyMockMaker
                 join(
                         "Mockito cannot mock this class: " + mockFeatures.getTypeToMock() + ".",
                         "",
-                        "If you're not sure why you're getting this error, please open an issue on GitHub.",
+                        "If you're not sure why you're getting this error, please report to the mailing list.",
                         "",
                         Platform.warnForVM(
                                 "IBM J9 VM",

@@ -12,22 +12,27 @@ import static net.bytebuddy.implementation.attribute.MethodAttributeAppender.For
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.hasParameters;
 import static net.bytebuddy.matcher.ElementMatchers.hasType;
+import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
+import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 import static net.bytebuddy.matcher.ElementMatchers.isEquals;
 import static net.bytebuddy.matcher.ElementMatchers.isHashCode;
 import static net.bytebuddy.matcher.ElementMatchers.isPackagePrivate;
+import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.returns;
 import static net.bytebuddy.matcher.ElementMatchers.whereAny;
 import static org.mockito.internal.util.StringUtil.join;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Random;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.modifier.SynchronizationState;
@@ -39,8 +44,6 @@ import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.attribute.MethodAttributeAppender;
 import net.bytebuddy.matcher.ElementMatcher;
-import net.bytebuddy.utility.GraalImageCode;
-import net.bytebuddy.utility.RandomString;
 import org.mockito.codegen.InjectionBase;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.internal.creation.bytebuddy.ByteBuddyCrossClassLoaderSerializationSupport.CrossClassLoaderSerializableMock;
@@ -54,6 +57,7 @@ class SubclassBytecodeGenerator implements BytecodeGenerator {
     private final SubclassLoader loader;
     private final ModuleHandler handler;
     private final ByteBuddy byteBuddy;
+    private final Random random;
     private final Implementation readReplace;
     private final ElementMatcher<? super MethodDescription> matcher;
 
@@ -83,7 +87,8 @@ class SubclassBytecodeGenerator implements BytecodeGenerator {
         this.readReplace = readReplace;
         this.matcher = matcher;
         byteBuddy = new ByteBuddy().with(TypeValidation.DISABLED);
-        handler = ModuleHandler.make(byteBuddy, loader);
+        random = new Random();
+        handler = ModuleHandler.make(byteBuddy, loader, random);
     }
 
     private static boolean needsSamePackageClassLoader(MockFeatures<?> features) {
@@ -167,8 +172,7 @@ class SubclassBytecodeGenerator implements BytecodeGenerator {
                         && features.serializableMode != SerializableMode.ACROSS_CLASSLOADERS
                         && !isComingFromJDK(features.mockedType)
                         && (loader.isDisrespectingOpenness()
-                                || handler.isOpened(features.mockedType, MockAccess.class))
-                        && !GraalImageCode.getCurrent().isDefined();
+                                || handler.isOpened(features.mockedType, MockAccess.class));
         String typeName;
         if (localMock
                 || (loader instanceof MultipleParentClassLoader
@@ -181,13 +185,7 @@ class SubclassBytecodeGenerator implements BytecodeGenerator {
                             + features.mockedType.getSimpleName();
         }
         String name =
-                String.format(
-                        "%s$%s$%s",
-                        typeName,
-                        "MockitoMock",
-                        GraalImageCode.getCurrent().isDefined()
-                                ? suffix(features)
-                                : RandomString.make());
+                String.format("%s$%s$%d", typeName, "MockitoMock", Math.abs(random.nextInt()));
 
         if (localMock) {
             handler.adjustModuleGraph(features.mockedType, MockAccess.class, false, true);
@@ -221,44 +219,17 @@ class SubclassBytecodeGenerator implements BytecodeGenerator {
                 }
             }
         }
-        // Graal requires that the byte code of classes is identical what requires that interfaces
-        // are always defined in the exact same order. Therefore, we add an interface to the
-        // interface set if not mocking a class when Graal is active.
-        @SuppressWarnings("unchecked")
-        Class<T> target =
-                GraalImageCode.getCurrent().isDefined() && features.mockedType.isInterface()
-                        ? (Class<T>) Object.class
-                        : features.mockedType;
-        // If we create a mock for an interface with additional interfaces implemented, we do not
-        // want to preserve the annotations of either interface. The caching mechanism does not
-        // consider the order of these interfaces and the same mock class might be reused for
-        // either order. Also, it does not have clean semantics as annotations are not normally
-        // preserved for interfaces in Java.
-        Annotation[] annotationsOnType;
-        if (features.stripAnnotations) {
-            annotationsOnType = new Annotation[0];
-        } else if (!features.mockedType.isInterface() || features.interfaces.isEmpty()) {
-            annotationsOnType = features.mockedType.getAnnotations();
-        } else {
-            annotationsOnType = new Annotation[0];
-        }
+
         DynamicType.Builder<T> builder =
                 byteBuddy
-                        .subclass(target)
+                        .subclass(features.mockedType)
                         .name(name)
-                        .ignoreAlso(BytecodeGenerator.isGroovyMethod(false))
-                        .annotateType(annotationsOnType)
-                        .implement(
-                                new ArrayList<>(
-                                        GraalImageCode.getCurrent().isDefined()
-                                                ? sortedSerializable(
-                                                        features.interfaces,
-                                                        GraalImageCode.getCurrent().isDefined()
-                                                                        && features.mockedType
-                                                                                .isInterface()
-                                                                ? features.mockedType
-                                                                : void.class)
-                                                : features.interfaces))
+                        .ignoreAlso(isGroovyMethod())
+                        .annotateType(
+                                features.stripAnnotations
+                                        ? new Annotation[0]
+                                        : features.mockedType.getAnnotations())
+                        .implement(new ArrayList<Type>(features.interfaces))
                         .method(matcher)
                         .intercept(dispatcher)
                         .transform(withModifiers(SynchronizationState.PLAIN))
@@ -300,31 +271,6 @@ class SubclassBytecodeGenerator implements BytecodeGenerator {
                 .getLoaded();
     }
 
-    private static CharSequence suffix(MockFeatures<?> features) {
-        // Constructs a deterministic suffix for this mock to assure that mocks always carry the
-        // same name.
-        StringBuilder sb = new StringBuilder();
-        Set<String> names = new TreeSet<>();
-        names.add(features.mockedType.getName());
-        for (Class<?> type : features.interfaces) {
-            names.add(type.getName());
-        }
-        return sb.append(RandomString.hashOf(names.hashCode()))
-                .append(RandomString.hashOf(features.serializableMode.name().hashCode()))
-                .append(features.stripAnnotations ? "S" : "N");
-    }
-
-    private static Collection<? extends Type> sortedSerializable(
-            Collection<Class<?>> interfaces, Class<?> mockedType) {
-        SortedSet<Class<?>> types = new TreeSet<>(Comparator.comparing(Class::getName));
-        types.addAll(interfaces);
-        if (mockedType != void.class) {
-            types.add(mockedType);
-        }
-        types.add(Serializable.class);
-        return types;
-    }
-
     @Override
     public void mockClassStatic(Class<?> type) {
         throw new MockitoException("The subclass byte code generator cannot create static mocks");
@@ -334,6 +280,22 @@ class SubclassBytecodeGenerator implements BytecodeGenerator {
     public void mockClassConstruction(Class<?> type) {
         throw new MockitoException(
                 "The subclass byte code generator cannot create construction mocks");
+    }
+
+    private <T> Collection<Class<? super T>> getAllTypes(Class<T> type) {
+        Collection<Class<? super T>> supertypes = new LinkedList<>();
+        supertypes.add(type);
+        Class<? super T> superType = type;
+        while (superType != null) {
+            supertypes.add(superType);
+            superType = superType.getSuperclass();
+        }
+        return supertypes;
+    }
+
+    private static ElementMatcher<MethodDescription> isGroovyMethod() {
+        return isDeclaredBy(named("groovy.lang.GroovyObjectSupport"))
+                .or(isAnnotatedWith(named("groovy.transform.Internal")));
     }
 
     private boolean isComingFromJDK(Class<?> type) {

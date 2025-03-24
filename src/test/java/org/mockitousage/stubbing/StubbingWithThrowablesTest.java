@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.exceptions.base.MockitoException;
@@ -249,34 +248,34 @@ public class StubbingWithThrowablesTest extends TestBase {
                 .hasMessageContaining("Cannot stub with null throwable");
     }
 
-    private void assertExceptionTypeCanNotBeNull(ThrowingCallable throwingCallable) {
-        assertThatThrownBy(throwingCallable)
+    @Test
+    public void shouldNotAllowSettingNullThrowableClass() {
+        assertThatThrownBy(
+                        () -> {
+                            when(mock.isEmpty()).thenThrow((Class) null);
+                        })
                 .isInstanceOf(MockitoException.class)
                 .hasMessageContaining("Exception type cannot be null");
     }
 
     @Test
-    public void shouldNotAllowSettingNullThrowableClass() {
-        assertExceptionTypeCanNotBeNull(
-                () -> {
-                    when(mock.isEmpty()).thenThrow((Class) null);
-                });
-    }
-
-    @Test
     public void shouldNotAllowSettingNullThrowableClasses() {
-        assertExceptionTypeCanNotBeNull(
-                () -> {
-                    when(mock.isEmpty()).thenThrow(RuntimeException.class, (Class[]) null);
-                });
+        assertThatThrownBy(
+                        () -> {
+                            when(mock.isEmpty()).thenThrow(RuntimeException.class, (Class[]) null);
+                        })
+                .isInstanceOf(MockitoException.class)
+                .hasMessageContaining("Exception type cannot be null");
     }
 
     @Test
     public void shouldNotAllowSettingNullVarArgThrowableClass() {
-        assertExceptionTypeCanNotBeNull(
-                () -> {
-                    when(mock.isEmpty()).thenThrow(RuntimeException.class, (Class) null);
-                });
+        assertThatThrownBy(
+                        () -> {
+                            when(mock.isEmpty()).thenThrow(RuntimeException.class, (Class) null);
+                        })
+                .isInstanceOf(MockitoException.class)
+                .hasMessageContaining("Exception type cannot be null");
     }
 
     @Test

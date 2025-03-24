@@ -4,6 +4,13 @@
  */
 package org.mockito.internal.creation.bytebuddy;
 
+import static net.bytebuddy.matcher.ElementMatchers.isTypeInitializer;
+import static org.mockito.internal.util.StringUtil.join;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Random;
+
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.description.modifier.Ownership;
 import net.bytebuddy.description.modifier.Visibility;
@@ -11,17 +18,8 @@ import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
 import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.MethodCall;
 import net.bytebuddy.implementation.StubMethod;
-import net.bytebuddy.utility.GraalImageCode;
-import net.bytebuddy.utility.RandomString;
-import org.mockito.Mockito;
 import org.mockito.codegen.InjectionBase;
 import org.mockito.exceptions.base.MockitoException;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
-import static net.bytebuddy.matcher.ElementMatchers.isTypeInitializer;
-import static org.mockito.internal.util.StringUtil.join;
 
 abstract class ModuleHandler {
 
@@ -37,9 +35,9 @@ abstract class ModuleHandler {
 
     abstract void adjustModuleGraph(Class<?> source, Class<?> target, boolean export, boolean read);
 
-    static ModuleHandler make(ByteBuddy byteBuddy, SubclassLoader loader) {
+    static ModuleHandler make(ByteBuddy byteBuddy, SubclassLoader loader, Random random) {
         try {
-            return new ModuleSystemFound(byteBuddy, loader);
+            return new ModuleSystemFound(byteBuddy, loader, random);
         } catch (Exception ignored) {
             return new NoModuleSystemFound();
         }
@@ -49,6 +47,7 @@ abstract class ModuleHandler {
 
         private final ByteBuddy byteBuddy;
         private final SubclassLoader loader;
+        private final Random random;
 
         private final int injectonBaseSuffix;
 
@@ -59,15 +58,15 @@ abstract class ModuleHandler {
                 canRead,
                 addExports,
                 addReads,
+                addOpens,
                 forName;
 
-        private ModuleSystemFound(ByteBuddy byteBuddy, SubclassLoader loader) throws Exception {
+        private ModuleSystemFound(ByteBuddy byteBuddy, SubclassLoader loader, Random random)
+                throws Exception {
             this.byteBuddy = byteBuddy;
             this.loader = loader;
-            injectonBaseSuffix =
-                    GraalImageCode.getCurrent().isDefined()
-                            ? 0
-                            : Math.abs(Mockito.class.hashCode());
+            this.random = random;
+            injectonBaseSuffix = Math.abs(random.nextInt());
             Class<?> moduleType = Class.forName("java.lang.Module");
             getModule = Class.class.getMethod("getModule");
             isOpen = moduleType.getMethod("isOpen", String.class, moduleType);
@@ -76,6 +75,7 @@ abstract class ModuleHandler {
             canRead = moduleType.getMethod("canRead", moduleType);
             addExports = moduleType.getMethod("addExports", String.class, moduleType);
             addReads = moduleType.getMethod("addReads", moduleType);
+            addOpens = moduleType.getMethod("addOpens", String.class, moduleType);
             forName = Class.class.getMethod("forName", String.class);
         }
 
@@ -207,12 +207,9 @@ abstract class ModuleHandler {
                                             ConstructorStrategy.Default.NO_CONSTRUCTORS)
                                     .name(
                                             String.format(
-                                                    "%s$%s%s",
+                                                    "%s$%d",
                                                     "org.mockito.codegen.MockitoTypeCarrier",
-                                                    RandomString.hashOf(
-                                                            source.getName().hashCode()),
-                                                    RandomString.hashOf(
-                                                            target.getName().hashCode())))
+                                                    Math.abs(random.nextInt())))
                                     .defineField(
                                             "mockitoType",
                                             Class.class,
@@ -265,11 +262,10 @@ abstract class ModuleHandler {
                                 .subclass(Object.class)
                                 .name(
                                         String.format(
-                                                "%s$%s$%s%s",
+                                                "%s$%s$%d",
                                                 source.getName(),
                                                 "MockitoModuleProbe",
-                                                RandomString.hashOf(source.getName().hashCode()),
-                                                RandomString.hashOf(target.getName().hashCode())))
+                                                Math.abs(random.nextInt())))
                                 .invokable(isTypeInitializer())
                                 .intercept(implementation)
                                 .make()

@@ -65,6 +65,7 @@ public enum Strictness {
      * Ensures clean tests, reduces test code duplication, improves debuggability.
      * Offers best combination of flexibility and productivity.
      * Highly recommended.
+     * Planned as default for Mockito v4.
      * Enable it via our JUnit support ({@link MockitoJUnit}) or {@link MockitoSession}.
      * <p>
      * Adds following behavior:

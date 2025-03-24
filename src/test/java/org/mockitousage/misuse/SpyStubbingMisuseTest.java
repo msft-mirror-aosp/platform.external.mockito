@@ -2,14 +2,16 @@
  * Copyright (c) 2007 Mockito contributors
  * This program is made available under the terms of the MIT License.
  */
-package org.mockitousage.spies;
+package org.mockitousage.misuse;
 
-import static org.junit.Assert.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;
+import org.mockito.exceptions.misusing.WrongTypeOfReturnValue;
 
-public class SpyAsDefaultMockUsageTest {
+public class SpyStubbingMisuseTest {
 
     @Test
     public void nestedWhenTest() {
@@ -17,8 +19,15 @@ public class SpyAsDefaultMockUsageTest {
         Sampler mpoo = mock(Sampler.class);
         Producer out = spy(new Producer(mfoo));
 
-        when(out.produce()).thenReturn(mpoo);
-        assertSame(mpoo, out.produce());
+        try {
+            when(out.produce()).thenReturn(mpoo);
+            fail();
+        } catch (WrongTypeOfReturnValue e) {
+            assertThat(e.getMessage())
+                    .contains("spy")
+                    .contains("syntax")
+                    .contains("doReturn|Throw");
+        }
     }
 
     public class Sample {}

@@ -9,8 +9,9 @@ import static org.mockito.internal.util.ObjectMethodsGuru.isToStringMethod;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.mockito.internal.util.collections.ListUtil;
+import org.mockito.internal.util.collections.ListUtil.Filter;
 import org.mockito.invocation.Invocation;
 
 public class DefaultRegisteredInvocations implements RegisteredInvocations, Serializable {
@@ -43,9 +44,7 @@ public class DefaultRegisteredInvocations implements RegisteredInvocations, Seri
             copiedList = new LinkedList<>(invocations);
         }
 
-        return copiedList.stream()
-                .filter(invocation -> !isToStringMethod(invocation.getMethod()))
-                .collect(Collectors.toList());
+        return ListUtil.filter(copiedList, new RemoveToString());
     }
 
     @Override
@@ -59,6 +58,13 @@ public class DefaultRegisteredInvocations implements RegisteredInvocations, Seri
     public boolean isEmpty() {
         synchronized (invocations) {
             return invocations.isEmpty();
+        }
+    }
+
+    private static class RemoveToString implements Filter<Invocation> {
+        @Override
+        public boolean isOut(Invocation invocation) {
+            return isToStringMethod(invocation.getMethod());
         }
     }
 }

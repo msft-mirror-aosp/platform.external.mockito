@@ -18,7 +18,6 @@ import org.mockito.listeners.VerificationStartedListener;
 import org.mockito.mock.MockCreationSettings;
 import org.mockito.mock.MockName;
 import org.mockito.mock.SerializableMode;
-import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
 public class CreationSettings<T> implements MockCreationSettings<T>, Serializable {
@@ -45,7 +44,7 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
     private boolean useConstructor;
     private Object outerClassInstance;
     private Object[] constructorArgs;
-    protected Strictness strictness = null;
+    protected boolean lenient;
 
     public CreationSettings() {}
 
@@ -66,7 +65,7 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
         this.useConstructor = copy.isUsingConstructor();
         this.outerClassInstance = copy.getOuterClassInstance();
         this.constructorArgs = copy.getConstructorArgs();
-        this.strictness = copy.strictness;
+        this.lenient = copy.lenient;
         this.stripAnnotations = copy.stripAnnotations;
     }
 
@@ -171,11 +170,6 @@ public class CreationSettings<T> implements MockCreationSettings<T>, Serializabl
 
     @Override
     public boolean isLenient() {
-        return strictness == Strictness.LENIENT;
-    }
-
-    @Override
-    public Strictness getStrictness() {
-        return strictness;
+        return lenient;
     }
 }
